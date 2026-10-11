@@ -98,7 +98,7 @@ in a speech bubble over his head.
 index.html            page, HUD, touch controls, importmap for Three.js
 src/game.js           the whole game: world, player, physics, enemies, audio
 public/models/cam.glb rigged + animated Cam (Idle / Run / Jump)
-public/audio/         shutup_1..4.mp3, music_overworld.m4a, coin.mp3, stomp.mp3
+public/audio/         shutup_1..4.mp3, music_overworld.mp3, coin.mp3, stomp.mp3
 public/art/           avatar renders, key art, world style sheet
 ```
 

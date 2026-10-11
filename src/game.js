@@ -25,7 +25,7 @@ const CFG = {
     woohoo: ['./public/audio/woohoo.mp3'],
   },
   lineText: { shutup: 'SHUT UP!', yay: 'YAY!', ooh: 'OOH!', ohyeah: 'OH YEAH!', ohno: 'OH NO!', woohoo: 'WOO HOO!' },
-  musicUrl: './public/audio/music_overworld.m4a',
+  musicUrl: './public/audio/music_overworld.mp3',
   coinSfx: './public/audio/coin.mp3',
   stompSfx: './public/audio/stomp.mp3',
   worldSize: 240,
