@@ -261,7 +261,12 @@ export function buildMaterials() {
   MAT.gold = std({ color: 0xd9a21b, metalness: 0.6, roughness: 0.35 });
   MAT.eye = std({ color: 0x111111, roughness: 0.4 });
   MAT.pole = std({ color: 0xdddddd, metalness: 0.7, roughness: 0.3 });
-  MAT.net = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.3 });
+  { // goal net: a real mesh texture (white cord grid with holes) instead of a wireframe box
+    const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.clearRect(0, 0, 128, 128); g.strokeStyle = '#f4f4f4'; g.lineWidth = 5;
+    for (let i = 0; i <= 128; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 128); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(128, i); g.stroke(); }
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; TEX.net = t;
+    MAT.net = new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.9, depthWrite: false });
+  }
   MAT.rail = std({ color: 0x7c7f86, metalness: 0.8, roughness: 0.4 });
   MAT.ballast = std({ color: 0x8b8578, roughness: 1 });
   MAT.botDark = std({ color: 0x2b2f36, roughness: 0.6, metalness: 0.5 });

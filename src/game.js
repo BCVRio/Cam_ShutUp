@@ -2,7 +2,7 @@
 import { THREE, CFG, IS_TOUCH, $, player, renderer, scene, camera, applyQuality, applyViewport, initAudio, unlockAudio, buildMaterials, say, shutUp, synth, showToast, feed, addScore, bus, urlParams, toggleMusic, TEX, Q, render, initLighting, loadEnvironment, initPost, setupObject, loadTexture } from './core.js';
 import { loadWorld, buildWorld, nearestWorld, groundAt, world, buildGrass, updateGrass } from './map.js';
 import { buildArenas, updateFootball, kickBallToMe, activeArena, arenas, arenaSpawn } from './football.js';
-import { bindInput, readInput, updatePlayer, updateCamera, loadOutfit, teleport, toggleEmote, input, cam, keys } from './player.js';
+import { bindInput, readInput, updatePlayer, updateCamera, loadOutfit, teleport, toggleEmote, input, cam, keys, pollPad, pad } from './player.js';
 import { locker, outfitDef, updateAccessories } from './locker.js';
 import { initUI, ui, openMenu, closeMenu, setLocation, updateMinimap, goFullscreen } from './ui.js';
 
@@ -38,6 +38,7 @@ function frame() {
   const dt = FAST ? 1 / 30 : Math.min(real, 0.05);
   const t = FAST ? (simT += dt) : clock.elapsedTime;
   frames++;
+  pollPad(ui.open || !started);
   if (started && !ui.open) {
     for (let s = 0; s < STEPS; s++) { if (s) { simT += dt; } readInput(); updatePlayer(dt); updateFootball(dt, FAST ? simT : t, input); }
     updateMinimap(dt);
@@ -90,6 +91,7 @@ async function main() {
     if (code === 'KeyB') kickBallToMe();
     if (code === 'KeyL') { openMenu('pause'); document.querySelector('[data-tab="locker"]').click(); }
     if (code === 'KeyT') { openMenu('pause'); document.querySelector('[data-tab="worlds"]').click(); }
+    if (code === 'KeyN') { openMenu('pause'); document.querySelector('[data-tab="map"]').click(); }
   } });
   ui.onPlay = () => dropAt(CFG.worlds[0]);
   ui.onWorld = (w) => dropAt(w);
@@ -100,6 +102,6 @@ async function main() {
   $('playBtn').disabled = false;
   if (urlParams.has('at')) { const [ax, az] = urlParams.get('at').split(',').map(Number); teleport(ax, az); }
   if (urlParams.has('autoplay')) { const id = urlParams.get('autoplay'); dropAt(CFG.worlds.find((w) => w.id === id) || CFG.worlds[0]); }
-  window.__cam = { THREE, player, keys, cam, arenas, world, ui, locker, input, renderer, scene, teleport, dropAt, openMenu, closeMenu, get frames() { return frames; }, get simT() { return simT; } };
+  window.__cam = { THREE, pad, player, keys, cam, arenas, world, ui, locker, input, renderer, scene, teleport, dropAt, openMenu, closeMenu, get frames() { return frames; }, get simT() { return simT; } };
 }
 main();

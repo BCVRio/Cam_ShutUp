@@ -173,6 +173,7 @@ function buildRoads(d) {
   for (const r of d.roads) {
     if (r.p.length < 2) continue;
     if (r.k === 'steps') continue;
+    if (r.p.every(([x, z]) => inStadium(x, z, 4))) continue;
     if (r.w <= 2) { foot.push(ribbon(r.p, 2.2, 0.05, 3)); continue; }
     roads.push(ribbon(r.p, r.w, 0.06, 5));
     paves.push(ribbon(r.p, r.w + 3.2, 0.04, 2));
@@ -215,6 +216,7 @@ function buildBuildings(d) {
   const tint = new THREE.Color();
   for (const b of d.buildings) {
     const p = b.p; if (p.length < 3) continue;
+    if (anyIn(p, 6)) continue;
     let minY = 1e9; for (const [x, z] of p) minY = Math.min(minY, terrainHeight(x, z));
     const base = minY - 2.5, top = minY + b.h;
     const matKey = b.k === 'flats' ? 'flats' : b.k === 'terrace' || b.k === 'commercial' ? 'terrace' : b.k === 'church' ? 'stone' : b.k === 'school' || b.k === 'civic' ? 'brick' : b.k === 'shed' ? 'concrete' : 'concrete';
@@ -272,6 +274,7 @@ function buildFences(d) {
   const metal = [], walls = [], hedges = [], posts = [];
   for (const f of d.fences) {
     if (f.p.length < 2) continue;
+    if (anyIn(f.p, 4)) continue;
     const h = clamp(f.h || 1.8, 0.6, 3.5);
     for (let i = 0; i < f.p.length - 1; i++) {
       const [ax, az] = f.p[i], [bx, bz] = f.p[i + 1]; const ay = terrainHeight(ax, az), by = terrainHeight(bx, bz);
@@ -367,7 +370,7 @@ function buildTrees(d) {
     let minx = 1e9, minz = 1e9, maxx = -1e9, maxz = -1e9; for (const [x, z] of a.p) { minx = Math.min(minx, x); maxx = Math.max(maxx, x); minz = Math.min(minz, z); maxz = Math.max(maxz, z); }
     for (let i = 0, tries = 0; i < n && tries < n * 6; tries++) { const x = minx + rnd() * (maxx - minx), z = minz + rnd() * (maxz - minz); if (pointInPoly(x, z, a.p) && surfaceAt(x, z) !== SURF.astro && surfaceAt(x, z) !== SURF.court) { extra.push([x, z]); i++; } }
   }
-  const all = d.trees.concat(extra);
+  const all = d.trees.concat(extra).filter(([x, z]) => !inStadium(x, z, 6));
   const trunkGeo = new THREE.CylinderGeometry(0.22, 0.34, 1, Q() ? 9 : 7); trunkGeo.translate(0, 0.5, 0);
   const canopyGeo = new THREE.IcosahedronGeometry(1, Q() ? 2 : 0);
   if (Q()) { // roughen the canopy silhouette so it reads as foliage, not a ball
@@ -440,6 +443,7 @@ function buildSigns(d) {
   }
 }
 function buildLamps() {
+  world.lamps = world.lamps.filter(([x, z]) => !inStadium(x, z, 6));
   const n = world.lamps.length; if (!n) return;
   const poleGeo = new THREE.CylinderGeometry(0.06, 0.09, 6, 6); poleGeo.translate(0, 3, 0);
   const headGeo = new THREE.BoxGeometry(0.5, 0.18, 0.3); headGeo.translate(0.2, 6, 0);
@@ -463,8 +467,29 @@ export async function loadWorld() {
   for (const p of d.pitches) { if (p.k === 'playground') continue; rasterPoly(p.p, (p.surface === 'artificial_turf' || p.sport === 'soccer' || p.sport === 'football') ? SURF.astro : SURF.court); }
   return d;
 }
+// The Bosco FC stadium footprint: a full-size pitch on the real school pitch, with a two-tier bowl around it.
+// Everything the bowl sits on (houses, trees, fences, lamps) is left out of the world build.
+export const STADIUM = { len: 84, wid: 54, bowl: 40 };
+export function stadiumRect() {
+  if (world.stadium) return world.stadium;
+  const w = CFG.worlds.find((q) => q.id === 'stadium');
+  const pitch = findPitch(w.x, w.z, 80, (p) => p.sport === 'soccer' || p.sport === 'football');
+  const r = pitch ? pitchRect(pitch.p) : { x: w.x, z: w.z, ang: 0 };
+  world.stadium = { x: r.x, z: r.z, ang: r.ang, len: STADIUM.len, wid: STADIUM.wid };
+  return world.stadium;
+}
+export function inStadium(x, z, pad = 0) {
+  const s = world.stadium; if (!s) return false;
+  const dx = x - s.x, dz = z - s.z, ca = Math.cos(-s.ang), sa = Math.sin(-s.ang);
+  const u = dx * ca - dz * sa, v = dx * sa + dz * ca;
+  return Math.abs(u) < s.len / 2 + STADIUM.bowl + pad && Math.abs(v) < s.wid / 2 + STADIUM.bowl + pad;
+}
+const anyIn = (p, pad = 0) => p.some(([x, z]) => inStadium(x, z, pad));
 export function buildWorld() {
   const d = world.data;
+  stadiumRect();
+  // the stadium apron reads as hard standing on the terrain and the minimap
+  { const s = world.stadium; const R = Math.hypot(s.len / 2 + STADIUM.bowl + 6, s.wid / 2 + STADIUM.bowl + 6); for (let z = s.z - R; z <= s.z + R; z += RASTER) for (let x = s.x - R; x <= s.x + R; x += RASTER) if (inStadium(x, z, 6)) { const i = rasterIndex(x, z); if (i >= 0) raster[i] = inStadium(x, z, 6 - STADIUM.bowl) ? SURF.astro : SURF.court; } }
   buildTerrain(); buildAreas(d); buildRoads(d); buildRail(d); buildBuildings(d); buildFences(d); buildTrees(d); buildSigns(d); buildLamps();
 }
 export function findPitch(x, z, maxDist = 60, pred = null) {

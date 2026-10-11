@@ -28,7 +28,8 @@ The page loads Three.js from jsDelivr and every asset from `public/`.
 | drag the mouse / `Q` `X` | look around |
 | `M` | music on/off |
 | `Esc` | menu |
-| touch | left stick (push far to run), KICK (hold to charge), JUMP, BALL, EMOTE, drag to look |
+| touch | left stick (push far to run), Xbox-style buttons: A jump, X kick (hold to charge), B ball, Y emote, drag to look |
+| Xbox controller | left stick move, right stick look, A jump, X kick (hold), B ball, Y emote, RB/RT run, LT wide camera, Menu pauses, View opens the map |
 
 ## The four worlds
 
@@ -37,9 +38,11 @@ Telegraph Hill). Walk, or pick a world from the menu to drop straight in.
 
 - **Nunhead** — Nunhead Green, the station, Evelina Road, the terraces. Knock
   down the target boards on the green.
-- **Bosco FC Stadium** — stands, floodlights, advert boards and a crest built
-  around the real pitch at St Thomas the Apostle College. A 3-minute match,
-  Bosco FC v Nunhead Rovers, with keepers and outfield bots.
+- **Bosco FC Stadium** — a full-size pitch on the site of the real pitch at St
+  Thomas the Apostle College, wrapped in a two-tier all-seater bowl in the
+  Emirates / Camp Nou mould: executive boxes between the tiers, a cantilever
+  roof ring with floodlights, big screens behind both goals, a crowd on every
+  row. A 3-minute match, Bosco FC v Nunhead Rovers, with keepers and outfield bots.
 - **The Cage** — the fenced court at Edmund Waller School on Telegraph Hill.
   A 90-second cage match.
 - **Dr Harold Moody Park** — a free kickabout with a keeper on the park.

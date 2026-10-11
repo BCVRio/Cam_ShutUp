@@ -58,7 +58,42 @@ export async function loadOutfit(def, status) {
 // Input
 // ---------------------------------------------------------------------------
 let kickDown = false, kickWasDown = false;
+// Xbox controller (standard mapping): left stick move, right stick look, A jump, X kick (hold to charge), B ball, Y emote, RB/RT run, Menu = menu, View = map
+export const pad = { on: false, id: '', ix: 0, iz: 0, jump: false, kick: false, run: false, prev: [], buttons: [] };
+let padHandlers = null;
+const PAD_KEYS = { 1: 'KeyB', 3: 'KeyG', 9: 'Escape', 8: 'KeyN' };
+export function pollPad(uiOpen) {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : []; let gp = null;
+  for (const p of pads) if (p && p.connected && p.mapping === 'standard') { gp = p; break; }
+  if (!gp) for (const p of pads) if (p && p.connected) { gp = p; break; }
+  pad.ix = pad.iz = 0; pad.jump = pad.kick = pad.run = false;
+  if (!gp) { pad.buttons = []; return; }
+  const b = gp.buttons.map((x) => x.pressed || x.value > 0.5); const ax = gp.axes;
+  const pressed = (i) => b[i] && !pad.prev[i];
+  if (!pad.on && (b.some(Boolean) || ax.some((v) => Math.abs(v) > 0.4))) { pad.on = true; pad.id = gp.id; document.body.classList.add('pad'); showToast('XBOX CONTROLLER READY', 1400); }
+  if (pad.on) {
+    if (uiOpen) {
+      // menu: A = Play/Resume, B = back to the game, bumpers switch tabs
+      if (pressed(0)) { const play = $('playBtn'), res = $('resumeBtn'); if (play && !play.hidden && !play.disabled) play.click(); else if (res && !res.hidden) res.click(); }
+      if (pressed(1) && padHandlers && padHandlers.key) padHandlers.key('Escape');
+      if (pressed(4) || pressed(5) || pressed(14) || pressed(15)) { const tabs = [...document.querySelectorAll('[data-tab]')]; const cur = Math.max(0, tabs.findIndex((t) => t.classList.contains('on'))); const nx = tabs[(cur + ((pressed(5) || pressed(15)) ? 1 : tabs.length - 1)) % tabs.length]; if (nx) nx.click(); }
+    } else {
+      const dz = (v) => (Math.abs(v) < 0.16 ? 0 : (v - Math.sign(v) * 0.16) / 0.84);
+      pad.ix = dz(ax[0] || 0); pad.iz = dz(ax[1] || 0);
+      if (b[14]) pad.ix -= 1; if (b[15]) pad.ix += 1; if (b[12]) pad.iz -= 1; if (b[13]) pad.iz += 1;
+      const lx = dz(ax[2] || 0), ly = dz(ax[3] || 0);
+      cam.yaw -= lx * 0.055; cam.pitch = clamp(cam.pitch + ly * 0.03, -0.2, 1.1);
+      pad.jump = b[0]; pad.kick = b[2]; pad.run = b[5] || b[7] || b[4] || Math.hypot(pad.ix, pad.iz) > 0.9;
+      for (const [i, code] of Object.entries(PAD_KEYS)) if (pressed(+i) && padHandlers && padHandlers.key) padHandlers.key(code);
+      if (pressed(6)) cam.dist = cam.dist > 6 ? 4.5 : 8;   // LT toggles a wider camera
+    }
+  }
+  pad.prev = b; pad.buttons = b;
+}
 export function bindInput(handlers) {
+  padHandlers = handlers;
+  window.addEventListener('gamepadconnected', (e) => { pad.on = true; pad.id = e.gamepad.id; document.body.classList.add('pad'); showToast('XBOX CONTROLLER READY', 1400); });
+  window.addEventListener('gamepaddisconnected', () => { pad.on = false; document.body.classList.remove('pad'); });
   window.addEventListener('keydown', (e) => {
     if (e.target && ['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
     if (['Space', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.code)) e.preventDefault();
@@ -108,12 +143,13 @@ export function readInput() {
   let ix = 0, iz = 0;
   if (keys.has('KeyW') || keys.has('ArrowUp')) iz -= 1; if (keys.has('KeyS') || keys.has('ArrowDown')) iz += 1; if (keys.has('KeyA') || keys.has('ArrowLeft')) ix -= 1; if (keys.has('KeyD') || keys.has('ArrowRight')) ix += 1;
   if (t && t.active) { ix += t.dx; iz += t.dy; }
+  ix += pad.ix; iz += pad.iz;
   const len = Math.hypot(ix, iz); if (len > 1) { ix /= len; iz /= len; }
   input.ix = ix; input.iz = iz; input.strafe = ix;
-  input.run = keys.has('ShiftLeft') || keys.has('ShiftRight') || (t && t.active && len > 0.75);
-  const jump = keys.has('Space') || (tb && tb.jump);
+  input.run = keys.has('ShiftLeft') || keys.has('ShiftRight') || (t && t.active && len > 0.75) || pad.run;
+  const jump = keys.has('Space') || (tb && tb.jump) || pad.jump;
   input.jumpPressed = jump && !input.jumpHeld; input.jumpHeld = jump;
-  const kick = keys.has('KeyF') || keys.has('KeyE') || kickDown || (tb && tb.kick);
+  const kick = keys.has('KeyF') || keys.has('KeyE') || kickDown || (tb && tb.kick) || pad.kick;
   input.kickReleased = kickWasDown && !kick; input.kickHeld = kick; kickWasDown = kick;
   if (keys.has('KeyQ')) cam.yaw += 0.04; if (keys.has('KeyX')) cam.yaw -= 0.04;
   input.camFx = -Math.sin(cam.yaw); input.camFz = -Math.cos(cam.yaw);
