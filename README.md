@@ -31,6 +31,32 @@ Collect coins (25 coins = 1-UP), bonk `?` blocks from below, stomp the
 mushroom goombas from above, find the flag by the castle for a course clear.
 Touching a goomba from the side costs a life.
 
+### On a phone
+
+The game is built for touch first: a big left thumb-stick (push far to run),
+a JUMP button on the right, and dragging anywhere else on the screen turns
+the camera. Pressing PLAY goes fullscreen and asks for landscape; portrait
+works too with a wider camera. Add it to the Home Screen (iOS Safari share
+menu or Android "Install") for a chromeless, app-like launch. Phones get a
+lighter renderer: capped pixel ratio, smaller shadow map, fewer trees and
+shorter draw distance. Safe-area insets keep the HUD clear of the notch.
+
+### What Cam says
+
+| Event | Line |
+| --- | --- |
+| start moving, every 1.4 s while moving, every jump | **"Shut up!"** (his real takes from the video) |
+| coin | "Yay!" |
+| stomp a goomba, bonk a `?` block | "Oh yeah!" |
+| bonk a brick, get hurt | "Ooh!" |
+| fall in the pond, game over | "Oh no!" |
+| 1-UP, course clear | "Woo hoo!" |
+
+The "shut up" lines are the four real takes from the video. The other lines
+were generated with Higgsfield's `seed_audio` model using the video audio as
+the voice reference, then trimmed and normalised. Every line is also shown
+in a speech bubble over his head.
+
 ## How Cam was made (Higgsfield pipeline)
 
 1. **Reference** – frames were pulled from `IMG_9007.mov` (Cam shouting "shut
@@ -47,7 +73,9 @@ Touching a goomba from the side costs a life.
    `Jump`).
 4. **Voice** – the four on-camera "shut up" takes were cut from the video
    audio and peak-normalised: `public/audio/shutup_1..4.mp3`. The game cycles
-   through them with a little pitch variation.
+   through them with a little pitch variation. Extra reactions ("Yay!",
+   "Ooh!", "Oh yeah!", "Oh no!", "Woo hoo!") were cloned from the same clip
+   with `seed_audio` (audio reference = the video's audio track).
 5. **World style** – key art and an environment style sheet
    (`public/art/world_style.png`) set the look; the in-game world is built
    procedurally from that palette.

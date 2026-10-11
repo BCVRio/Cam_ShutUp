@@ -1,5 +1,5 @@
 // Cam's Shut Up World — a Mario-style 3D open-world platformer starring Cam.
-// Three.js, no build step. Assets live in /public.
+// Three.js, no build step. Assets live in /public. Designed for phones first.
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -7,16 +7,23 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
+const IS_TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+if (IS_TOUCH) document.body.classList.add('touch');
+
 const CFG = {
   modelUrl: './public/models/cam.glb',
   modelHeight: 1.4,          // Cam is ~1.4 units tall in-game
   modelYawOffset: 0,         // rotate if the GLB faces the wrong way
-  voiceClips: [
-    './public/audio/shutup_1.mp3',
-    './public/audio/shutup_2.mp3',
-    './public/audio/shutup_3.mp3',
-    './public/audio/shutup_4.mp3',
-  ],
+  // Voice lines. "shutup" = the real takes from the video; the others are cloned from his voice.
+  lines: {
+    shutup: ['./public/audio/shutup_1.mp3', './public/audio/shutup_2.mp3', './public/audio/shutup_3.mp3', './public/audio/shutup_4.mp3'],
+    yay: ['./public/audio/yay.mp3'],
+    ooh: ['./public/audio/ooh.mp3'],
+    ohyeah: ['./public/audio/ohyeah.mp3'],
+    ohno: ['./public/audio/ohno.mp3'],
+    woohoo: ['./public/audio/woohoo.mp3'],
+  },
+  lineText: { shutup: 'SHUT UP!', yay: 'YAY!', ooh: 'OOH!', ohyeah: 'OH YEAH!', ohno: 'OH NO!', woohoo: 'WOO HOO!' },
   musicUrl: './public/audio/music_overworld.m4a',
   coinSfx: './public/audio/coin.mp3',
   stompSfx: './public/audio/stomp.mp3',
@@ -26,6 +33,13 @@ const CFG = {
   runSpeed: 10.5,
   jumpSpeed: 10.5,
   runShoutEvery: 1.4,        // seconds between "shut up"s while moving
+  // mobile performance
+  pixelRatio: IS_TOUCH ? Math.min(window.devicePixelRatio || 1, 1.5) : Math.min(window.devicePixelRatio || 1, 2),
+  shadowSize: IS_TOUCH ? 1024 : 2048,
+  treeCount: IS_TOUCH ? 70 : 110,
+  cloudCount: IS_TOUCH ? 16 : 26,
+  fogNear: IS_TOUCH ? 55 : 70,
+  fogFar: IS_TOUCH ? 150 : 190,
 };
 
 // ---------------------------------------------------------------------------
@@ -46,74 +60,98 @@ function showToast(text, ms = 1600) {
 }
 
 // ---------------------------------------------------------------------------
-// Audio
+// Audio — Web Audio for voice/SFX (low latency on phones), <audio> for music
 // ---------------------------------------------------------------------------
 const audio = {
+  ctx: null,
   unlocked: false,
   musicOn: true,
-  voice: [],
-  voiceIdx: 0,
+  buffers: {},          // url -> AudioBuffer
+  lineIdx: {},          // kind -> next index
   music: null,
-  coin: null,
-  stomp: null,
+  voiceGain: null,
+  sfxGain: null,
+  currentVoice: null,   // currently playing voice source (cut when a new line starts)
   bubbleUntil: 0,
   lastShout: 0,
   count: 0,
 };
 
-function makeAudio(url, volume) {
-  const a = new Audio(url);
-  a.preload = 'auto';
-  a.volume = volume;
-  return a;
+async function loadBuffer(url) {
+  if (audio.buffers[url]) return audio.buffers[url];
+  try {
+    const res = await fetch(url);
+    const arr = await res.arrayBuffer();
+    const buf = await audio.ctx.decodeAudioData(arr);
+    audio.buffers[url] = buf;
+    return buf;
+  } catch (e) {
+    console.warn('audio load failed', url, e);
+    return null;
+  }
 }
 
 function initAudio() {
-  audio.voice = CFG.voiceClips.map((u) => makeAudio(u, 1.0));
-  audio.music = makeAudio(CFG.musicUrl, 0.28);
+  audio.music = new Audio(CFG.musicUrl);
   audio.music.loop = true;
-  audio.coin = makeAudio(CFG.coinSfx, 0.5);
-  audio.stomp = makeAudio(CFG.stompSfx, 0.6);
+  audio.music.volume = 0.28;
+  audio.music.preload = 'auto';
+  // Decoding needs an AudioContext; create it now (suspended) and resume on first gesture.
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) {
+    audio.ctx = new AC();
+    audio.voiceGain = audio.ctx.createGain(); audio.voiceGain.gain.value = 1.0; audio.voiceGain.connect(audio.ctx.destination);
+    audio.sfxGain = audio.ctx.createGain(); audio.sfxGain.gain.value = 0.55; audio.sfxGain.connect(audio.ctx.destination);
+    const urls = [CFG.coinSfx, CFG.stompSfx, ...Object.values(CFG.lines).flat()];
+    urls.forEach((u) => loadBuffer(u));
+  }
 }
 
 function unlockAudio() {
   if (audio.unlocked) return;
   audio.unlocked = true;
+  if (audio.ctx && audio.ctx.state !== 'running') audio.ctx.resume().catch(() => {});
   if (audio.musicOn) audio.music.play().catch(() => {});
 }
 
-function playSfx(a) {
-  if (!audio.unlocked || !a) return;
-  try { a.currentTime = 0; a.play().catch(() => {}); } catch (_) {}
+function playBuffer(url, gainNode, rate = 1, cutPrevious = false) {
+  if (!audio.unlocked || !audio.ctx) return null;
+  const buf = audio.buffers[url];
+  if (!buf) return null;
+  if (cutPrevious && audio.currentVoice) { try { audio.currentVoice.stop(); } catch (_) {} }
+  const src = audio.ctx.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = rate;
+  src.connect(gainNode);
+  src.start();
+  return src;
 }
 
-// Every move, jump and action: Cam says "shut up".
-function shutUp(force = false) {
+function playSfx(url) { playBuffer(url, audio.sfxGain, 0.97 + Math.random() * 0.06); }
+
+// Cam speaks. kind: 'shutup' | 'yay' | 'ooh' | 'ohyeah' | 'ohno' | 'woohoo'
+function say(kind, force = false) {
   const now = performance.now() / 1000;
-  if (!force && now - audio.lastShout < 0.25) return; // avoid machine-gun overlap
+  if (!force && now - audio.lastShout < 0.25) return;
   audio.lastShout = now;
-  audio.count++;
-  hud.shutups.textContent = audio.count;
-  audio.bubbleUntil = now + 0.7;
+  if (kind === 'shutup') { audio.count++; hud.shutups.textContent = audio.count; }
+  audio.bubbleUntil = now + 0.75;
+  bubble.textContent = CFG.lineText[kind] || kind.toUpperCase();
   bubble.style.opacity = 1;
-  if (!audio.unlocked || audio.voice.length === 0) return;
-  const clip = audio.voice[audio.voiceIdx % audio.voice.length];
-  audio.voiceIdx++;
-  try {
-    clip.pause();
-    clip.currentTime = 0;
-    clip.preservesPitch = false;
-    clip.playbackRate = 0.94 + Math.random() * 0.14;
-    clip.play().catch(() => {});
-  } catch (_) {}
+  const list = CFG.lines[kind] || CFG.lines.shutup;
+  const i = (audio.lineIdx[kind] || 0) % list.length;
+  audio.lineIdx[kind] = i + 1;
+  const src = playBuffer(list[i], audio.voiceGain, 0.94 + Math.random() * 0.14, true);
+  if (src) audio.currentVoice = src;
 }
+const shutUp = (force = false) => say('shutup', force);
 
 // ---------------------------------------------------------------------------
 // Renderer / scene
 // ---------------------------------------------------------------------------
 const canvas = $('game');
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(CFG.pixelRatio);
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -123,7 +161,7 @@ renderer.toneMappingExposure = 1.05;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x5ec8ff);
-scene.fog = new THREE.Fog(0x9fe0ff, 70, 190);
+scene.fog = new THREE.Fog(0x9fe0ff, CFG.fogNear, CFG.fogFar);
 
 const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 500);
 
@@ -132,7 +170,7 @@ scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xfff4d6, 2.2);
 sun.position.set(40, 70, 30);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(CFG.shadowSize, CFG.shadowSize);
 sun.shadow.camera.near = 1;
 sun.shadow.camera.far = 220;
 sun.shadow.camera.left = -45;
@@ -143,11 +181,17 @@ sun.shadow.bias = -0.0005;
 scene.add(sun);
 scene.add(sun.target);
 
-window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+function applyViewport() {
+  const w = window.innerWidth, h = window.innerHeight;
+  camera.aspect = w / h;
+  camera.fov = w < h ? 72 : 60;      // portrait phones see a bit more
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
+  renderer.setSize(w, h);
+}
+window.addEventListener('resize', applyViewport);
+window.addEventListener('orientationchange', () => setTimeout(applyViewport, 150));
+if (window.visualViewport) window.visualViewport.addEventListener('resize', applyViewport);
+applyViewport();
 
 // ---------------------------------------------------------------------------
 // Materials (one palette, Nintendo-bright)
@@ -193,7 +237,7 @@ function terrainHeight(x, z) {
 
 function buildTerrain() {
   const size = CFG.worldSize;
-  const seg = 160;
+  const seg = IS_TOUCH ? 120 : 160;
   const geo = new THREE.PlaneGeometry(size, size, seg, seg);
   geo.rotateX(-Math.PI / 2);
   const pos = geo.attributes.position;
@@ -207,24 +251,20 @@ function buildTerrain() {
     pos.setY(i, y);
     const t = smoothstep(-4, 5, y);
     const c = t < 0.5 ? cLow.clone().lerp(cMid, t * 2) : cMid.clone().lerp(cTop, (t - 0.5) * 2);
-    // subtle checker for that meadow feel
     const chk = ((Math.floor(x / 4) + Math.floor(z / 4)) % 2 === 0) ? 1.0 : 0.94;
     colors[i * 3] = c.r * chk; colors[i * 3 + 1] = c.g * chk; colors[i * 3 + 2] = c.b * chk;
   }
   geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
   geo.computeVertexNormals();
-  const mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 });
-  const mesh = new THREE.Mesh(geo, mat);
+  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }));
   mesh.receiveShadow = true;
   scene.add(mesh);
 
-  // Water pond in a dip
   const water = new THREE.Mesh(new THREE.CircleGeometry(16, 40), MAT.water);
   water.rotation.x = -Math.PI / 2;
   water.position.set(52, -2.0, 38);
   scene.add(water);
 
-  // World edge: a low ring of dirt so nobody falls off
   const ring = new THREE.Mesh(new THREE.TorusGeometry(size / 2 + 8, 6, 8, 64), MAT.dirt);
   ring.rotation.x = Math.PI / 2;
   ring.position.y = -1;
@@ -234,10 +274,10 @@ function buildTerrain() {
 // ---------------------------------------------------------------------------
 // World objects
 // ---------------------------------------------------------------------------
-const platforms = [];   // {mesh, min:Vector3, max:Vector3, type, used}
-const coins = [];       // {mesh, taken, base:Vector3, pop?}
-const enemies = [];     // {group, a:Vector3, b:Vector3, t, dir, alive, squash}
-const trunks = [];      // {x,z,r}
+const platforms = [];
+const coins = [];
+const enemies = [];
+const trunks = [];
 const clouds = [];
 let flag = null;
 
@@ -278,10 +318,9 @@ function makeQuestionMark() {
   return g;
 }
 
+const coinGeo = (() => { const g = new THREE.CylinderGeometry(0.42, 0.42, 0.12, 20); g.rotateX(Math.PI / 2); return g; })();
 function addCoin(x, y, z) {
-  const geo = new THREE.CylinderGeometry(0.42, 0.42, 0.12, 24);
-  geo.rotateX(Math.PI / 2);
-  const mesh = new THREE.Mesh(geo, MAT.coin);
+  const mesh = new THREE.Mesh(coinGeo, MAT.coin);
   mesh.position.set(x, y, z);
   mesh.castShadow = true;
   scene.add(mesh);
@@ -311,7 +350,7 @@ function addTree(x, z) {
   g.add(trunk);
   const leaf = MAT.leaf[Math.floor(Math.random() * MAT.leaf.length)];
   const r = 1.4 + Math.random() * 1.2;
-  const blob = (dx, dy, dz, s) => { const m = new THREE.Mesh(new THREE.SphereGeometry(s, 14, 12), leaf); m.position.set(dx, h + dy, dz); m.castShadow = true; g.add(m); };
+  const blob = (dx, dy, dz, s) => { const m = new THREE.Mesh(new THREE.SphereGeometry(s, 12, 10), leaf); m.position.set(dx, h + dy, dz); m.castShadow = true; g.add(m); };
   blob(0, r * 0.6, 0, r);
   blob(r * 0.6, r * 0.2, 0.2, r * 0.7);
   blob(-r * 0.5, r * 0.3, -0.3, r * 0.65);
@@ -327,7 +366,7 @@ function addCloud(x, y, z) {
   const n = 3 + Math.floor(Math.random() * 3);
   for (let i = 0; i < n; i++) {
     const s = 1.6 + Math.random() * 1.6;
-    const m = new THREE.Mesh(new THREE.SphereGeometry(s, 12, 10), MAT.cloud);
+    const m = new THREE.Mesh(new THREE.SphereGeometry(s, 10, 8), MAT.cloud);
     m.position.set(i * 2.2 - n, Math.random() * 0.8, Math.random() * 1.2 - 0.6);
     g.add(m);
   }
@@ -338,10 +377,10 @@ function addCloud(x, y, z) {
 
 function makeGoomba() {
   const g = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 18, 14), MAT.goomba);
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 12), MAT.goomba);
   body.scale.set(1, 0.85, 1);
   body.position.y = 0.5;
-  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.78, 20, 14, 0, Math.PI * 2, 0, Math.PI / 2), MAT.goombaCap);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.78, 18, 12, 0, Math.PI * 2, 0, Math.PI / 2), MAT.goombaCap);
   cap.position.y = 0.72;
   const spotGeo = new THREE.SphereGeometry(0.16, 8, 6);
   for (const [sx, sz] of [[0.35, 0.45], [-0.4, 0.3], [0.1, -0.55], [-0.3, -0.4]]) {
@@ -398,13 +437,11 @@ function buildWorld() {
   buildTerrain();
   const rnd = seededRandom(1234567);
 
-  // --- Spawn meadow: a tutorial strip of blocks and coins ---
   for (let i = 0; i < 5; i++) addPlatform(-4 + i * 2, 3.2, -8, 2, 2, 2, i === 2 ? 'question' : 'brick');
   addPlatform(8, 3.2, -8, 2, 2, 2, 'question');
   for (let i = 0; i < 7; i++) addCoin(-6 + i * 2, 1.2, -4);
   for (let i = 0; i < 7; i++) addCoin(-6 + i * 2, 1.2, 5);
 
-  // --- Floating platform trails across the world ---
   const trails = [
     { start: [12, -14], dir: [1, -0.6], n: 7, rise: 0.9 },
     { start: [-14, 10], dir: [-1, 0.5], n: 6, rise: 0.7 },
@@ -428,7 +465,6 @@ function buildWorld() {
     }
   }
 
-  // --- Coin arcs over hills ---
   for (let k = 0; k < 14; k++) {
     const cx = (rnd() - 0.5) * 180, cz = (rnd() - 0.5) * 180;
     for (let i = 0; i < 7; i++) {
@@ -437,26 +473,21 @@ function buildWorld() {
     }
   }
 
-  // --- Pipes ---
   for (const [x, z, h] of [[-12, -18, 3], [26, 8, 4], [-40, 20, 3.5], [60, -40, 5], [-70, -60, 4], [10, 70, 3], [75, 50, 4.5], [-80, 70, 3]]) addPipe(x, z, h);
 
-  // --- Trees ---
-  for (let i = 0; i < 110; i++) {
+  for (let i = 0; i < CFG.treeCount; i++) {
     const x = (rnd() - 0.5) * 220, z = (rnd() - 0.5) * 220;
     if (Math.hypot(x, z) < 12) continue;
-    if (Math.hypot(x - 52, z - 38) < 18) continue; // pond
-    if (Math.hypot(x, z + 95) < 16) continue;      // castle
+    if (Math.hypot(x - 52, z - 38) < 18) continue;
+    if (Math.hypot(x, z + 95) < 16) continue;
     addTree(x, z);
   }
 
-  // --- Clouds ---
-  for (let i = 0; i < 26; i++) addCloud((rnd() - 0.5) * 300, 26 + rnd() * 14, (rnd() - 0.5) * 300);
+  for (let i = 0; i < CFG.cloudCount; i++) addCloud((rnd() - 0.5) * 300, 26 + rnd() * 14, (rnd() - 0.5) * 300);
 
-  // --- Enemies: patrolling goombas ---
   const spots = [[10, 2], [-10, 6], [18, -20], [-22, -16], [28, 30], [-36, 34], [48, -22], [-60, -30], [70, 28], [-66, 62], [6, 50], [-18, -58], [90, -70], [-90, 10], [40, 80], [-45, -85]];
   for (const [x, z] of spots) addEnemy(x - 4, z, x + 4, z + (rnd() - 0.5) * 6);
 
-  // --- Castle + goal flag ---
   buildCastle(0, -96);
   buildFlag(0, -80);
 }
@@ -465,8 +496,8 @@ function buildWorld() {
 // Player
 // ---------------------------------------------------------------------------
 const player = {
-  root: new THREE.Group(),     // world position, yaw
-  model: null,                 // GLB scene (or placeholder)
+  root: new THREE.Group(),
+  model: null,
   mixer: null,
   clips: { idle: null, run: null, jump: null },
   current: null,
@@ -489,7 +520,6 @@ const player = {
 scene.add(player.root);
 
 function makePlaceholder() {
-  // A chunky stand-in used only if the GLB cannot load: navy jacket, glasses, hair.
   const g = new THREE.Group();
   const skin = new THREE.MeshStandardMaterial({ color: 0xf1c7a3, roughness: 0.8 });
   const jacket = new THREE.MeshStandardMaterial({ color: 0x1d2a6b, roughness: 0.8 });
@@ -538,7 +568,6 @@ async function loadPlayer() {
   try {
     const gltf = await loader.loadAsync(CFG.modelUrl);
     model = gltf.scene;
-    // Normalise size: feet at y=0, height = modelHeight
     const box = new THREE.Box3().setFromObject(model);
     const size = new THREE.Vector3(); box.getSize(size);
     const s = CFG.modelHeight / Math.max(size.y, 0.001);
@@ -574,7 +603,7 @@ async function loadPlayer() {
 }
 
 // ---------------------------------------------------------------------------
-// Input
+// Input: keyboard, mouse orbit, touch stick + jump + look-drag
 // ---------------------------------------------------------------------------
 const keys = new Set();
 window.addEventListener('keydown', (e) => {
@@ -584,56 +613,81 @@ window.addEventListener('keydown', (e) => {
 });
 window.addEventListener('keyup', (e) => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { keys.clear(); if (audio.music) audio.music.pause(); }
+  else if (audio.unlocked && audio.musicOn && audio.music) audio.music.play().catch(() => {});
+});
 
 function toggleMusic() {
   audio.musicOn = !audio.musicOn;
   if (!audio.music) return;
   if (audio.musicOn && audio.unlocked) audio.music.play().catch(() => {}); else audio.music.pause();
+  $('musicBtn').style.opacity = audio.musicOn ? 1 : 0.45;
   showToast(audio.musicOn ? 'MUSIC ON' : 'MUSIC OFF', 900);
 }
+$('musicBtn').addEventListener('click', toggleMusic);
 
-// Camera orbit by mouse drag
+function goFullscreen() {
+  const el = document.documentElement;
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (req) { try { const p = req.call(el, { navigationUI: 'hide' }); if (p && p.catch) p.catch(() => {}); } catch (_) {} }
+  if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(() => {});
+}
+$('fsBtn').addEventListener('click', goFullscreen);
+
 const urlParams = new URLSearchParams(location.search);
-const cam = { yaw: Math.PI, pitch: 0.36, dist: Number(urlParams.get('dist')) || 6.5, dragging: false, lastX: 0, lastY: 0, pos: new THREE.Vector3(), look: new THREE.Vector3() };
+const cam = { yaw: Math.PI, pitch: 0.36, dist: Number(urlParams.get('dist')) || 6.5, dragging: false, dragId: null, lastX: 0, lastY: 0, pos: new THREE.Vector3(), look: new THREE.Vector3() };
 if (urlParams.has('yaw')) cam.yaw = Number(urlParams.get('yaw'));
-canvas.addEventListener('pointerdown', (e) => { if (e.pointerType === 'touch') return; cam.dragging = true; cam.lastX = e.clientX; cam.lastY = e.clientY; });
-window.addEventListener('pointerup', () => (cam.dragging = false));
-window.addEventListener('pointermove', (e) => {
-  if (!cam.dragging) return;
-  cam.yaw -= (e.clientX - cam.lastX) * 0.006;
-  cam.pitch = Math.min(1.2, Math.max(0.1, cam.pitch + (e.clientY - cam.lastY) * 0.004));
+
+// Mouse drag anywhere, or touch drag on the canvas (the stick/jump button capture their own pointers).
+canvas.addEventListener('pointerdown', (e) => {
+  if (cam.dragging) return;
+  cam.dragging = true; cam.dragId = e.pointerId; cam.lastX = e.clientX; cam.lastY = e.clientY;
+  try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+});
+const endDrag = (e) => { if (e.pointerId === cam.dragId) { cam.dragging = false; cam.dragId = null; } };
+canvas.addEventListener('pointerup', endDrag);
+canvas.addEventListener('pointercancel', endDrag);
+canvas.addEventListener('pointermove', (e) => {
+  if (!cam.dragging || e.pointerId !== cam.dragId) return;
+  const k = e.pointerType === 'touch' ? 0.009 : 0.006;
+  cam.yaw -= (e.clientX - cam.lastX) * k;
+  cam.pitch = Math.min(1.2, Math.max(0.1, cam.pitch + (e.clientY - cam.lastY) * k * 0.7));
   cam.lastX = e.clientX; cam.lastY = e.clientY;
 });
 canvas.addEventListener('wheel', (e) => { cam.dist = Math.min(14, Math.max(4, cam.dist + e.deltaY * 0.01)); }, { passive: true });
 
-// Touch joystick + jump
 const touch = { active: false, id: null, dx: 0, dy: 0, jump: false };
 const stick = $('stick'), knob = $('knob'), jumpBtn = $('jumpBtn');
-stick.addEventListener('pointerdown', (e) => { touch.active = true; touch.id = e.pointerId; stick.setPointerCapture(e.pointerId); moveStick(e); });
+stick.addEventListener('pointerdown', (e) => { e.preventDefault(); touch.active = true; touch.id = e.pointerId; try { stick.setPointerCapture(e.pointerId); } catch (_) {} moveStick(e); });
 stick.addEventListener('pointermove', (e) => { if (touch.active && e.pointerId === touch.id) moveStick(e); });
 const endStick = (e) => { if (e.pointerId === touch.id) { touch.active = false; touch.dx = touch.dy = 0; knob.style.transform = ''; } };
-stick.addEventListener('pointerup', endStick); stick.addEventListener('pointercancel', endStick);
+stick.addEventListener('pointerup', endStick); stick.addEventListener('pointercancel', endStick); stick.addEventListener('lostpointercapture', endStick);
 function moveStick(e) {
   const r = stick.getBoundingClientRect();
   let dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
   let dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
   const len = Math.hypot(dx, dy); if (len > 1) { dx /= len; dy /= len; }
   touch.dx = dx; touch.dy = dy;
-  knob.style.transform = `translate(${dx * 40}px, ${dy * 40}px)`;
+  const px = r.width * 0.3;
+  knob.style.transform = `translate(${dx * px}px, ${dy * px}px)`;
 }
-jumpBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); touch.jump = true; });
-jumpBtn.addEventListener('pointerup', () => (touch.jump = false));
-jumpBtn.addEventListener('pointercancel', () => (touch.jump = false));
+jumpBtn.addEventListener('pointerdown', (e) => { e.preventDefault(); touch.jump = true; jumpBtn.classList.add('down'); try { jumpBtn.setPointerCapture(e.pointerId); } catch (_) {} });
+const endJump = () => { touch.jump = false; jumpBtn.classList.remove('down'); };
+jumpBtn.addEventListener('pointerup', endJump); jumpBtn.addEventListener('pointercancel', endJump); jumpBtn.addEventListener('lostpointercapture', endJump);
+// stop iOS from scrolling/zooming the page under the controls
+['touchstart', 'touchmove'].forEach((t) => document.addEventListener(t, (e) => { if (e.target.closest('#overlay')) return; e.preventDefault(); }, { passive: false }));
+document.addEventListener('gesturestart', (e) => e.preventDefault());
+document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 // ---------------------------------------------------------------------------
 // Game logic
 // ---------------------------------------------------------------------------
 const PLAYER_R = 0.38;
 const PLAYER_H = CFG.modelHeight;
-const tmp = { v: new THREE.Vector3(), v2: new THREE.Vector3(), q: new THREE.Quaternion() };
+const tmp = { v: new THREE.Vector3(), v2: new THREE.Vector3() };
 
 function groundAt(x, z, feetY, vy) {
-  // Highest support under the player: terrain or a platform top we are at/above.
   let g = terrainHeight(x, z);
   for (const p of platforms) {
     if (x + PLAYER_R < p.min.x || x - PLAYER_R > p.max.x || z + PLAYER_R < p.min.z || z - PLAYER_R > p.max.z) continue;
@@ -644,7 +698,6 @@ function groundAt(x, z, feetY, vy) {
 }
 
 function resolveSolids(pos, vy, dt) {
-  // Push the player out of block sides, bump heads on undersides, and collide with trunks.
   const feet = pos.y, head = pos.y + PLAYER_H;
   for (const p of platforms) {
     const inX = pos.x + PLAYER_R > p.min.x && pos.x - PLAYER_R < p.max.x;
@@ -652,14 +705,12 @@ function resolveSolids(pos, vy, dt) {
     if (!inX || !inZ) continue;
     const overlapY = head > p.min.y + 0.05 && feet < p.max.y - 0.3;
     if (!overlapY) continue;
-    // Head bump: moving up and head just crossed the underside
     if (vy > 0 && head - vy * dt <= p.min.y + 0.05 && head > p.min.y) {
       pos.y = p.min.y - PLAYER_H - 0.01;
       hitBlock(p);
       player.vel.y = -1;
       continue;
     }
-    // Side push-out: choose the smallest axis penetration
     const dxL = (pos.x + PLAYER_R) - p.min.x, dxR = p.max.x - (pos.x - PLAYER_R);
     const dzL = (pos.z + PLAYER_R) - p.min.z, dzR = p.max.z - (pos.z - PLAYER_R);
     const m = Math.min(dxL, dxR, dzL, dzR);
@@ -669,7 +720,6 @@ function resolveSolids(pos, vy, dt) {
     const dx = pos.x - t.x, dz = pos.z - t.z, d = Math.hypot(dx, dz), r = t.r + PLAYER_R;
     if (d < r && d > 0.0001 && feet < terrainHeight(t.x, t.z) + 2.5) { pos.x = t.x + (dx / d) * r; pos.z = t.z + (dz / d) * r; }
   }
-  // world bounds
   const lim = CFG.worldSize / 2 - 2;
   pos.x = Math.max(-lim, Math.min(lim, pos.x));
   pos.z = Math.max(-lim, Math.min(lim, pos.z));
@@ -677,16 +727,16 @@ function resolveSolids(pos, vy, dt) {
 
 function hitBlock(p) {
   p.bump = 1;
-  shutUp(true);
   if (p.type === 'question' && !p.used) {
     p.used = true;
     p.mesh.material = MAT.used;
     p.mesh.children.forEach((c) => (c.visible = false));
     const c = addCoin(p.mesh.position.x, p.max.y + 0.6, p.mesh.position.z);
-    c.pop = 1.0;
     collectCoin(c, true);
-  } else if (p.type === 'brick') {
-    addScore(10);
+    say('ohyeah', true);
+  } else {
+    if (p.type === 'brick') addScore(10);
+    say('ooh', true);
   }
 }
 
@@ -698,23 +748,24 @@ function collectCoin(c, fromBlock = false) {
   player.coins++;
   hud.coins.textContent = player.coins;
   addScore(100);
-  playSfx(audio.coin);
-  if (!fromBlock) shutUp();
-  if (player.coins % 25 === 0) { player.lives++; hud.lives.textContent = player.lives; showToast('1-UP!'); }
+  playSfx(CFG.coinSfx);
+  if (!fromBlock) say('yay');
+  if (player.coins % 25 === 0) { player.lives++; hud.lives.textContent = player.lives; showToast('1-UP!'); say('woohoo', true); }
   c.mesh.userData.flyT = 0;
 }
 
-function hurt() {
+function hurt(kind = 'ooh') {
   const now = performance.now() / 1000;
   if (now < player.hurtUntil || player.dead) return;
   player.hurtUntil = now + 1.6;
   player.lives--;
   hud.lives.textContent = Math.max(0, player.lives);
   player.vel.y = 6;
-  shutUp(true);
+  say(kind, true);
   if (player.lives <= 0) {
     player.dead = true;
     showToast('GAME OVER', 2500);
+    setTimeout(() => { say('ohno', true); }, 700);
     setTimeout(resetGame, 2600);
   } else {
     showToast('OUCH!', 700);
@@ -734,7 +785,6 @@ function resetGame() {
 
 function updatePlayer(dt) {
   const now = performance.now() / 1000;
-  // --- input vector relative to camera yaw ---
   let ix = 0, iz = 0;
   if (keys.has('KeyW') || keys.has('ArrowUp')) iz -= 1;
   if (keys.has('KeyS') || keys.has('ArrowDown')) iz += 1;
@@ -745,27 +795,23 @@ function updatePlayer(dt) {
   if (keys.has('KeyE')) cam.yaw -= 1.8 * dt;
   const len = Math.hypot(ix, iz);
   if (len > 1) { ix /= len; iz /= len; }
-  const running = keys.has('ShiftLeft') || keys.has('ShiftRight') || (touch.active && len > 0.85);
+  const running = keys.has('ShiftLeft') || keys.has('ShiftRight') || (touch.active && len > 0.7);
   const speed = running ? CFG.runSpeed : CFG.walkSpeed;
-  // camera-relative: forward is -Z of the camera's yaw
   const fx = -Math.sin(cam.yaw), fz = -Math.cos(cam.yaw);
   const rx = Math.cos(cam.yaw), rz = -Math.sin(cam.yaw);
   const wx = (fx * -iz + rx * ix), wz = (fz * -iz + rz * ix);
-  const moving = len > 0.05 && !player.dead;
+  const moving = len > 0.08 && !player.dead;
 
-  // horizontal velocity with a little acceleration for feel
   const accel = player.grounded ? 40 : 18;
   const tx = moving ? wx * speed * Math.min(1, len * 1.2) : 0;
   const tz = moving ? wz * speed * Math.min(1, len * 1.2) : 0;
   player.vel.x += (tx - player.vel.x) * Math.min(1, accel * dt / speed);
   player.vel.z += (tz - player.vel.z) * Math.min(1, accel * dt / speed);
 
-  // "shut up" on starting to move and periodically while moving
   if (moving && !player.wasMoving) { shutUp(); player.moveTimer = 0; }
   if (moving) { player.moveTimer += dt; if (player.moveTimer >= CFG.runShoutEvery) { shutUp(); player.moveTimer = 0; } }
   player.wasMoving = moving;
 
-  // facing
   if (moving) {
     const target = Math.atan2(wx, wz);
     let d = target - player.yaw;
@@ -773,19 +819,17 @@ function updatePlayer(dt) {
     player.yaw += d * Math.min(1, 14 * dt);
   }
 
-  // jump
   const jumpPressed = keys.has('Space') || touch.jump;
   if (jumpPressed && !player.jumpHeld && player.grounded && !player.dead) {
     player.vel.y = CFG.jumpSpeed * (running ? 1.08 : 1);
     player.grounded = false;
-    player.spinning = !player.clips.jump; // Mario-style spin when no jump clip
+    player.spinning = !player.clips.jump;
     player.spin = 0;
     shutUp(true);
   }
-  if (!jumpPressed && player.vel.y > 3 && !player.grounded) player.vel.y = 3; // variable jump height
+  if (!jumpPressed && player.vel.y > 3 && !player.grounded) player.vel.y = 3;
   player.jumpHeld = jumpPressed;
 
-  // gravity + integrate
   player.vel.y -= CFG.gravity * dt;
   player.vel.y = Math.max(player.vel.y, -30);
   player.pos.x += player.vel.x * dt;
@@ -794,7 +838,6 @@ function updatePlayer(dt) {
 
   resolveSolids(player.pos, player.vel.y, dt);
 
-  // ground: snap down onto slopes/platform tops when falling and very close (no jump-clip flicker downhill)
   const g = groundAt(player.pos.x, player.pos.z, player.pos.y, player.vel.y);
   const snapRange = player.grounded ? 0.45 : 0.08;
   if (player.pos.y <= g || (player.vel.y <= 0 && player.pos.y - g < snapRange)) {
@@ -806,10 +849,8 @@ function updatePlayer(dt) {
     player.grounded = false;
   }
 
-  // fell in the pond?
-  if (player.pos.y < -3.2 && Math.hypot(player.pos.x - 52, player.pos.z - 38) < 16) { hurt(); player.pos.set(52 - 18, terrainHeight(34, 38) + 0.5, 38); player.vel.set(0, 0, 0); }
+  if (player.pos.y < -3.2 && Math.hypot(player.pos.x - 52, player.pos.z - 38) < 16) { hurt('ohno'); player.pos.set(52 - 18, terrainHeight(34, 38) + 0.5, 38); player.vel.set(0, 0, 0); }
 
-  // --- animation ---
   const hspeed = Math.hypot(player.vel.x, player.vel.z);
   if (player.mixer) {
     if (!player.grounded) setClip(player.clips.jump ? 'jump' : 'idle');
@@ -821,7 +862,6 @@ function updatePlayer(dt) {
     }
     player.mixer.update(dt);
   }
-  // procedural flourish: bob + lean while running, spin while jumping (when clips are missing)
   if (player.model) {
     const m = player.model;
     let bob = 0, lean = 0;
@@ -831,8 +871,6 @@ function updatePlayer(dt) {
     m.rotation.x = lean;
     m.position.y = bob + (m.userData.baseY ?? (m.userData.baseY = m.position.y));
   }
-
-  // invulnerability flicker
   if (player.model) player.model.visible = now < player.hurtUntil ? Math.floor(now * 16) % 2 === 0 : true;
 
   player.root.position.copy(player.pos);
@@ -853,7 +891,7 @@ function updateCoins(dt, t) {
       }
       continue;
     }
-    if (Math.abs(m.position.x - p.x) > 20 || Math.abs(m.position.z - p.z) > 20) continue; // cheap culling for logic
+    if (Math.abs(m.position.x - p.x) > 20 || Math.abs(m.position.z - p.z) > 20) continue;
     m.rotation.y = t * 3 + c.spin;
     m.position.y = c.base.y + Math.sin(t * 2.5 + c.spin) * 0.12;
     const dy = m.position.y - (p.y + 0.7);
@@ -875,20 +913,18 @@ function updateEnemies(dt, now) {
     g.position.set(x, terrainHeight(x, z), z);
     g.rotation.y = Math.atan2((e.b.x - e.a.x) * e.dir, (e.b.z - e.a.z) * e.dir);
     g.rotation.z = Math.sin(now * 10 + e.t * 50) * 0.08;
-    // player interaction
     const dx = p.x - x, dz = p.z - z, dh = Math.hypot(dx, dz);
     if (dh > 1.0) continue;
     const ey = g.position.y;
     if (p.y > ey + 0.55 && player.vel.y < 0) {
-      // stomp!
       e.alive = false; e.squash = 0.6;
       player.vel.y = 8.5;
       addScore(200);
-      playSfx(audio.stomp);
-      shutUp(true);
+      playSfx(CFG.stompSfx);
+      say('ohyeah', true);
       showToast('STOMP!', 500);
     } else if (p.y < ey + 1.2) {
-      hurt();
+      hurt('ooh');
       player.vel.x = (dx / (dh || 1)) * 6; player.vel.z = (dz / (dh || 1)) * 6;
     }
   }
@@ -898,8 +934,7 @@ function updateBlocks(dt) {
   for (const p of platforms) {
     if (p.bump > 0) {
       p.bump = Math.max(0, p.bump - dt * 4);
-      const off = Math.sin(p.bump * Math.PI) * 0.35;
-      p.mesh.position.y = p.baseY + off;
+      p.mesh.position.y = p.baseY + Math.sin(p.bump * Math.PI) * 0.35;
     }
   }
 }
@@ -910,7 +945,7 @@ function updateFlag(dt, now) {
   if (!flag.reached && Math.hypot(player.pos.x - flag.x, player.pos.z - flag.z) < 1.4) {
     flag.reached = true;
     addScore(1000);
-    shutUp(true);
+    say('woohoo', true);
     showToast('COURSE CLEAR!', 3000);
   }
 }
@@ -926,7 +961,6 @@ function updateCamera(dt) {
   cam.look.lerp(tmp.v2, Math.min(1, 10 * dt));
   camera.position.copy(cam.pos);
   camera.lookAt(cam.look);
-  // shadow + fog follow the player
   sun.position.set(target.x + 40, target.y + 70, target.z + 30);
   sun.target.position.copy(target);
 }
@@ -984,6 +1018,7 @@ async function main() {
   await loadPlayer();
   $('startBtn').addEventListener('click', () => {
     unlockAudio();
+    if (IS_TOUCH) goFullscreen();
     overlay.style.display = 'none';
     started = true;
     showToast('GO!', 800);

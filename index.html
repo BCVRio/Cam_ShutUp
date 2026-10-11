@@ -2,9 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Cam's World" />
+  <meta name="theme-color" content="#5ec8ff" />
   <title>Cam's Shut Up World</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23ffd83d' stroke='%231b1b3a' stroke-width='4'/%3E%3Ctext x='32' y='42' font-size='30' font-weight='900' text-anchor='middle' fill='%231b1b3a' font-family='Arial'%3E%3F%3C/text%3E%3C/svg%3E" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" href="./public/art/icon-192.png" />
+  <link rel="apple-touch-icon" href="./public/art/icon-192.png" />
   <meta property="og:title" content="Cam's Shut Up World" />
   <meta property="og:description" content="A Mario-style 3D open-world platformer starring Cam. Every move he makes, he says shut up." />
   <meta property="og:image" content="public/art/keyart.png" />
@@ -14,53 +21,85 @@
       --ink: #1b1b3a;
       --yellow: #ffd83d;
       --red: #e8402a;
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
     }
-    html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky); font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif; }
-    #game { position: fixed; inset: 0; display: block; touch-action: none; }
+    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky); font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif; overscroll-behavior: none; }
+    body { position: fixed; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
+    #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+
     .hud {
-      position: fixed; top: 12px; left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: flex-start;
-      pointer-events: none; color: #fff; font-weight: 900; font-size: 22px; letter-spacing: 0.5px;
+      position: fixed; top: calc(10px + var(--sat)); left: calc(14px + var(--sal)); right: calc(14px + var(--sar));
+      display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
+      color: #fff; font-weight: 900; font-size: clamp(16px, 2.6vmax, 24px); letter-spacing: 0.5px;
       text-shadow: 2px 2px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);
-      user-select: none;
     }
-    .hud .stat { display: flex; gap: 10px; align-items: center; margin-bottom: 6px; }
-    .hud .coin { display: inline-block; width: 18px; height: 18px; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); box-shadow: inset -3px -3px 0 #e0a800; }
+    .hud .stat { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; line-height: 1.1; }
+    .hud .coin { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); box-shadow: inset -3px -3px 0 #e0a800; }
     .hud .heart { color: #ff4d6d; }
+    .hud .btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; pointer-events: auto; }
+    .hud .btns button {
+      width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--ink); background: rgba(255,255,255,0.85); color: var(--ink);
+      font-weight: 900; font-size: 18px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; padding: 0; text-shadow: none;
+    }
+    .hud .btns button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+
     #bubble {
       position: fixed; left: 0; top: 0; transform: translate(-50%, -100%); pointer-events: none;
-      background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 6px 12px;
-      font-weight: 900; font-size: 20px; opacity: 0; transition: opacity 0.1s; white-space: nowrap;
+      background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 5px 12px;
+      font-weight: 900; font-size: clamp(16px, 2.6vmax, 22px); opacity: 0; transition: opacity 0.1s; white-space: nowrap;
     }
-    #bubble::after {
-      content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -8px; border: 8px solid transparent; border-top-color: var(--ink); border-bottom: 0;
-    }
+    #bubble::after { content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -8px; border: 8px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
+
     #overlay {
-      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
-      background: rgba(20, 30, 70, 0.55); color: #fff; text-align: center; z-index: 10; padding: 24px; box-sizing: border-box;
+      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+      background: rgba(20, 30, 70, 0.55); color: #fff; text-align: center; z-index: 10;
+      padding: calc(16px + var(--sat)) 20px calc(16px + var(--sab)); box-sizing: border-box;
     }
-    #overlay h1 {
-      margin: 0; font-size: clamp(36px, 8vw, 84px); color: var(--yellow); letter-spacing: 1px;
-      text-shadow: 4px 4px 0 var(--red), 7px 7px 0 var(--ink);
-    }
-    #overlay p { margin: 0; font-size: 18px; max-width: 560px; line-height: 1.4; text-shadow: 1px 1px 0 var(--ink); }
+    #overlay h1 { margin: 0; font-size: clamp(30px, 9vmin, 84px); line-height: 1; color: var(--yellow); letter-spacing: 1px; text-shadow: 4px 4px 0 var(--red), 7px 7px 0 var(--ink); }
+    #overlay p { margin: 0; font-size: clamp(14px, 2.4vmin, 18px); max-width: 560px; line-height: 1.4; text-shadow: 1px 1px 0 var(--ink); }
     #overlay button {
-      font: inherit; font-weight: 900; font-size: 26px; padding: 14px 34px; border-radius: 999px; border: 4px solid var(--ink);
-      background: var(--yellow); color: var(--ink); cursor: pointer; box-shadow: 0 6px 0 var(--ink); transition: transform 0.08s;
+      font: inherit; font-weight: 900; font-size: clamp(20px, 4vmin, 28px); padding: 14px 34px; border-radius: 999px; border: 4px solid var(--ink);
+      background: var(--yellow); color: var(--ink); cursor: pointer; box-shadow: 0 6px 0 var(--ink); transition: transform 0.08s; min-height: 56px;
     }
     #overlay button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
-    #overlay .keys { font-size: 15px; opacity: 0.9; }
+    #overlay .keys { font-size: clamp(12px, 2vmin, 15px); opacity: 0.9; }
     #overlay kbd { background: #fff; color: var(--ink); border-radius: 6px; padding: 2px 7px; font-weight: 900; border: 2px solid var(--ink); }
+    body.touch #overlay .desktop-only { display: none; }
+    body:not(.touch) #overlay .touch-only { display: none; }
+
     #toast {
-      position: fixed; left: 50%; top: 18%; transform: translateX(-50%); font-weight: 900; font-size: clamp(28px, 6vw, 64px); color: var(--yellow);
+      position: fixed; left: 50%; top: 22%; transform: translateX(-50%); font-weight: 900; font-size: clamp(26px, 7vmin, 64px); color: var(--yellow);
       text-shadow: 3px 3px 0 var(--red), 6px 6px 0 var(--ink); pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: nowrap;
     }
-    #hint { position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%); color: #fff; font-weight: 700; font-size: 14px; text-shadow: 1px 1px 0 var(--ink); opacity: 0.85; pointer-events: none; }
-    /* touch controls */
+    #hint { position: fixed; bottom: calc(12px + var(--sab)); left: 50%; transform: translateX(-50%); color: #fff; font-weight: 700; font-size: 14px; text-shadow: 1px 1px 0 var(--ink); opacity: 0.85; pointer-events: none; white-space: nowrap; }
+
+    /* ---- touch controls ---- */
     #touch { position: fixed; inset: 0; pointer-events: none; display: none; }
-    #stick { position: absolute; left: 28px; bottom: 28px; width: 130px; height: 130px; border-radius: 50%; background: rgba(255,255,255,0.18); border: 3px solid rgba(255,255,255,0.55); pointer-events: auto; }
-    #knob { position: absolute; left: 40px; top: 40px; width: 50px; height: 50px; border-radius: 50%; background: rgba(255,255,255,0.75); border: 3px solid var(--ink); }
-    #jumpBtn { position: absolute; right: 28px; bottom: 40px; width: 96px; height: 96px; border-radius: 50%; background: var(--yellow); border: 4px solid var(--ink); pointer-events: auto; font-weight: 900; font-size: 20px; color: var(--ink); display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 0 var(--ink); }
-    @media (pointer: coarse) { #touch { display: block; } #hint { display: none; } }
+    body.touch #touch { display: block; }
+    body.touch #hint { display: none; }
+    #stick {
+      position: absolute; left: calc(22px + var(--sal)); bottom: calc(22px + var(--sab)); width: 150px; height: 150px; border-radius: 50%;
+      background: rgba(255,255,255,0.16); border: 3px solid rgba(255,255,255,0.6); pointer-events: auto; touch-action: none;
+    }
+    #knob { position: absolute; left: 47px; top: 47px; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.8); border: 3px solid var(--ink); box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
+    #jumpBtn {
+      position: absolute; right: calc(22px + var(--sar)); bottom: calc(30px + var(--sab)); width: 112px; height: 112px; border-radius: 50%;
+      background: var(--yellow); border: 4px solid var(--ink); pointer-events: auto; touch-action: none; font-weight: 900; font-size: 22px; color: var(--ink);
+      display: flex; align-items: center; justify-content: center; box-shadow: 0 7px 0 var(--ink);
+    }
+    #jumpBtn.down { transform: translateY(5px); box-shadow: 0 2px 0 var(--ink); background: #ffe680; }
+    #camHint { position: absolute; right: calc(24px + var(--sar)); bottom: calc(154px + var(--sab)); color: #fff; font-size: 12px; font-weight: 700; text-shadow: 1px 1px 0 var(--ink); opacity: 0.7; pointer-events: none; }
+    @media (max-height: 420px) { /* short landscape phones */
+      #stick { width: 120px; height: 120px; bottom: calc(14px + var(--sab)); }
+      #knob { left: 34px; top: 34px; width: 48px; height: 48px; }
+      #jumpBtn { width: 92px; height: 92px; bottom: calc(18px + var(--sab)); font-size: 18px; }
+      #camHint { bottom: calc(120px + var(--sab)); }
+      #overlay { gap: 8px; }
+    }
   </style>
 </head>
 <body>
@@ -73,7 +112,11 @@
     </div>
     <div style="text-align:right">
       <div class="stat" style="justify-content:flex-end">SCORE <span id="score">0</span></div>
-      <div class="stat" style="justify-content:flex-end; font-size:16px; opacity:.9">SHUT UPS <span id="shutups">0</span></div>
+      <div class="stat" style="justify-content:flex-end; font-size:0.72em; opacity:.9">SHUT UPS <span id="shutups">0</span></div>
+      <div class="btns">
+        <button id="musicBtn" type="button" aria-label="Music on/off" title="Music (M)">&#9835;</button>
+        <button id="fsBtn" type="button" aria-label="Fullscreen" title="Fullscreen">&#x26F6;</button>
+      </div>
     </div>
   </div>
 
@@ -83,14 +126,16 @@
 
   <div id="touch">
     <div id="stick"><div id="knob"></div></div>
+    <div id="camHint">drag here to look</div>
     <div id="jumpBtn">JUMP</div>
   </div>
 
   <div id="overlay">
     <h1>CAM'S<br/>SHUT UP WORLD</h1>
     <p>Run, jump and stomp through an open world full of coins and grumpy mushrooms.<br/>Every move Cam makes, he has one thing to say.</p>
-    <button id="startBtn">PRESS TO PLAY</button>
-    <p class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move &nbsp; <kbd>Shift</kbd> run &nbsp; <kbd>Space</kbd> jump &nbsp; <kbd>Q</kbd><kbd>E</kbd> or drag to turn the camera</p>
+    <button id="startBtn" type="button">PRESS TO PLAY</button>
+    <p class="keys desktop-only"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move &nbsp; <kbd>Shift</kbd> run &nbsp; <kbd>Space</kbd> jump &nbsp; <kbd>Q</kbd><kbd>E</kbd> or drag to turn the camera</p>
+    <p class="keys touch-only">Left stick to move (push far to run) &nbsp;·&nbsp; JUMP button &nbsp;·&nbsp; drag the right side to look around.<br/>Best in landscape. Add to Home Screen for full screen.</p>
     <p id="loadStatus" class="keys">Loading Cam…</p>
   </div>
 
