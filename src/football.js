@@ -53,6 +53,9 @@ function stand(r, y, sideV, rows = 7) {
     const uv = step.geometry.attributes.uv; for (let k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) * L / 4, uv.getY(k));
     const [x, z] = rot(0, sideV * (base + i * 1.1 + 0.55), r.ang);
     step.position.set(r.x + x, y + (0.55 + i * 0.5) / 2, r.z + z); step.rotation.y = -r.ang; step.castShadow = step.receiveShadow = true; g.add(step);
+    // the crowd: a strip of fans on every row, leaning back a touch
+    const fans = new THREE.Mesh(new THREE.PlaneGeometry(L, 1.55), MAT.crowd); const fuv = fans.geometry.attributes.uv; for (let k = 0; k < fuv.count; k++) fuv.setXY(k, fuv.getX(k) * L / 10 + i * 0.37, fuv.getY(k) * 0.55 + (i % 2) * 0.4);
+    { const [fx, fz] = rot(0, sideV * (base + i * 1.1 + 0.05), r.ang); fans.position.set(r.x + fx, y + 0.55 + i * 0.5 + 0.62, r.z + fz); fans.rotation.y = -r.ang + (sideV > 0 ? 0 : Math.PI); fans.rotation.x = -sideV * 0.12; fans.castShadow = false; g.add(fans); }
   }
   const wallH = rows * 0.5 + 1.2;
   const back = new THREE.Mesh(new THREE.BoxGeometry(L, wallH, 0.4), MAT.navy); { const [x, z] = rot(0, sideV * (base + depth + 0.2), r.ang); back.position.set(r.x + x, y + wallH / 2, r.z + z); back.rotation.y = -r.ang; back.castShadow = true; g.add(back); }
@@ -69,6 +72,7 @@ function floodlight(x, z, y, h = 18) {
   const mast = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.4, h, 10), MAT.fenceGrey); mast.position.set(x, y + h / 2, z); mast.castShadow = true; scene.add(mast);
   const head = new THREE.Mesh(new THREE.BoxGeometry(3, 1.4, 0.4), MAT.botDark); head.position.set(x, y + h + 0.5, z); scene.add(head);
   const glow = new THREE.Mesh(new THREE.BoxGeometry(2.8, 1.2, 0.1), MAT.lampGlow); glow.position.set(x, y + h + 0.5, z); scene.add(glow); glow.userData.head = head;
+  const halo = new THREE.Sprite(MAT.glowSprite); halo.scale.set(7, 5, 1); halo.position.set(x, y + h + 0.6, z); scene.add(halo);
   addCircle(x, z, 0.5, h);
   return { head, glow };
 }
@@ -205,7 +209,7 @@ function hud() { if (!HUD.el) { HUD.el = $('matchHud'); HUD.home = $('mhHome'); 
 // where Cam lands when he picks a world: on the touchline (or just inside the cage), facing the ball
 export function arenaSpawn(id) {
   const a = arenas.find((q) => q.id === id); if (!a) return null;
-  const r = a.rect; const inside = a.mode === 'cage';
+  const r = a.rect; const inside = a.mode !== 'match';
   const [ox, oz] = rot(inside ? -r.len / 2 + 7 : 0, inside ? 0 : r.wid / 2 - 2.5, r.ang);
   const x = r.x + ox, z = r.z + oz; const dx = r.x - x, dz = r.z - z;
   return { x, z, yaw: Math.atan2(-dx, -dz) };

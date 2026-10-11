@@ -1,5 +1,12 @@
 // Cam's Shut Up: SE London — shared core (config, audio, renderer, materials, player state).
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
+import { EffectComposer } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/EffectComposer.js/+esm';
+import { RenderPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/RenderPass.js/+esm';
+import { GTAOPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/GTAOPass.js/+esm';
+import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/UnrealBloomPass.js/+esm';
+import { SMAAPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/SMAAPass.js/+esm';
+import { OutputPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/OutputPass.js/+esm';
+import { CSM } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/csm/CSM.js/+esm';
 export { THREE };
 
 export const IS_TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -21,6 +28,7 @@ export const CFG = {
     grass: './public/textures/grass.jpg', dirt: './public/textures/dirt.jpg', brick: './public/textures/brick.jpg', stone: './public/textures/stone.jpg', bark: './public/textures/bark.jpg',
     water: './public/textures/water.jpg', metal: './public/textures/metal.jpg', planks: './public/textures/planks.jpg', concrete: './public/textures/concrete.jpg',
     terrace: './public/textures/facade_terrace.jpg', flats: './public/textures/facade_flats.jpg', slate: './public/textures/slate.jpg', tarmac: './public/textures/tarmac.jpg',
+    sky: './public/textures/sky.jpg', foliage: './public/textures/foliage.jpg', crowd: './public/textures/crowd.jpg', ball: './public/textures/ball.jpg', cloud: './public/textures/cloud.png', glow: './public/textures/glow.png',
     pavement: './public/textures/pavement.jpg', astro: './public/textures/astro.jpg', seats: './public/textures/seats.jpg', crest: './public/art/crest_bosco.png',
   },
   gravity: 24, walkSpeed: 5.5, runSpeed: 9.5, jumpSpeed: 8.5, runShoutEvery: 1.6,
@@ -33,10 +41,13 @@ export const CFG = {
   ],
 };
 
-export const quality = { level: IS_TOUCH ? 'low' : 'high' };
-try { const q = localStorage.getItem('cam_quality'); if (q === 'low' || q === 'high') quality.level = q; } catch (_) {}
-if (urlParams.get('q') === 'low' || urlParams.get('q') === 'high') quality.level = urlParams.get('q');
-export const Q = () => quality.level === 'high';
+// low: phones that struggle · high: PBR materials, image-based lighting, bloom, anti-aliasing · ultra: + cascaded shadows, ambient occlusion, grass
+export const LEVELS = ['low', 'high', 'ultra'];
+export const quality = { level: IS_TOUCH ? 'high' : 'ultra' };
+try { const q = localStorage.getItem('cam_quality'); if (LEVELS.includes(q)) quality.level = q; } catch (_) {}
+if (LEVELS.includes(urlParams.get('q'))) quality.level = urlParams.get('q');
+export const Q = () => quality.level !== 'low';
+export const QU = () => quality.level === 'ultra';
 
 export function showToast(text, ms = 1600) {
   const t = $('toast'); if (!t) return;
@@ -121,27 +132,76 @@ export const shutUp = (force = false) => say('shutup', force);
 // Renderer / scene
 // ---------------------------------------------------------------------------
 export const canvas = $('game');
-export const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+export const renderer = new THREE.WebGLRenderer({ canvas, antialias: !Q(), powerPreference: 'high-performance' });
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
 export const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xd8e8ff, 160, 520);
+scene.fog = new THREE.Fog(0xdfe9f3, 160, 520);
 export const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1400);
-export const hemi = new THREE.HemisphereLight(0xdfeeff, 0x5f6f4a, 0.65); scene.add(hemi);
+export const hemi = new THREE.HemisphereLight(0xdfeeff, 0x5f6f4a, Q() ? 0.35 : 0.65); scene.add(hemi);
+export const SUN_DIR = new THREE.Vector3(60, 90, 40).normalize();
 export const sun = new THREE.DirectionalLight(0xfff0d8, 2.4);
 sun.position.set(60, 90, 40); sun.castShadow = true;
 sun.shadow.camera.near = 1; sun.shadow.camera.far = 320;
 sun.shadow.camera.left = -70; sun.shadow.camera.right = 70; sun.shadow.camera.top = 70; sun.shadow.camera.bottom = -70;
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
 scene.add(sun); scene.add(sun.target);
+
+// Cascaded shadow maps (ultra): crisp shadows from Cam's feet to the far end of the street
+export let csm = null;
+export function initLighting() {
+  if (!QU()) return;
+  try {
+    csm = new CSM({ camera, parent: scene, cascades: 3, maxFar: 240, mode: 'practical', shadowMapSize: 2048, shadowBias: -0.00025, lightDirection: SUN_DIR.clone().negate(), lightIntensity: 2.4, lightNear: 1, lightFar: 600, lightMargin: 120, fade: true });
+    for (const l of csm.lights) { l.color.setHex(0xfff0d8); l.shadow.normalBias = 0.05; }
+    sun.visible = false; sun.castShadow = false;
+  } catch (e) { console.warn('CSM unavailable', e); csm = null; }
+}
+export function setupMaterial(m) { if (csm && m && m.isMeshStandardMaterial && !m.userData.csm) { csm.setupMaterial(m); m.userData.csm = true; } return m; }
+export function setupObject(root) { if (!csm) return; root.traverse((o) => { if (o.material) { if (Array.isArray(o.material)) o.material.forEach(setupMaterial); else setupMaterial(o.material); } }); }
+
+// Image-based lighting from the Higgsfield sky panorama
+export function loadEnvironment() {
+  if (!Q()) return;
+  new THREE.TextureLoader().load(CFG.textures.sky, (t) => {
+    t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
+    scene.background = t; scene.backgroundIntensity = 1.0;
+    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(t).texture; scene.environmentIntensity = 0.7; pm.dispose();
+  });
+}
+
+// Post-processing: ambient occlusion (ultra), bloom, filmic output, SMAA
+export let composer = null; let gtao = null, bloom = null, smaa = null;
+export function initPost() {
+  if (!Q()) return;
+  try {
+    const w = window.innerWidth, h = window.innerHeight;
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    if (QU() && !IS_TOUCH) {
+      gtao = new GTAOPass(scene, camera, w, h); gtao.output = GTAOPass.OUTPUT.Default;
+      gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1, thickness: 1, scale: 1.0, samples: 12, distanceFallOff: 1, screenSpaceRadius: false });
+      gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 4, radiusExponent: 1, rings: 2, samples: 16 });
+      gtao.blendIntensity = 0.85; composer.addPass(gtao);
+    }
+    bloom = new UnrealBloomPass(new THREE.Vector2(w, h), 0.28, 0.5, 0.93); composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+    smaa = new SMAAPass(w * renderer.getPixelRatio(), h * renderer.getPixelRatio()); composer.addPass(smaa);
+  } catch (e) { console.warn('post-processing unavailable', e); composer = null; }
+}
+export function render() { if (csm) csm.update(); if (composer) composer.render(); else renderer.render(scene, camera); }
+
 export function applyQuality() {
   const high = Q();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, high ? 2 : 1.5));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, high ? 1.5 : 1));
   const s = high ? (IS_TOUCH ? 2048 : 4096) : 1024;
   if (sun.shadow.mapSize.x !== s) { sun.shadow.mapSize.set(s, s); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
-  scene.fog.near = high ? 180 : 110; scene.fog.far = high ? 560 : 360;
+  scene.fog.near = high ? 200 : 110; scene.fog.far = high ? 620 : 360;
 }
-export function applyViewport() { const w = window.innerWidth, h = window.innerHeight; camera.aspect = w / h; camera.fov = w < h ? 74 : 60; camera.updateProjectionMatrix(); renderer.setSize(w, h); }
+export function applyViewport() {
+  const w = window.innerWidth, h = window.innerHeight; camera.aspect = w / h; camera.fov = w < h ? 74 : 60; camera.updateProjectionMatrix(); renderer.setSize(w, h);
+  if (composer) composer.setSize(w, h); if (smaa) smaa.setSize(w * renderer.getPixelRatio(), h * renderer.getPixelRatio()); if (csm) csm.updateFrustums();
+}
 
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export function seededRandom(seed) { let s = seed; return () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; }; }
@@ -151,30 +211,41 @@ export function seededRandom(seed) { let s = seed; return () => { s = (s * 16645
 // ---------------------------------------------------------------------------
 const texLoader = new THREE.TextureLoader();
 export const TEX = {};
-export function loadTexture(name, rx = 1, ry = rx, mirrored = true) {
-  const t = texLoader.load(CFG.textures[name], undefined, undefined, () => console.warn('texture missing', name));
+const PBR = new Set(['grass', 'dirt', 'brick', 'stone', 'bark', 'metal', 'planks', 'concrete', 'terrace', 'flats', 'slate', 'tarmac', 'pavement', 'astro', 'seats', 'foliage', 'ball']);
+export function loadTexture(name, rx = 1, ry = rx, mirrored = true, kind = '') {
+  const url = kind ? CFG.textures[name].replace(/\.(jpg|png)$/, `_${kind}.jpg`) : CFG.textures[name];
+  const t = texLoader.load(url, undefined, undefined, () => console.warn('texture missing', name, kind));
   t.wrapS = t.wrapT = mirrored ? THREE.MirroredRepeatWrapping : THREE.RepeatWrapping;
-  t.repeat.set(rx, ry); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-  TEX[name] = t; return t;
+  t.repeat.set(rx, ry); if (!kind) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  TEX[name + kind] = t; return t;
+}
+// A physically based material: albedo + derived normal and roughness maps (high/ultra), albedo only on low
+export function pbr(name, rx = 1, ry = rx, mirrored = true, extra = {}) {
+  const o = { color: 0xffffff, roughness: 1, map: loadTexture(name, rx, ry, mirrored), ...extra };
+  if (Q() && PBR.has(name)) { o.normalMap = loadTexture(name, rx, ry, mirrored, 'n'); o.normalScale = new THREE.Vector2(extra.bump ?? 1, extra.bump ?? 1); o.roughnessMap = loadTexture(name, rx, ry, mirrored, 'r'); }
+  delete o.bump;
+  return new THREE.MeshStandardMaterial(o);
 }
 export const MAT = {};
 export function buildMaterials() {
   const std = (o) => new THREE.MeshStandardMaterial(o);
-  MAT.ground = std({ vertexColors: true, roughness: 0.95, map: loadTexture('grass', 1) });
-  MAT.tarmac = std({ color: 0xffffff, roughness: 0.95, map: loadTexture('tarmac', 1, 1, false) });
-  MAT.pavement = std({ color: 0xffffff, roughness: 0.95, map: loadTexture('pavement', 1, 1, false) });
-  MAT.terrace = std({ vertexColors: true, roughness: 0.9, map: loadTexture('terrace', 1, 1, false) });
-  MAT.flats = std({ color: 0xffffff, roughness: 0.85, map: loadTexture('flats', 1, 1, false) });
-  MAT.brick = std({ color: 0xffffff, roughness: 0.9, map: loadTexture('brick', 1, 1, false) });
-  MAT.concrete = std({ color: 0xffffff, roughness: 0.9, map: loadTexture('concrete', 1, 1, false) });
-  MAT.slate = std({ color: 0xffffff, roughness: 0.95, map: loadTexture('slate', 1, 1, false) });
-  MAT.stone = std({ color: 0xffffff, roughness: 0.9, map: loadTexture('stone', 1, 1, false) });
-  MAT.astro = std({ color: 0xffffff, roughness: 0.9, map: loadTexture('astro', 1, 1, false) });
-  MAT.seats = std({ color: 0xffffff, roughness: 0.7, map: loadTexture('seats', 1, 1, false) });
-  MAT.bark = std({ color: 0xffffff, roughness: 1, map: loadTexture('bark', 1) });
-  MAT.metal = std({ color: 0xffffff, roughness: 0.45, metalness: 0.8, map: loadTexture('metal', 1) });
+  MAT.ground = pbr('grass', 1, 1, true, { vertexColors: true, bump: 0.6 });
+  MAT.tarmac = pbr('tarmac', 1, 1, false, { bump: 0.8 });
+  MAT.pavement = pbr('pavement', 1, 1, false, { bump: 0.9 });
+  MAT.terrace = pbr('terrace', 1, 1, false, { vertexColors: true, bump: 0.8 });
+  MAT.flats = pbr('flats', 1, 1, false, { bump: 0.7 });
+  MAT.brick = pbr('brick', 1, 1, false, { bump: 1.0 });
+  MAT.concrete = pbr('concrete', 1, 1, false, { bump: 0.6 });
+  MAT.slate = pbr('slate', 1, 1, true, { bump: 1.0 });
+  MAT.stone = pbr('stone', 1, 1, false, { bump: 1.0 });
+  MAT.astro = pbr('astro', 1, 1, false, { bump: 0.5 });
+  MAT.seats = pbr('seats', 1, 1, false, { bump: 0.6 });
+  MAT.bark = pbr('bark', 1, 1, true, { bump: 1.2 });
+  MAT.metal = pbr('metal', 1, 1, true, { metalness: 0.85, bump: 0.5 });
   MAT.water = std({ color: 0xffffff, roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.86, map: loadTexture('water', 40) });
-  MAT.planks = std({ color: 0xffffff, roughness: 0.85, map: loadTexture('planks', 1) });
+  MAT.planks = pbr('planks', 1, 1, true, { bump: 0.8 });
+  MAT.foliage = pbr('foliage', 1, 1, true, { bump: 1.0 });
+  MAT.crowd = std({ color: 0xffffff, roughness: 0.9, map: loadTexture('crowd', 1, 1, true) });
   MAT.crest = std({ color: 0xffffff, roughness: 0.7, map: loadTexture('crest', 1, 1, false) });
   MAT.grassPark = std({ color: 0x79b65a, roughness: 0.95 });
   MAT.cemetery = std({ color: 0x5d8a4e, roughness: 0.95 });
@@ -204,6 +275,8 @@ export function buildMaterials() {
   MAT.bench = std({ color: 0x5a3a1e, roughness: 0.9 });
   MAT.postbox = std({ color: 0xc8161d, roughness: 0.6 });
   MAT.lampGlow = new THREE.MeshBasicMaterial({ color: 0xfff1c0 });
+  MAT.glowSprite = new THREE.SpriteMaterial({ map: loadTexture('glow', 1, 1, false), color: 0xfff2cc, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  for (const v of Object.values(MAT)) { if (Array.isArray(v)) v.forEach(setupMaterial); else setupMaterial(v); }
 }
 
 // ---------------------------------------------------------------------------

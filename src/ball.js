@@ -1,5 +1,5 @@
 // Football physics: a rolling, spinning, bouncing ball with air drag, Magnus curl and rolling resistance.
-import { THREE, scene, synth } from './core.js';
+import { THREE, scene, synth, pbr, Q, setupMaterial } from './core.js';
 
 const G = 9.81 * 1.15;
 export const BALL_R = 0.15;
@@ -22,7 +22,7 @@ let ballTex = null;
 export class Ball {
   constructor(x, y, z) {
     ballTex = ballTex || soccerTexture();
-    this.mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 28, 20), new THREE.MeshStandardMaterial({ map: ballTex, roughness: 0.42, metalness: 0.02 }));
+    this.mesh = new THREE.Mesh(new THREE.SphereGeometry(BALL_R, 32, 24), Q() ? setupMaterial(pbr('ball', 2, 1, true, { bump: 0.7 })) : new THREE.MeshStandardMaterial({ map: ballTex, roughness: 0.42, metalness: 0.02 }));
     this.mesh.castShadow = true;
     scene.add(this.mesh);
     this.pos = new THREE.Vector3(x, y, z);

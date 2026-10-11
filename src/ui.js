@@ -23,7 +23,7 @@ export function initUI() {
     grid.appendChild(card);
   }
   // settings
-  const q = $('qualitySel'); q.value = quality.level; q.addEventListener('change', () => { quality.level = q.value; try { localStorage.setItem('cam_quality', q.value); } catch (_) {} applyQuality(); showToast('RESTART FOR FULL EFFECT', 1200); });
+  const q = $('qualitySel'); q.value = quality.level; q.addEventListener('change', () => { quality.level = q.value; try { localStorage.setItem('cam_quality', q.value); } catch (_) {} showToast('RELOADING…', 1200); setTimeout(() => location.reload(), 500); });
   const m = $('musicChk'); m.checked = audio.musicOn; m.addEventListener('change', () => { unlockAudio(); setMusic(m.checked); });
   setMusic(audio.musicOn);
   showTab('home');

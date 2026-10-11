@@ -1,6 +1,6 @@
 // Cam's Shut Up: SE London — main loop.
-import { THREE, CFG, IS_TOUCH, $, player, renderer, scene, camera, applyQuality, applyViewport, initAudio, unlockAudio, buildMaterials, say, shutUp, synth, showToast, feed, addScore, bus, urlParams, toggleMusic } from './core.js';
-import { loadWorld, buildWorld, nearestWorld, groundAt, world } from './map.js';
+import { THREE, CFG, IS_TOUCH, $, player, renderer, scene, camera, applyQuality, applyViewport, initAudio, unlockAudio, buildMaterials, say, shutUp, synth, showToast, feed, addScore, bus, urlParams, toggleMusic, TEX, Q, render, initLighting, loadEnvironment, initPost, setupObject, loadTexture } from './core.js';
+import { loadWorld, buildWorld, nearestWorld, groundAt, world, buildGrass, updateGrass } from './map.js';
 import { buildArenas, updateFootball, kickBallToMe, activeArena, arenas, arenaSpawn } from './football.js';
 import { bindInput, readInput, updatePlayer, updateCamera, loadOutfit, teleport, toggleEmote, input, cam, keys } from './player.js';
 import { locker, outfitDef, updateAccessories } from './locker.js';
@@ -12,6 +12,12 @@ const clock = new THREE.Clock();
 const FAST = urlParams.has('fast'); const STEPS = FAST ? Math.max(1, Number(urlParams.get('fast')) || 1) : 1; let simT = 0, frames = 0;
 
 function buildSky() {
+  if (Q()) {
+    // the Higgsfield panorama is the sky; add a few drifting cloud sprites for parallax
+    const clouds = new THREE.Group(); const cm = new THREE.SpriteMaterial({ map: TEX.cloud || null, transparent: true, depthWrite: false, opacity: 0.9, fog: false });
+    for (let i = 0; i < 22; i++) { const sp = new THREE.Sprite(cm); const s = 90 + Math.random() * 120; sp.scale.set(s, s * 0.55, 1); sp.position.set((Math.random() - 0.5) * 2600, 230 + Math.random() * 90, (Math.random() - 0.5) * 2600); clouds.add(sp); }
+    scene.add(clouds); return { dome: null, clouds };
+  }
   const geo = new THREE.SphereGeometry(1200, 24, 12);
   const col = new Float32Array(geo.attributes.position.count * 3); const top = new THREE.Color(0x3b86e0), mid = new THREE.Color(0x8ec5ff), hor = new THREE.Color(0xe7f0fa); const pos = geo.attributes.position, c = new THREE.Color();
   for (let i = 0; i < pos.count; i++) { const h = THREE.MathUtils.clamp(pos.getY(i) / 1200, -0.2, 1); if (h > 0.25) c.copy(mid).lerp(top, (h - 0.25) / 0.75); else c.copy(hor).lerp(mid, Math.max(0, h) / 0.25); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
@@ -42,10 +48,11 @@ function frame() {
     if (id !== lastWorldId) { lastWorldId = id; if (id) { setLocation(nw.world.name, nw.world.sub); feed('Entering ' + nw.world.name); player.world = id; } }
   } else if (player.mixer) player.mixer.update(dt);
   updateAccessories(t);
-  sky.dome.position.copy(camera.position);
+  if (sky.dome) sky.dome.position.copy(camera.position);
   sky.clouds.position.x = (t * 1.5) % 200;
   updateCamera(dt);
-  renderer.render(scene, camera);
+  updateGrass(player.pos.x, player.pos.z, t);
+  render();
 }
 let sky = null;
 
@@ -60,15 +67,18 @@ function dropAt(w) {
 }
 
 async function main() {
-  applyQuality(); applyViewport();
+  applyQuality(); initLighting(); applyViewport();
   window.addEventListener('resize', applyViewport); window.addEventListener('orientationchange', () => setTimeout(applyViewport, 150));
-  initAudio(); buildMaterials(); initUI();
+  initAudio(); buildMaterials(); loadTexture('cloud', 1, 1, false); loadEnvironment(); initUI();
   status('Loading south-east London…');
   await loadWorld();
   status('Building the streets…');
   sky = buildSky();
   buildWorld();
   buildArenas();
+  buildGrass();
+  setupObject(scene);
+  initPost(); applyViewport();
   status('Loading Cam…');
   const w0 = CFG.worlds[0]; teleport(w0.x + 6, w0.z + 12, Math.PI + 0.3);
   frame();
@@ -83,9 +93,9 @@ async function main() {
   } });
   ui.onPlay = () => dropAt(CFG.worlds[0]);
   ui.onWorld = (w) => dropAt(w);
-  ui.onOutfit = (o) => loadOutfit(o, status);
+  ui.onOutfit = (o) => loadOutfit(o, status).then(() => setupObject(player.root));
   ui.onResume = () => { started = true; };
-  await loadOutfit(outfitDef(), status);
+  await loadOutfit(outfitDef(), status); setupObject(player.root);
   status('Ready');
   $('playBtn').disabled = false;
   if (urlParams.has('at')) { const [ax, az] = urlParams.get('at').split(',').map(Number); teleport(ax, az); }

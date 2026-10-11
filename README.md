@@ -53,6 +53,18 @@ the spin locked to the velocity, rolling resistance, slope roll, swept
 collisions against posts, bars, nets, fences, boards and buildings. Dribble by
 running into it, cushion it when it comes at you, charge a shot and curl it.
 
+## Graphics
+
+Three presets in Settings. **Ultra** (desktop default): three-cascade shadow
+maps, ground-truth ambient occlusion, bloom, SMAA, a carpet of wind-blown
+grass around Cam. **High** (phone default): full PBR materials with derived
+normal and roughness maps on every surface, image-based lighting from a
+Higgsfield sky panorama, bloom and SMAA. **Low**: albedo-only materials and a
+gradient sky for older phones. Facades, slate, tarmac, pavement, astroturf,
+seats, the foliage, the crowd in the stands, the ball leather and the sky
+were all generated with Higgsfield; the terraces get pitched slate roofs with
+chimney stacks built from their real footprints.
+
 ## How it was made
 
 - **Map** — `tools/build_map.py` pulls OpenStreetMap buildings, roads, rail,
