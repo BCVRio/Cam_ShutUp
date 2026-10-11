@@ -1,8 +1,9 @@
 // Cam's Shut Up World — a Mario-style 3D open-world platformer starring Cam.
 // Three.js, no build step. Assets live in /public. Designed for phones first.
 
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+// Absolute ESM URLs (jsDelivr "+esm" rewrites the loader's bare `three` import to the same module), so no import map is required.
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js/+esm';
 
 // ---------------------------------------------------------------------------
 // Config
