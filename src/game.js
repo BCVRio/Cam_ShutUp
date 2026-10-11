@@ -13,6 +13,7 @@ if (IS_TOUCH) document.body.classList.add('touch');
 
 const CFG = {
   modelUrl: './public/models/cam.glb',
+  modelB64Url: './public/models/cam.glb.b64.txt',   // text copy for hosts that cannot serve .glb
   modelHeight: 1.4,          // Cam is ~1.4 units tall in-game
   modelYawOffset: 0,         // rotate if the GLB faces the wrong way
   // Voice lines. "shutup" = the real takes from the video; the others are cloned from his voice.
@@ -563,11 +564,26 @@ function setClip(name, fade = 0.18) {
   player.current = clip;
 }
 
+// Load the GLB directly; if the host cannot serve .glb files, fall back to the base64 text copy.
+async function loadModel(loader) {
+  const forceB64 = new URLSearchParams(location.search).has('b64');
+  if (!forceB64) {
+    try { return await loader.loadAsync(CFG.modelUrl); } catch (e) { console.warn('GLB load failed, trying base64 copy', e); }
+  }
+  const res = await fetch(CFG.modelB64Url);
+  if (!res.ok) throw new Error('base64 model missing: ' + res.status);
+  const b64 = await res.text();
+  const bin = atob(b64.trim());
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return loader.parseAsync(bytes.buffer, '');
+}
+
 async function loadPlayer() {
   const loader = new GLTFLoader();
   let model;
   try {
-    const gltf = await loader.loadAsync(CFG.modelUrl);
+    const gltf = await loadModel(loader);
     model = gltf.scene;
     const box = new THREE.Box3().setFromObject(model);
     const size = new THREE.Vector3(); box.getSize(size);
