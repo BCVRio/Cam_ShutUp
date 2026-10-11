@@ -31,6 +31,15 @@ Collect coins (25 coins = 1-UP), bonk `?` blocks from below, stomp the
 mushroom goombas from above, find the flag by the castle for a course clear.
 Touching a goomba from the side costs a life.
 
+### What's in the world
+
+- **Realistic look** — photoreal seamless textures (grass, dirt, brick, castle stone, bark, water, lava, steel) generated with Higgsfield, a gradient sky with a sun, sky-based reflections on coins and metal, wind-swayed grass blades, flowers, rocks, textured trees, soft 4K shadows on desktop. Cam himself is a 62k-triangle PBR model with normal and roughness maps.
+- **Football mode** — walk onto the pitch (west of spawn, under the floodlights) to kick off a 60-second match. Run into the ball to kick it, jump into it to lob it, beat the two goalkeepers. Goals count in both nets.
+- **Power-ups** (respawn after 40 s): jetpack (hold jump in the air to fly), speed boots, super spring, star power (invincible, enemies die on touch), giant Cam (twice the size, crushes everything).
+- **Mods** (gear button): infinite jetpack, moon gravity, giant Cam, speed demon, rainbow mode, graphics quality, music.
+- **Missions** (flag button): coins, stomps, block bonks, football goals, jetpack flight time, the Sky Tower spiral, the castle flag, power-ups. Progress is saved on the device.
+- **Enemies and hazards** — goombas (stomp), spiky shells (never stomp), swooping bats, piranha plants in pipes, cannons that fire bullets, rotating fire bars, lava pools, spike plates on the gauntlet, thwomp crushers, moving platforms.
+
 ### On a phone
 
 The game is built for touch first: a big left thumb-stick (push far to run),
@@ -45,9 +54,9 @@ shorter draw distance. Safe-area insets keep the HUD clear of the notch.
 
 | Event | Line |
 | --- | --- |
-| start moving, every 1.4 s while moving, every jump | **"Shut up!"** (his real takes from the video) |
+| start moving, every 1.4 s while moving, every jump, every kick | **"Shut up!"** (his real takes from the video) |
 | coin | "Yay!" |
-| stomp a goomba, bonk a `?` block | "Oh yeah!" |
+| stomp an enemy, bonk a `?` block, score a goal | "Oh yeah!" |
 | bonk a brick, get hurt | "Ooh!" |
 | fall in the pond, game over | "Oh no!" |
 | 1-UP, course clear | "Woo hoo!" |
@@ -95,15 +104,24 @@ in a speech bubble over his head.
 ## Project layout
 
 ```
-index.html            page, HUD, touch controls, importmap for Three.js
-src/game.js           the whole game: world, player, physics, enemies, audio
-public/models/cam.glb rigged + animated Cam (Idle / Run / Jump)
-public/audio/         shutup_1..4.mp3, music_overworld.mp3, coin.mp3, stomp.mp3
-public/art/           avatar renders, key art, world style sheet
+index.html            page, HUD, panels, touch controls
+src/core.js           config, audio, renderer, textures/materials, player state
+src/world.js          sky, terrain, grass, decor, platforms, coins, pipes, castle, flag
+src/entities.js       enemies, hazards, power-ups, moving platforms
+src/football.js       pitch, ball physics, keepers, match
+src/game.js           player, input, camera, mods + missions panels, main loop
+public/models/cam.glb rigged + animated HD Cam (Idle / Run / Jump)
+public/textures/      seamless textures (jpg)
+public/audio/         shutup_1..4.mp3, reactions, music_overworld.mp3, coin.mp3, stomp.mp3
+public/art/           avatar renders, key art, world style sheet, screenshots
 ```
+
+Debug URL parameters: `?q=low|high` quality, `?at=x,z` spawn point, `?power=jetpack` start with a power-up, `?b64=1` force the text-encoded model.
 
 ### Tuning knobs (`src/game.js`, top of file)
 
 `CFG.runShoutEvery` – seconds between "shut up"s while he keeps moving.
 `CFG.jumpSpeed`, `CFG.gravity`, `CFG.walkSpeed`, `CFG.runSpeed` – feel.
 `CFG.modelYawOffset` – rotate the GLB if a re-export faces the wrong way.
+`CFG.pitch` – where the football pitch sits (the terrain flattens there).
+`POWER` in `src/entities.js` – power-up durations.
