@@ -6,183 +6,177 @@
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Cam's World" />
-  <meta name="theme-color" content="#5ec8ff" />
-  <title>Cam's Shut Up World</title>
+  <meta name="theme-color" content="#14275e" />
+  <title>Cam's Shut Up SE London</title>
   <link rel="manifest" href="./manifest.webmanifest" />
   <link rel="icon" href="./public/art/icon-192.png" />
   <link rel="apple-touch-icon" href="./public/art/icon-192.png" />
-  <meta property="og:title" content="Cam's Shut Up World" />
-  <meta property="og:description" content="A Mario-style 3D open-world platformer starring Cam. Every move he makes, he says shut up." />
-  <meta property="og:image" content="public/art/keyart.png" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Bebas+Neue&display=swap" />
+  <meta property="og:title" content="Cam's Shut Up SE London" />
+  <meta property="og:description" content="Open-world football across Nunhead, Bosco FC Stadium, the Cage at Edmund Waller and Dr Harold Moody Park — built from real map data." />
+  <meta property="og:image" content="public/art/keyart_bosco.jpg" />
   <style>
     :root {
-      --sky: #5ec8ff;
-      --ink: #1b1b3a;
-      --yellow: #ffd83d;
-      --red: #e8402a;
-      --sat: env(safe-area-inset-top, 0px);
-      --sab: env(safe-area-inset-bottom, 0px);
-      --sal: env(safe-area-inset-left, 0px);
-      --sar: env(safe-area-inset-right, 0px);
+      --navy: #14275e; --gold: #f2c233; --ink: #0d1330; --panel: rgba(13, 19, 48, 0.78); --line: rgba(255,255,255,0.16);
+      --green: #39d67a; --red: #ff3b5c; --blue: #2fb0ff;
+      --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px);
+      --display: "Bebas Neue", "Oswald", Impact, "Arial Narrow", sans-serif; --font: "Oswald", Impact, "Arial Narrow", sans-serif;
     }
-    * { -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
     [hidden] { display: none !important; }
-    html, body { margin: 0; height: 100%; color-scheme: light; overflow: hidden; background: var(--sky); font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif; overscroll-behavior: none; }
+    html, body { margin: 0; height: 100%; color-scheme: dark; overflow: hidden; background: var(--navy); font-family: var(--font); color: #fff; overscroll-behavior: none; }
     body { position: fixed; inset: 0; touch-action: none; user-select: none; -webkit-user-select: none; }
     #game { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
 
-    .hud {
-      position: fixed; top: calc(10px + var(--sat)); left: calc(14px + var(--sal)); right: calc(14px + var(--sar));
-      display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none;
-      color: #fff; font-weight: 900; font-size: clamp(16px, 2.6vmax, 24px); letter-spacing: 0.5px;
-      text-shadow: 2px 2px 0 var(--ink), -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink);
+    /* ---------- MENU / OPENING PAGE ---------- */
+    #menu { position: fixed; inset: 0; z-index: 30; display: grid; grid-template-rows: auto 1fr; background: #0b1130 url("./public/art/keyart_bosco.jpg") center / cover no-repeat; }
+    #menu::before { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(8,12,36,0.92) 0%, rgba(8,12,36,0.75) 42%, rgba(8,12,36,0.15) 100%); pointer-events: none; }
+    #menu.pause::before { background: linear-gradient(90deg, rgba(8,12,36,0.95) 0%, rgba(8,12,36,0.85) 42%, rgba(8,12,36,0.5) 100%); }
+    #menuTop { position: relative; display: flex; align-items: center; gap: 14px; padding: calc(14px + var(--sat)) calc(22px + var(--sar)) 8px calc(22px + var(--sal)); }
+    #menuTop img { width: 64px; height: 64px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); }
+    #menuTop h1 { margin: 0; font-family: var(--display); font-size: clamp(34px, 6.5vmin, 64px); line-height: 0.9; letter-spacing: 0.03em; color: var(--gold); text-shadow: 0 3px 0 var(--navy), 0 10px 30px rgba(0,0,0,0.7); transform: skewX(-4deg); }
+    #menuTop h1 small { display: block; font-size: 0.42em; color: #fff; letter-spacing: 0.2em; }
+    #menuBody { position: relative; display: grid; grid-template-columns: 240px 1fr; gap: 18px; padding: 8px calc(22px + var(--sar)) calc(18px + var(--sab)) calc(22px + var(--sal)); min-height: 0; }
+    #menuNav { display: flex; flex-direction: column; gap: 10px; }
+    #menuNav button { position: relative; text-align: left; font: 700 20px var(--font); text-transform: uppercase; letter-spacing: 0.08em; padding: 12px 16px; border-radius: 10px; border: 2px solid var(--line); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; backdrop-filter: blur(6px); transition: transform 0.08s, background 0.15s; }
+    #menuNav button:hover { background: rgba(255,255,255,0.14); transform: translateX(4px); }
+    #menuNav button.on { border-color: var(--gold); background: linear-gradient(90deg, rgba(242,194,51,0.35), rgba(242,194,51,0.08)); }
+    #menuNav button.primary { font-family: var(--display); font-size: 30px; letter-spacing: 0.06em; background: linear-gradient(180deg, var(--gold), #d99a12); color: var(--navy); border-color: #fff; box-shadow: 0 6px 0 #8a5a08, 0 0 30px rgba(242,194,51,0.45); }
+    #menuNav button.primary:disabled { opacity: 0.6; cursor: wait; }
+    #menuNav button.primary:active { transform: translateY(3px); box-shadow: 0 3px 0 #8a5a08; }
+    #loadStatus { font-size: 13px; color: #cdd6f5; letter-spacing: 0.08em; text-transform: uppercase; margin: 6px 0 0 4px; }
+    .tab { min-width: 0; overflow: auto; }
+    #tab_home { display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; }
+    #tab_home p { margin: 0; max-width: 520px; font-size: clamp(14px, 2.2vmin, 18px); line-height: 1.45; text-shadow: 0 2px 6px rgba(0,0,0,0.8); background: rgba(8,12,36,0.45); padding: 12px 14px; border-left: 4px solid var(--gold); border-radius: 0 10px 10px 0; backdrop-filter: blur(4px); }
+    #tab_home .keys { font-size: 13px; color: #cdd6f5; }
+    kbd { background: #fff; color: var(--navy); border-radius: 5px; padding: 1px 6px; font-weight: 700; }
+    body.touch .desktop-only { display: none; } body:not(.touch) .touch-only { display: none; }
+    #worldsGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+    .wcard { position: relative; border: 2px solid var(--line); border-radius: 14px; overflow: hidden; background: var(--panel); cursor: pointer; padding: 0; text-align: left; color: #fff; aspect-ratio: 16 / 11; display: flex; flex-direction: column; justify-content: flex-end; transition: transform 0.12s, border-color 0.12s; }
+    .wcard img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .wcard .wname, .wcard .wsub { position: relative; z-index: 1; padding: 0 12px; text-shadow: 0 2px 6px rgba(0,0,0,0.9); }
+    .wcard .wname { font-family: var(--display); font-size: 26px; letter-spacing: 0.04em; color: var(--gold); }
+    .wcard .wsub { font-size: 13px; padding-bottom: 10px; color: #e6ecff; }
+    .wcard::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(8,12,36,0.9)); }
+    .wcard:hover { transform: translateY(-3px); border-color: var(--gold); }
+    #bigmap { width: 100%; max-width: 820px; aspect-ratio: 1880 / 1560; border-radius: 12px; border: 2px solid var(--line); background: #9cbf79; }
+    .settings .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 4px; border-top: 1px solid var(--line); max-width: 560px; }
+    .settings .row:first-child { border-top: 0; }
+    .settings b { font-size: 16px; } .settings small { display: block; font-size: 12.5px; color: #aab2d6; font-weight: 500; }
+    .settings select { font: 700 15px var(--font); padding: 6px 10px; border: 2px solid var(--line); border-radius: 8px; background: #0f1430; color: #fff; }
+    .settings input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--gold); }
+    #lockerBody h3 { margin: 14px 0 6px; font-size: 13px; letter-spacing: 0.14em; color: var(--blue); text-transform: uppercase; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { font: 700 14px var(--font); text-transform: uppercase; letter-spacing: 0.04em; padding: 8px 12px; border-radius: 8px; border: 2px solid var(--line); background: rgba(255,255,255,0.06); color: #fff; cursor: pointer; touch-action: manipulation; }
+    .chip.on { border-color: var(--gold); background: linear-gradient(180deg, rgba(242,194,51,0.35), rgba(242,194,51,0.12)); }
+    .chips.thumbs .chip { width: 120px; padding: 6px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .chips.thumbs img { width: 100%; height: 140px; object-fit: cover; object-position: top; border-radius: 6px; background: #fff; }
+    .chips.thumbs small { font-size: 11px; color: #aab2d6; text-transform: none; letter-spacing: 0; font-weight: 500; }
+    .credit { position: absolute; right: calc(14px + var(--sar)); bottom: calc(8px + var(--sab)); font-size: 11px; color: #aab2d6; opacity: 0.8; }
+    @media (max-width: 760px), (max-height: 480px) {
+      #menuBody { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 10px; }
+      #menuNav { flex-direction: row; flex-wrap: wrap; } #menuNav button { padding: 8px 12px; font-size: 15px; } #menuNav button.primary { font-size: 22px; width: 100%; }
+      #menuTop img { width: 44px; height: 44px; } #worldsGrid { grid-template-columns: repeat(2, 1fr); gap: 8px; } .wcard .wname { font-size: 18px; } .wcard .wsub { font-size: 11px; }
     }
-    .hud .stat { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; line-height: 1.1; }
-    .hud .coin { display: inline-block; width: 0.8em; height: 0.8em; border-radius: 50%; background: var(--yellow); border: 2px solid var(--ink); box-shadow: inset -3px -3px 0 #e0a800; }
-    .hud .heart { color: #ff4d6d; }
-    .hud .btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; pointer-events: auto; }
-    .hud .btns button {
-      position: relative; width: 46px; height: 46px; border-radius: 50%; border: 3px solid var(--ink); background: rgba(255,255,255,0.88); color: var(--ink);
-      font-weight: 900; font-size: 19px; box-shadow: 0 3px 0 var(--ink); cursor: pointer; padding: 0; text-shadow: none; touch-action: manipulation;
-    }
-    .hud .btns button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
-    .hud .btns button.off { background: rgba(200,200,210,0.8); color: #777; }
-    .hud .btns button.off::after { content: ""; position: absolute; left: 8px; right: 8px; top: 50%; height: 3px; background: var(--red); transform: rotate(-40deg); border-radius: 2px; }
 
-    #center { position: fixed; top: calc(10px + var(--sat)); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; }
-    #powerBar { width: min(46vw, 260px); background: rgba(27,27,58,0.6); border: 3px solid var(--ink); border-radius: 999px; padding: 3px; }
-    #powerLabel { color: var(--yellow); font-weight: 900; font-size: 13px; text-align: center; letter-spacing: 1px; text-shadow: 1px 1px 0 var(--ink); margin-bottom: 2px; }
-    #powerFill { height: 8px; border-radius: 999px; background: linear-gradient(90deg, #ffd83d, #ff8c42); width: 100%; transition: width 0.2s linear; }
-    #footballHud { display: flex; gap: 14px; align-items: center; background: rgba(27,27,58,0.7); border: 3px solid var(--ink); border-radius: 14px; padding: 4px 14px; color: #fff; font-weight: 900; font-size: clamp(16px, 2.6vmax, 22px); text-shadow: 1px 1px 0 var(--ink); }
-    #footballHud .ball { display: inline-block; width: 0.9em; height: 0.9em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #fff 0 30%, #222 31% 45%, #fff 46%); border: 2px solid var(--ink); vertical-align: -2px; }
+    /* ---------- HUD ---------- */
+    .pill { display: inline-flex; align-items: center; gap: 8px; background: var(--panel); border: 2px solid var(--line); border-radius: 8px; padding: 4px 10px; font-weight: 700; font-size: clamp(13px, 2.1vmax, 19px); text-transform: uppercase; letter-spacing: 0.04em; text-shadow: 0 2px 0 rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+    .pill .k { color: var(--gold); font-size: 0.75em; }
+    #topLeft { position: fixed; top: calc(10px + var(--sat)); left: calc(12px + var(--sal)); display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+    #topRight { position: fixed; top: calc(10px + var(--sat)); right: calc(12px + var(--sar)); display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    #minimap { width: clamp(110px, 18vmin, 170px); height: clamp(110px, 18vmin, 170px); border-radius: 50%; border: 3px solid rgba(255,255,255,0.8); box-shadow: 0 4px 14px rgba(0,0,0,0.45); background: #9cbf79; }
+    .btns { display: flex; gap: 6px; pointer-events: auto; }
+    .btns button { position: relative; min-width: 44px; height: 44px; padding: 0 10px; border-radius: 8px; border: 2px solid var(--line); background: var(--panel); color: #fff; font: 700 15px var(--font); text-transform: uppercase; letter-spacing: 0.04em; cursor: pointer; touch-action: manipulation; backdrop-filter: blur(4px); box-shadow: 0 3px 0 rgba(0,0,0,0.35); }
+    .btns button:active { transform: translateY(2px); box-shadow: none; }
+    .btns button.off { color: #8a8fa8; } .btns button.off::after { content: ""; position: absolute; left: 10px; right: 10px; top: 50%; height: 3px; background: var(--red); transform: rotate(-35deg); border-radius: 2px; }
+    #matchHud { position: fixed; top: calc(10px + var(--sat)); left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
+    #matchHud .score { display: flex; align-items: center; gap: 12px; background: linear-gradient(180deg, var(--navy), #0b1540); border: 2px solid var(--gold); border-radius: 10px; padding: 4px 16px; font-family: var(--display); font-size: clamp(22px, 4vmax, 36px); letter-spacing: 0.06em; color: #fff; }
+    #matchHud .score b { color: var(--gold); }
+    #matchHud .names { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #e6ecff; text-shadow: 0 1px 0 #000; }
+    #locBanner { position: fixed; left: 50%; top: 30%; transform: translateX(-50%) skewX(-6deg); text-align: center; pointer-events: none; opacity: 0; }
+    #locBanner.show { animation: loc 3.2s ease-out forwards; }
+    @keyframes loc { 0% { opacity: 0; transform: translateX(-50%) skewX(-6deg) translateY(16px); } 12% { opacity: 1; transform: translateX(-50%) skewX(-6deg) translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; } }
+    #locName { font-family: var(--display); font-size: clamp(34px, 8vmin, 84px); letter-spacing: 0.04em; color: var(--gold); text-shadow: 4px 4px 0 var(--navy), 0 0 30px rgba(0,0,0,0.6); line-height: 1; }
+    #locSub { font-size: clamp(13px, 2.2vmin, 18px); letter-spacing: 0.18em; text-transform: uppercase; color: #fff; text-shadow: 0 2px 0 #000; }
+    #feed { position: fixed; top: calc(70px + var(--sat)); left: calc(12px + var(--sal)); display: flex; flex-direction: column; gap: 4px; pointer-events: none; max-width: 48vw; }
+    .feedRow { background: rgba(0,0,0,0.45); border-left: 4px solid var(--gold); padding: 3px 10px; font-weight: 500; font-size: 14px; opacity: 1; transition: opacity 0.4s; } .feedRow.out { opacity: 0; }
+    #toast { position: fixed; left: 50%; top: 24%; transform: translateX(-50%) skewX(-6deg); font-family: var(--display); font-size: clamp(30px, 7vmin, 72px); color: var(--gold); letter-spacing: 0.04em; text-shadow: 4px 4px 0 var(--navy), 0 0 24px rgba(242,194,51,0.6); pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: nowrap; }
+    #power { position: fixed; left: 50%; bottom: calc(24px + var(--sab)); transform: translateX(-50%); width: min(40vw, 260px); height: 12px; border: 2px solid #fff; border-radius: 999px; background: rgba(0,0,0,0.5); overflow: hidden; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
+    #power i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--gold), var(--red)); }
+    #hint { position: fixed; bottom: calc(10px + var(--sab)); left: 50%; transform: translateX(-50%); color: #fff; font-weight: 500; font-size: 13px; text-shadow: 0 1px 0 #000; opacity: 0.8; pointer-events: none; white-space: nowrap; }
+    body.touch #hint { display: none; } body.touch #power { bottom: calc(150px + var(--sab)); }
 
-    #bubble {
-      position: fixed; left: 0; top: 0; transform: translate(-50%, -100%); pointer-events: none;
-      background: #fff; color: var(--ink); border: 3px solid var(--ink); border-radius: 14px; padding: 5px 12px;
-      font-weight: 900; font-size: clamp(16px, 2.6vmax, 22px); opacity: 0; transition: opacity 0.1s; white-space: nowrap;
-    }
-    #bubble::after { content: ""; position: absolute; left: 50%; bottom: -12px; margin-left: -8px; border: 8px solid transparent; border-top-color: var(--ink); border-bottom: 0; }
-
-    #overlay {
-      position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
-      background: rgba(20, 30, 70, 0.55); color: #fff; text-align: center; z-index: 10;
-      padding: calc(16px + var(--sat)) 20px calc(16px + var(--sab));
-    }
-    #overlay h1 { margin: 0; font-size: clamp(30px, 9vmin, 84px); line-height: 1; color: var(--yellow); letter-spacing: 1px; text-shadow: 4px 4px 0 var(--red), 7px 7px 0 var(--ink); }
-    #overlay p { margin: 0; font-size: clamp(14px, 2.4vmin, 18px); max-width: 600px; line-height: 1.4; text-shadow: 1px 1px 0 var(--ink); }
-    #overlay button {
-      font: inherit; font-weight: 900; font-size: clamp(20px, 4vmin, 28px); padding: 14px 34px; border-radius: 999px; border: 4px solid var(--ink);
-      background: var(--yellow); color: var(--ink); cursor: pointer; box-shadow: 0 6px 0 var(--ink); transition: transform 0.08s; min-height: 56px;
-    }
-    #overlay button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--ink); }
-    #overlay .keys { font-size: clamp(12px, 2vmin, 15px); opacity: 0.9; }
-    #overlay kbd { background: #fff; color: var(--ink); border-radius: 6px; padding: 2px 7px; font-weight: 900; border: 2px solid var(--ink); }
-    body.touch #overlay .desktop-only { display: none; }
-    body:not(.touch) #overlay .touch-only { display: none; }
-
-    #toast {
-      position: fixed; left: 50%; top: 22%; transform: translateX(-50%); font-weight: 900; font-size: clamp(26px, 7vmin, 64px); color: var(--yellow);
-      text-shadow: 3px 3px 0 var(--red), 6px 6px 0 var(--ink); pointer-events: none; opacity: 0; transition: opacity 0.2s; white-space: nowrap;
-    }
-    #hint { position: fixed; bottom: calc(12px + var(--sab)); left: 50%; transform: translateX(-50%); color: #fff; font-weight: 700; font-size: 14px; text-shadow: 1px 1px 0 var(--ink); opacity: 0.85; pointer-events: none; white-space: nowrap; }
-
-    /* ---- panel (mods / missions) ---- */
-    #panel { position: fixed; inset: 0; z-index: 20; background: rgba(10, 16, 40, 0.55); display: flex; align-items: center; justify-content: center; padding: calc(12px + var(--sat)) 16px calc(12px + var(--sab)); }
-    #panel[hidden] { display: none; }
-    #panelCard { width: min(560px, 100%); max-height: 100%; overflow: auto; background: #fff; color: var(--ink); border: 4px solid var(--ink); border-radius: 20px; box-shadow: 0 8px 0 var(--ink); padding: 14px 16px 18px; }
-    #panelHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    #panelTitle { margin: 0; font-size: 26px; letter-spacing: 1px; color: var(--red); text-shadow: 2px 2px 0 var(--yellow); }
-    #panelClose { width: 40px; height: 40px; border-radius: 50%; border: 3px solid var(--ink); background: var(--yellow); font-weight: 900; font-size: 18px; cursor: pointer; box-shadow: 0 3px 0 var(--ink); }
-    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 4px; border-top: 2px solid #eceaf5; cursor: pointer; }
-    .row:first-child { border-top: 0; }
-    .row span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .row b { font-size: 16px; }
-    .row small { font-size: 12.5px; color: #5a5a7a; line-height: 1.3; }
-    .row input[type=checkbox] { position: absolute; opacity: 0; width: 0; height: 0; }
-    .row .sw { flex: none; width: 54px; height: 30px; border-radius: 999px; background: #cfcfe0; border: 3px solid var(--ink); position: relative; transition: background 0.15s; }
-    .row .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 2px solid var(--ink); transition: left 0.15s; }
-    .row input:checked + .sw { background: #3bd36a; }
-    .row input:checked + .sw::after { left: 26px; }
-    .row select { font: inherit; font-weight: 900; padding: 6px 10px; border: 3px solid var(--ink); border-radius: 10px; background: #fff; }
-    .row.mission { cursor: default; }
-    .row.mission .bar { flex: none; width: 90px; height: 14px; border: 2px solid var(--ink); border-radius: 999px; background: #eceaf5; overflow: hidden; display: block; }
-    .row.mission .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ffd83d, #3bd36a); }
-    .row.mission.done b { color: #1f9c4a; }
-    .note { font-size: 13px; color: #5a5a7a; margin: 10px 4px 0; line-height: 1.4; }
-
-    /* ---- touch controls ---- */
-    #touch { position: fixed; inset: 0; pointer-events: none; display: none; }
-    body.touch #touch { display: block; }
-    body.touch #hint { display: none; }
-    #stick { position: absolute; left: calc(22px + var(--sal)); bottom: calc(22px + var(--sab)); width: 150px; height: 150px; border-radius: 50%; background: rgba(255,255,255,0.16); border: 3px solid rgba(255,255,255,0.6); pointer-events: auto; touch-action: none; }
-    #knob { position: absolute; left: 44px; top: 44px; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.8); border: 3px solid var(--ink); box-shadow: 0 3px 0 rgba(0,0,0,0.3); }
-    #jumpBtn {
-      position: absolute; right: calc(22px + var(--sar)); bottom: calc(30px + var(--sab)); width: 112px; height: 112px; border-radius: 50%;
-      background: var(--yellow); border: 4px solid var(--ink); pointer-events: auto; touch-action: none; font-weight: 900; font-size: 22px; color: var(--ink);
-      display: flex; align-items: center; justify-content: center; box-shadow: 0 7px 0 var(--ink);
-    }
-    #jumpBtn.down { transform: translateY(5px); box-shadow: 0 2px 0 var(--ink); background: #ffe680; }
-    #camHint { position: absolute; right: calc(24px + var(--sar)); bottom: calc(154px + var(--sab)); color: #fff; font-size: 12px; font-weight: 700; text-shadow: 1px 1px 0 var(--ink); opacity: 0.7; pointer-events: none; }
-    @media (max-height: 420px) {
-      #stick { width: 120px; height: 120px; bottom: calc(14px + var(--sab)); }
-      #knob { left: 31px; top: 31px; width: 48px; height: 48px; }
-      #jumpBtn { width: 92px; height: 92px; bottom: calc(18px + var(--sab)); font-size: 18px; }
-      #camHint { bottom: calc(120px + var(--sab)); }
-      #overlay { gap: 8px; }
-      .hud .btns button { width: 40px; height: 40px; font-size: 16px; }
-    }
+    /* ---------- touch controls ---------- */
+    #touch { position: fixed; inset: 0; pointer-events: none; display: none; } body.touch #touch { display: block; }
+    #stick { position: absolute; left: calc(22px + var(--sal)); bottom: calc(22px + var(--sab)); width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,0.14); border: 3px solid rgba(255,255,255,0.55); pointer-events: auto; touch-action: none; }
+    #knob { position: absolute; left: 41px; top: 41px; width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.8); border: 3px solid var(--ink); }
+    .tbtn { position: absolute; pointer-events: auto; touch-action: none; border-radius: 50%; border: 3px solid #fff; display: flex; align-items: center; justify-content: center; font: 700 15px var(--font); text-transform: uppercase; color: var(--ink); box-shadow: 0 5px 0 rgba(0,0,0,0.4); }
+    .tbtn.down { transform: translateY(4px); box-shadow: none; filter: brightness(1.15); }
+    #kickBtn { right: calc(22px + var(--sar)); bottom: calc(40px + var(--sab)); width: 112px; height: 112px; background: var(--gold); font-size: 20px; }
+    #jumpBtn { right: calc(142px + var(--sar)); bottom: calc(26px + var(--sab)); width: 80px; height: 80px; background: var(--green); }
+    #emoteBtn { right: calc(28px + var(--sar)); bottom: calc(162px + var(--sab)); width: 56px; height: 56px; background: #a65cff; color: #fff; font-size: 12px; }
+    #ballBtn { right: calc(150px + var(--sar)); bottom: calc(116px + var(--sab)); width: 56px; height: 56px; background: #fff; font-size: 12px; }
+    @media (max-height: 430px) { #stick { width: 112px; height: 112px; bottom: calc(12px + var(--sab)); } #knob { left: 29px; top: 29px; width: 46px; height: 46px; } #kickBtn { width: 88px; height: 88px; bottom: calc(22px + var(--sab)); } #jumpBtn { width: 64px; height: 64px; right: calc(118px + var(--sar)); bottom: calc(14px + var(--sab)); } #emoteBtn { width: 44px; height: 44px; bottom: calc(118px + var(--sab)); } #ballBtn { width: 44px; height: 44px; right: calc(122px + var(--sar)); bottom: calc(86px + var(--sab)); } #minimap { width: 96px; height: 96px; } }
   </style>
 </head>
 <body>
   <canvas id="game"></canvas>
 
-  <div class="hud">
-    <div>
-      <div class="stat"><span class="coin"></span><span id="coins">0</span></div>
-      <div class="stat"><span class="heart">&#10084;</span><span id="lives">3</span></div>
-    </div>
-    <div style="text-align:right">
-      <div class="stat" style="justify-content:flex-end">SCORE <span id="score">0</span></div>
-      <div class="stat" style="justify-content:flex-end; font-size:0.72em; opacity:.9">SHUT UPS <span id="shutups">0</span></div>
-      <div class="btns">
-        <button id="missionsBtn" type="button" aria-label="Missions" title="Missions">&#9873;</button>
-        <button id="modsBtn" type="button" aria-label="Mods and settings" title="Mods">&#9881;</button>
-        <button id="musicBtn" type="button" aria-label="Music on/off" title="Music (M)">&#9835;</button>
-        <button id="fsBtn" type="button" aria-label="Fullscreen" title="Fullscreen">&#x26F6;</button>
-      </div>
+  <!-- ---------- HUD ---------- -->
+  <div id="topLeft">
+    <div class="pill"><span id="score">0</span><span class="k">PTS</span><span style="opacity:.4">|</span><span id="shutups">0</span><span class="k">SHUT UPS</span></div>
+  </div>
+  <div id="topRight">
+    <canvas id="minimap" width="170" height="170"></canvas>
+    <div class="btns">
+      <button id="menuBtn" type="button" title="Menu (Esc)">&#9776; Menu</button>
+      <button type="button" data-music title="Music (M)">&#9835;</button>
+      <button id="fsBtn" type="button" title="Fullscreen">&#x26F6;</button>
     </div>
   </div>
-
-  <div id="center">
-    <div id="powerBar" hidden><div id="powerLabel">JETPACK</div><div id="powerFill"></div></div>
-    <div id="footballHud" hidden><span><span class="ball"></span> <span id="fbGoals">0</span></span><span>&#9201; <span id="fbTime">60</span></span></div>
-  </div>
-
-  <div id="bubble">SHUT UP!</div>
+  <div id="matchHud" hidden><div class="score"><b id="mhHome">0</b><span>–</span><b id="mhAway">0</b><span id="mhTime" style="font-size:0.6em;margin-left:8px">3:00</span></div><div class="names" id="mhNames">BOSCO FC v NUNHEAD ROVERS</div></div>
+  <div id="locBanner"><div id="locName">NUNHEAD</div><div id="locSub">South-east London</div></div>
+  <div id="feed"></div>
   <div id="toast"></div>
-  <div id="hint">WASD / arrows: move &nbsp;·&nbsp; Shift: run &nbsp;·&nbsp; Space: jump (hold to fly with a jetpack) &nbsp;·&nbsp; drag mouse: camera &nbsp;·&nbsp; M: music</div>
-
+  <div id="power"><i></i></div>
+  <div id="hint">WASD move · Shift run · Space jump · hold F / click to charge a kick, release to shoot · A/D while kicking curls · G emote · B ball · Esc menu</div>
   <div id="touch">
     <div id="stick"><div id="knob"></div></div>
-    <div id="camHint">drag here to look</div>
-    <div id="jumpBtn">JUMP</div>
+    <div id="ballBtn" class="tbtn">BALL</div>
+    <div id="emoteBtn" class="tbtn">EMOTE</div>
+    <div id="jumpBtn" class="tbtn">JUMP</div>
+    <div id="kickBtn" class="tbtn">KICK</div>
   </div>
 
-  <div id="panel" hidden>
-    <div id="panelCard">
-      <div id="panelHead"><h2 id="panelTitle">MODS</h2><button id="panelClose" type="button" aria-label="Close">&#10005;</button></div>
-      <div id="panelBody"></div>
+  <!-- ---------- MENU / OPENING PAGE ---------- -->
+  <div id="menu">
+    <div id="menuTop"><img src="./public/art/crest_bosco.png" alt="" /><h1>Cam's Shut Up<small>SE London · Team Bosco</small></h1></div>
+    <div id="menuBody">
+      <nav id="menuNav">
+        <button id="playBtn" type="button" class="primary" disabled>Play</button>
+        <button id="resumeBtn" type="button" class="primary" hidden>Resume</button>
+        <button type="button" data-tab="home" class="on">Home</button>
+        <button type="button" data-tab="worlds">Worlds</button>
+        <button type="button" data-tab="locker">Locker</button>
+        <button type="button" data-tab="map">Map</button>
+        <button type="button" data-tab="settings">Settings</button>
+        <div id="loadStatus">Loading…</div>
+      </nav>
+      <section id="tab_home" class="tab">
+        <p>Four real corners of south-east London, rebuilt street by street from map data: <b>Nunhead</b>, the <b>Bosco FC Stadium</b>, <b>the Cage</b> at Edmund Waller School and <b>Dr Harold Moody Park</b>. Run between them, find the balls, score, and dress Cam up in the Locker. Every move he makes, he still has one thing to say.</p>
+        <p class="keys desktop-only"><kbd>WASD</kbd> move · <kbd>Shift</kbd> run · <kbd>Space</kbd> jump · hold <kbd>click</kbd>/<kbd>F</kbd> to charge a kick · <kbd>A</kbd><kbd>D</kbd> while kicking curls it · <kbd>G</kbd> emote · <kbd>B</kbd> ball to feet · <kbd>Esc</kbd> menu</p>
+        <p class="keys touch-only">Left stick moves (push far to run) · hold <b>KICK</b> to charge, release to shoot · <b>JUMP</b> · drag the screen to look · Best in landscape; add to Home Screen for full screen.</p>
+      </section>
+      <section id="tab_worlds" class="tab" hidden><div id="worldsGrid"></div></section>
+      <section id="tab_locker" class="tab" hidden><div id="lockerBody"></div></section>
+      <section id="tab_map" class="tab" hidden><canvas id="bigmap" width="940" height="780"></canvas></section>
+      <section id="tab_settings" class="tab settings" hidden>
+        <label class="row"><span><b>Music</b><small>Overworld theme (M key in game)</small></span><input id="musicChk" type="checkbox" /></label>
+        <label class="row"><span><b>Graphics quality</b><small>High: 4K shadows, dense trees and grass. Low is kinder to phones. Restart for full effect.</small></span><select id="qualitySel"><option value="high">High</option><option value="low">Low</option></select></label>
+        <div class="row"><span><b>Music / sound</b><small>Cam's voice lines are his own recordings. Map data © OpenStreetMap contributors (ODbL). Elevation: Open-Meteo.</small></span></div>
+      </section>
     </div>
-  </div>
-
-  <div id="overlay">
-    <h1>CAM'S<br/>SHUT UP WORLD</h1>
-    <p>Run, jump, fly and stomp through an open world: coins, missions, power-ups, a football pitch, and a lot of things that want to squash you.<br/>Every move Cam makes, he has one thing to say.</p>
-    <button id="startBtn" type="button">PRESS TO PLAY</button>
-    <p class="keys desktop-only"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move &nbsp; <kbd>Shift</kbd> run &nbsp; <kbd>Space</kbd> jump &nbsp; <kbd>Q</kbd><kbd>E</kbd> or drag to turn the camera &nbsp; <kbd>M</kbd> music</p>
-    <p class="keys touch-only">Left stick to move (push far to run) &nbsp;·&nbsp; JUMP button (hold in the air to fly with a jetpack) &nbsp;·&nbsp; drag the right side to look around.<br/>Best in landscape. Add to Home Screen for full screen.</p>
-    <p id="loadStatus" class="keys">Loading Cam…</p>
+    <div class="credit">Map data © OpenStreetMap contributors</div>
   </div>
 
   <script type="module" src="./src/game.js"></script>
