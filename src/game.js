@@ -401,7 +401,8 @@ function buildWorld() {
   // --- Spawn meadow: a tutorial strip of blocks and coins ---
   for (let i = 0; i < 5; i++) addPlatform(-4 + i * 2, 3.2, -8, 2, 2, 2, i === 2 ? 'question' : 'brick');
   addPlatform(8, 3.2, -8, 2, 2, 2, 'question');
-  for (let i = 0; i < 6; i++) addCoin(-5 + i * 2, 1.2, -4);
+  for (let i = 0; i < 7; i++) addCoin(-6 + i * 2, 1.2, -4);
+  for (let i = 0; i < 7; i++) addCoin(-6 + i * 2, 1.2, 5);
 
   // --- Floating platform trails across the world ---
   const trails = [
@@ -856,7 +857,7 @@ function updateCoins(dt, t) {
     m.rotation.y = t * 3 + c.spin;
     m.position.y = c.base.y + Math.sin(t * 2.5 + c.spin) * 0.12;
     const dy = m.position.y - (p.y + 0.7);
-    if (Math.abs(dy) < 1.1 && Math.hypot(m.position.x - p.x, m.position.z - p.z) < 0.95) collectCoin(c);
+    if (Math.abs(dy) < 1.2 && Math.hypot(m.position.x - p.x, m.position.z - p.z) < 1.15) collectCoin(c);
   }
 }
 
