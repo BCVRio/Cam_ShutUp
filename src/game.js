@@ -5,6 +5,9 @@ import { buildArenas, updateFootball, kickBallToMe, activeArena, arenas, arenaSp
 import { bindInput, readInput, updatePlayer, updateCamera, loadOutfit, teleport, toggleEmote, input, cam, keys, pollPad, pad } from './player.js';
 import { locker, outfitDef, updateAccessories } from './locker.js';
 import { initUI, ui, openMenu, closeMenu, setLocation, updateMinimap, goFullscreen } from './ui.js';
+import { buildLife, updateLife, walkers, cars, cats } from './life.js';
+import { buildShops, updateShops, interact, talk, choose, closeTalk, shops } from './shops.js';
+import { startPenalties } from './football.js';
 
 const status = (t) => { const e = $('loadStatus'); if (e) e.textContent = t; };
 let started = false, lastWorldId = null;
@@ -38,16 +41,17 @@ function frame() {
   const dt = FAST ? 1 / 30 : Math.min(real, 0.05);
   const t = FAST ? (simT += dt) : clock.elapsedTime;
   frames++;
-  pollPad(ui.open || !started);
-  if (started && !ui.open) {
+  pollPad(ui.open || !started || talk.open);
+  if (started && !ui.open && !talk.open) {
     for (let s = 0; s < STEPS; s++) { if (s) { simT += dt; } readInput(); updatePlayer(dt); updateFootball(dt, FAST ? simT : t, input); }
+    updateLife(dt, t); updateShops(dt, t);
     updateMinimap(dt);
     const pw = $('power'); if (pw) { pw.style.opacity = player.kickCharge > 0 ? 1 : 0; pw.firstElementChild.style.width = (player.kickCharge * 100).toFixed(0) + '%'; }
     // location banner
     const nw = nearestWorld(player.pos.x, player.pos.z);
     const id = nw.dist < nw.world.radius ? nw.world.id : null;
     if (id !== lastWorldId) { const leaving = lastWorldId !== null; lastWorldId = id; if (id) { setLocation(nw.world.name, nw.world.sub); feed('Entering ' + nw.world.name); player.world = id; } if (leaving && Math.random() < 0.4) shutUp(true); }
-  } else if (player.mixer) player.mixer.update(dt);
+  } else { if (player.mixer) player.mixer.update(dt); if (talk.open) { updateShops(0, t); updateLife(dt * 0.5, t); } }
   updateAccessories(t);
   if (sky.dome) sky.dome.position.copy(camera.position);
   sky.clouds.position.x = (t * 1.5) % 200;
@@ -75,8 +79,10 @@ async function main() {
   await loadWorld();
   status('Building the streets…');
   sky = buildSky();
+  buildArenas();   // before the terrain so the pitches' flat zones shape the ground Cam walks on
   buildWorld();
-  buildArenas();
+  buildShops();
+  buildLife();
   buildGrass();
   setupObject(scene);
   initPost(); applyViewport();
@@ -84,8 +90,16 @@ async function main() {
   const w0 = CFG.worlds[0]; teleport(w0.x + 6, w0.z + 12, Math.PI + 0.3);
   frame();
   bindInput({ key: (code) => {
+    if (talk.open) {   // chatting: 1/2/3 or A/B/C pick, X / Escape leaves, Enter / E / Space continues
+      const pr = $('packReveal'); if (pr && !pr.hidden && ['Enter', 'KeyE', 'Space', 'Escape', 'KeyX'].includes(code)) { pr.hidden = true; return; }
+      const idx = { Digit1: 0, Digit2: 1, Digit3: 2, KeyA: 0, KeyB: 1, KeyC: 2 }[code]; if (idx !== undefined) { if (talk.options.length) choose(idx); else closeTalk(); return; }
+      if (code === 'Escape' || code === 'KeyX') { closeTalk(); return; }
+      if (code === 'Enter' || code === 'KeyE' || code === 'Space') { if (!talk.options.length) closeTalk(); return; }
+      return;
+    }
     if (code === 'Escape') { if (ui.open && started) closeMenu(); else openMenu('pause'); }
     if (ui.open) return;
+    if (code === 'KeyE' || code === 'Enter') { if (interact()) return; }
     if (code === 'KeyM') toggleMusic();
     if (code === 'KeyG') toggleEmote();
     if (code === 'KeyB') kickBallToMe();
@@ -97,11 +111,12 @@ async function main() {
   ui.onWorld = (w) => dropAt(w);
   ui.onOutfit = (o) => loadOutfit(o, status).then(() => setupObject(player.root));
   ui.onResume = () => { started = true; };
+  ui.onPenalties = () => { dropAt(CFG.worlds.find((w) => w.id === 'stadium')); setTimeout(startPenalties, 400); };
   await loadOutfit(outfitDef(), status); setupObject(player.root);
   status('Ready');
   $('playBtn').disabled = false;
   if (urlParams.has('at')) { const [ax, az] = urlParams.get('at').split(',').map(Number); teleport(ax, az); }
   if (urlParams.has('autoplay')) { const id = urlParams.get('autoplay'); dropAt(CFG.worlds.find((w) => w.id === id) || CFG.worlds[0]); }
-  window.__cam = { THREE, pad, player, keys, cam, arenas, world, ui, locker, input, renderer, scene, teleport, dropAt, openMenu, closeMenu, get frames() { return frames; }, get simT() { return simT; } };
+  window.__cam = { THREE, pad, walkers, cars, cats, shops, talk, startPenalties, interact, player, keys, cam, arenas, world, ui, locker, input, renderer, scene, teleport, dropAt, openMenu, closeMenu, get frames() { return frames; }, get simT() { return simT; } };
 }
 main();

@@ -25,6 +25,7 @@ The page loads Three.js from jsDelivr and every asset from `public/`.
 | `Space` | jump (jump into the ball to head it) |
 | hold `F` / mouse button, release | charge a kick and shoot; `A`/`D` while charging curls it |
 | `B` | call the ball to your feet |
+| `E` / `Enter` | talk to a shopkeeper; `1` `2` `3` pick a reply |
 | `G` | emote |
 | drag the mouse / `Q` `X` | look around |
 | `M` | music on/off |
@@ -47,6 +48,36 @@ Telegraph Hill). Walk, or pick a world from the menu to drop straight in.
 - **The Cage** — the fenced court at Edmund Waller School on Telegraph Hill.
   A 90-second cage match.
 - **Dr Harold Moody Park** — a free kickabout with a keeper on the park.
+
+## Life on the streets
+
+People walk the pavements (rigged Higgsfield characters, cloned per person),
+the odd car drives on the left and brakes for anyone in the road, Cam
+included. Cats sit on the walls and wander off when you get close, flocks
+circle above the parks, pigeons scatter from the greens. Lamp posts stand on
+the pavements, terraces alternate between three London facades (stock brick,
+Victorian bay-fronted, Edwardian red brick) and the shops get real shopfronts.
+
+## Shops, talking and cards
+
+Ten real shops from the map have a shopkeeper at the door and a glowing step.
+Walk up and press `E` (A on a controller or phone) to talk. Each visit offers
+three random options: buy a pack of Top Cards (50 pts), Match Attax (120 pts,
+no commons), a LucasAid speed boost, directions, or just a chat. Cards go in
+the Cards tab of the menu: the Bosco FC Year 6 squad (ten players, rename
+them in `src/cards.js`) plus five Nunhead legends. New cards score points by
+rarity, duplicates score a little, the full album scores 1000.
+
+## Matches, referee, penalties, crowd
+
+Every stadium and cage match has a referee who keeps up with play and blows
+for kick-off, goals and full time. The opposition, your team-mate and the
+keepers are rigged players in Bosco sky blue, Rovers red and keeper green.
+The crowd murmurs in the stadium and roars when you score, groans when you
+miss, and the size of the cheer matches the ground: tens of thousands at the
+stadium, a handful of kids at the Cage, a polite clap in the park. Pick
+**Penalty Shootout** from the Worlds tab for five from the spot against the
+Rovers keeper.
 
 ## The ball
 

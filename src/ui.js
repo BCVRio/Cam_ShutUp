@@ -2,8 +2,10 @@
 import { THREE, CFG, $, player, audio, setMusic, toggleMusic, unlockAudio, quality, applyQuality, synth, showToast } from './core.js';
 import { world } from './map.js';
 import { renderLocker } from './locker.js';
+import { renderAlbum } from './cards.js';
+import { clearPadFocus } from './player.js';
 
-export const ui = { open: true, mode: 'menu', onPlay: null, onWorld: null, onOutfit: null, onResume: null };
+export const ui = { open: true, mode: 'menu', onPlay: null, onWorld: null, onOutfit: null, onResume: null, onPenalties: null };
 let mapCtx = null, mapT = 0, bigMapDirty = true;
 
 export function initUI() {
@@ -22,6 +24,7 @@ export function initUI() {
     card.addEventListener('click', () => { unlockAudio(); synth('power'); ui.onWorld && ui.onWorld(w); });
     grid.appendChild(card);
   }
+  { const card = document.createElement('button'); card.type = 'button'; card.className = 'wcard pen'; card.innerHTML = `<img src="./public/art/keyart_bosco.jpg" alt=""><span class="wname">Penalty Shootout</span><span class="wsub">Five from the spot at the Bosco stadium</span>`; card.addEventListener('click', () => { unlockAudio(); synth('power'); ui.onPenalties && ui.onPenalties(); }); grid.appendChild(card); }
   // settings
   const q = $('qualitySel'); q.value = quality.level; q.addEventListener('change', () => { quality.level = q.value; try { localStorage.setItem('cam_quality', q.value); } catch (_) {} showToast('RELOADING…', 1200); setTimeout(() => location.reload(), 500); });
   const m = $('musicChk'); m.checked = audio.musicOn; m.addEventListener('change', () => { unlockAudio(); setMusic(m.checked); });
@@ -33,13 +36,15 @@ export function showTab(tab) {
   document.querySelectorAll('.tab').forEach((t) => (t.hidden = t.id !== 'tab_' + tab));
   if (tab === 'locker') { const body = $('lockerBody'); body.innerHTML = ''; renderLocker(body, (o) => ui.onOutfit && ui.onOutfit(o)); }
   if (tab === 'map') { bigMapDirty = true; drawBigMap(); }
+  if (tab === 'cards') renderAlbum($('cardsBody'));
+  clearPadFocus();
 }
 export function openMenu(mode = 'pause') {
   ui.open = true; ui.mode = mode; $('menu').hidden = false; $('menu').classList.toggle('pause', mode === 'pause');
   $('playBtn').hidden = mode === 'pause'; $('resumeBtn').hidden = mode !== 'pause';
   showTab('home');
 }
-export function closeMenu() { ui.open = false; $('menu').hidden = true; ui.onResume && ui.onResume(); }
+export function closeMenu() { ui.open = false; $('menu').hidden = true; clearPadFocus(); ui.onResume && ui.onResume(); }
 export function goFullscreen() {
   const el = document.documentElement; const req = el.requestFullscreen || el.webkitRequestFullscreen;
   if (req) { try { const p = req.call(el, { navigationUI: 'hide' }); if (p && p.catch) p.catch(() => {}); } catch (_) {} }

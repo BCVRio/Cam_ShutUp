@@ -1,5 +1,6 @@
 // Player: model/outfit loading, controller, over-the-shoulder camera, input (keyboard, mouse, touch).
 import { THREE, CFG, IS_TOUCH, $, player, camera, sun, clamp, say, shutUp, synth, urlParams, canvas, showToast } from './core.js';
+import { nearestShop } from './shops.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js/+esm';
 import { groundAt, collideCircle, terrainHeight } from './map.js';
 import { applyLocker, updateAccessories } from './locker.js';
@@ -61,7 +62,28 @@ let kickDown = false, kickWasDown = false;
 // Xbox controller (standard mapping): left stick move, right stick look, A jump, X kick (hold to charge), B ball, Y emote, RB/RT run, Menu = menu, View = map
 export const pad = { on: false, id: '', ix: 0, iz: 0, jump: false, kick: false, run: false, prev: [], buttons: [] };
 let padHandlers = null;
-const PAD_KEYS = { 1: 'KeyB', 3: 'KeyG', 9: 'Escape', 8: 'KeyN' };
+const PAD_KEYS = { 1: 'KeyB', 3: 'KeyG', 9: 'Escape', 8: 'KeyN', 0: 'KeyE' };   // A also talks when someone is in front of Cam
+// --- focus navigation for menus / chats (shared with the keyboard arrows) ---
+function focusables() {
+  const root = [...document.querySelectorAll('#dialog, #packReveal, #menu')].find((el) => el && !el.hidden); if (!root) return [];
+  return [...root.querySelectorAll('button, [data-tab], .wcard, .chips button, select, input, a.btn')].filter((el) => !el.hidden && !el.disabled && el.offsetParent !== null && el.getClientRects().length);
+}
+export function padNav(sx, sy) {
+  const els = focusables(); if (!els.length) return;
+  let cur = els.find((e) => e.classList.contains('padfocus'));
+  if (!cur) { cur = els.find((e) => e.id === 'resumeBtn' || e.id === 'playBtn') || els[0]; cur.classList.add('padfocus'); }
+  const cr = cur.getBoundingClientRect(); const cx = cr.left + cr.width / 2, cy = cr.top + cr.height / 2;
+  let best = null, bd = 1e9;
+  for (const e of els) { if (e === cur) continue; const r = e.getBoundingClientRect(); const ex = r.left + r.width / 2, ey = r.top + r.height / 2; const dx = ex - cx, dy = ey - cy; const along = dx * sx + dy * sy; if (along < 8) continue; const perp = Math.abs(dx * sy) + Math.abs(dy * sx); const d = along + perp * 2.2; if (d < bd) { bd = d; best = e; } }
+  if (best) { cur.classList.remove('padfocus'); best.classList.add('padfocus'); best.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
+}
+export function padActivate() {
+  const cur = focusables().find((e) => e.classList.contains('padfocus')); if (!cur) return false;
+  if (cur.tagName === 'SELECT') { const i = (cur.selectedIndex + 1) % cur.options.length; cur.selectedIndex = i; cur.dispatchEvent(new Event('change')); return true; }
+  if (cur.tagName === 'INPUT' && cur.type === 'checkbox') { cur.checked = !cur.checked; cur.dispatchEvent(new Event('change')); return true; }
+  cur.click(); return true;
+}
+export function clearPadFocus() { document.querySelectorAll('.padfocus').forEach((e) => e.classList.remove('padfocus')); }
 export function pollPad(uiOpen) {
   const pads = navigator.getGamepads ? navigator.getGamepads() : []; let gp = null;
   for (const p of pads) if (p && p.connected && p.mapping === 'standard') { gp = p; break; }
@@ -73,10 +95,16 @@ export function pollPad(uiOpen) {
   if (!pad.on && (b.some(Boolean) || ax.some((v) => Math.abs(v) > 0.4))) { pad.on = true; pad.id = gp.id; document.body.classList.add('pad'); showToast('XBOX CONTROLLER READY', 1400); }
   if (pad.on) {
     if (uiOpen) {
-      // menu: A = Play/Resume, B = back to the game, bumpers switch tabs
-      if (pressed(0)) { const play = $('playBtn'), res = $('resumeBtn'); if (play && !play.hidden && !play.disabled) play.click(); else if (res && !res.hidden) res.click(); }
+      // menus and chats: d-pad / left stick moves a focus ring between the buttons, A presses, B goes back, bumpers switch tabs
+      const dz = (v) => (Math.abs(v) < 0.5 ? 0 : Math.sign(v));
+      const sx = dz(ax[0] || 0) || (b[15] ? 1 : b[14] ? -1 : 0), sy = dz(ax[1] || 0) || (b[13] ? 1 : b[12] ? -1 : 0);
+      pad.navT = (pad.navT || 0) - 1 / 60;
+      if ((sx || sy) && (pad.navT <= 0 || (sx !== pad.lastSx || sy !== pad.lastSy))) { pad.navT = 0.22; padNav(sx, sy); } else if (!sx && !sy) pad.navT = 0;
+      pad.lastSx = sx; pad.lastSy = sy;
+      if (pressed(0)) { if (!padActivate()) { const play = $('playBtn'), res = $('resumeBtn'); if (play && !play.hidden && !play.disabled) play.click(); else if (res && !res.hidden) res.click(); } }
       if (pressed(1) && padHandlers && padHandlers.key) padHandlers.key('Escape');
-      if (pressed(4) || pressed(5) || pressed(14) || pressed(15)) { const tabs = [...document.querySelectorAll('[data-tab]')]; const cur = Math.max(0, tabs.findIndex((t) => t.classList.contains('on'))); const nx = tabs[(cur + ((pressed(5) || pressed(15)) ? 1 : tabs.length - 1)) % tabs.length]; if (nx) nx.click(); }
+      if (pressed(2) && padHandlers && padHandlers.key) padHandlers.key('KeyX');
+      if (pressed(4) || pressed(5)) { const tabs = [...document.querySelectorAll('[data-tab]')]; const cur = Math.max(0, tabs.findIndex((t) => t.classList.contains('on'))); const nx = tabs[(cur + (pressed(5) ? 1 : tabs.length - 1)) % tabs.length]; if (nx) nx.click(); }
     } else {
       const dz = (v) => (Math.abs(v) < 0.16 ? 0 : (v - Math.sign(v) * 0.16) / 0.84);
       pad.ix = dz(ax[0] || 0); pad.iz = dz(ax[1] || 0);
@@ -147,9 +175,9 @@ export function readInput() {
   const len = Math.hypot(ix, iz); if (len > 1) { ix /= len; iz /= len; }
   input.ix = ix; input.iz = iz; input.strafe = ix;
   input.run = keys.has('ShiftLeft') || keys.has('ShiftRight') || (t && t.active && len > 0.75) || pad.run;
-  const jump = keys.has('Space') || (tb && tb.jump) || pad.jump;
+  const jump = keys.has('Space') || (tb && tb.jump) || (pad.jump && !nearestShop());
   input.jumpPressed = jump && !input.jumpHeld; input.jumpHeld = jump;
-  const kick = keys.has('KeyF') || keys.has('KeyE') || kickDown || (tb && tb.kick) || pad.kick;
+  const kick = keys.has('KeyF') || kickDown || (tb && tb.kick) || pad.kick;
   input.kickReleased = kickWasDown && !kick; input.kickHeld = kick; kickWasDown = kick;
   if (keys.has('KeyQ')) cam.yaw += 0.04; if (keys.has('KeyX')) cam.yaw -= 0.04;
   input.camFx = -Math.sin(cam.yaw); input.camFz = -Math.cos(cam.yaw);
@@ -164,7 +192,7 @@ export function updatePlayer(dt) {
   const fx = -Math.sin(cam.yaw), fz = -Math.cos(cam.yaw), rx = Math.cos(cam.yaw), rz = -Math.sin(cam.yaw);
   const wx = fx * -iz + rx * ix, wz = fz * -iz + rz * ix;
   const len = Math.hypot(ix, iz), moving = len > 0.08;
-  const speed = (run ? CFG.runSpeed : CFG.walkSpeed) * (player.kicking > 0 ? 0.5 : 1);
+  const speed = (run ? CFG.runSpeed : CFG.walkSpeed) * (player.kicking > 0 ? 0.5 : 1) * (player.boostT > 0 ? 1.35 : 1);
   const accel = player.grounded ? 36 : 14;
   const tx = moving ? wx * speed * Math.min(1, len * 1.2) : 0, tz = moving ? wz * speed * Math.min(1, len * 1.2) : 0;
   player.vel.x += (tx - player.vel.x) * Math.min(1, accel * dt / speed); player.vel.z += (tz - player.vel.z) * Math.min(1, accel * dt / speed);

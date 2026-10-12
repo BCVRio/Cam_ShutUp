@@ -104,6 +104,26 @@
     #power { position: fixed; left: 50%; bottom: calc(24px + var(--sab)); transform: translateX(-50%); width: min(40vw, 260px); height: 12px; border: 2px solid #fff; border-radius: 999px; background: rgba(0,0,0,0.5); overflow: hidden; pointer-events: none; opacity: 0; transition: opacity 0.15s; }
     #power i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--gold), var(--red)); }
     #padHint { position: fixed; bottom: calc(10px + var(--sab)); left: 50%; transform: translateX(-50%); color: #fff; font-weight: 500; font-size: 13px; text-shadow: 0 1px 0 #000; opacity: 0.85; pointer-events: none; white-space: nowrap; } #padHint b { display: inline-block; width: 18px; height: 18px; border-radius: 50%; text-align: center; line-height: 18px; font-size: 11px; color: #fff; }
+    #prompt { position: fixed; left: 50%; bottom: calc(64px + var(--sab)); transform: translateX(-50%); background: rgba(10,18,50,0.85); color: #fff; border: 2px solid var(--gold); border-radius: 999px; padding: 8px 18px; font: 600 16px var(--font); letter-spacing: 0.5px; pointer-events: none; white-space: nowrap; }
+    #prompt b { display: inline-block; width: 26px; height: 26px; border-radius: 50%; background: #2f9e3a; color: #fff; text-align: center; line-height: 26px; margin-right: 8px; font-size: 14px; }
+    body.touch #prompt { bottom: calc(230px + var(--sab)); }
+    #dialog { position: fixed; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding: 0 16px calc(24px + var(--sab)); background: linear-gradient(transparent, rgba(0,0,0,0.45)); z-index: 30; }
+    .dlgCard { width: min(720px, 100%); background: rgba(10,18,50,0.94); border: 2px solid var(--gold); border-radius: 18px; padding: 16px 20px; color: #fff; box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+    #dlgName { font: 700 15px var(--font); letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    #dlgText { font: 500 20px/1.3 var(--font); margin: 0 0 12px; }
+    #dlgOptions { display: grid; gap: 8px; }
+    .dlgOpt { text-align: left; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.25); color: #fff; border-radius: 12px; padding: 10px 14px; font: 600 17px var(--font); cursor: pointer; display: flex; align-items: center; gap: 12px; }
+    .dlgOpt:hover, .dlgOpt.padfocus { border-color: var(--gold); background: rgba(242,194,51,0.18); }
+    .dlgOpt .key { display: inline-block; min-width: 28px; height: 28px; border-radius: 50%; background: #2b7fe0; text-align: center; line-height: 28px; font-size: 14px; }
+    .dlgOpt.bye .key { background: #e03c31; }
+    #packReveal { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); z-index: 31; }
+    .packCard { background: rgba(10,18,50,0.96); border: 2px solid var(--gold); border-radius: 18px; padding: 16px 20px; color: #fff; text-align: center; }
+    .packCard h3 { margin: 0 0 10px; font: 700 26px var(--font); color: var(--gold); letter-spacing: 2px; }
+    .packCard canvas { max-width: min(92vw, 680px); height: auto; }
+    .packCard p { margin: 8px 0 0; opacity: 0.8; font: 500 14px var(--font); }
+    #cardsBody .album { max-width: 100%; height: auto; display: block; }
+    #cardsBody .albumHead { color: #fff; font: 500 16px var(--font); margin: 0 0 10px; }
+    .padfocus { outline: 3px solid var(--gold) !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(242,194,51,0.25) !important; }
     #hint { position: fixed; bottom: calc(10px + var(--sab)); left: 50%; transform: translateX(-50%); color: #fff; font-weight: 500; font-size: 13px; text-shadow: 0 1px 0 #000; opacity: 0.8; pointer-events: none; white-space: nowrap; }
     body.touch #hint { display: none; } body.touch #power { bottom: calc(150px + var(--sab)); }
 
@@ -146,6 +166,15 @@
   <div id="locBanner"><div id="locName">NUNHEAD</div><div id="locSub">South-east London</div></div>
   <div id="feed"></div>
   <div id="toast"></div>
+  <div id="prompt" hidden></div>
+  <div id="dialog" hidden>
+    <div class="dlgCard">
+      <div id="dlgName">Mo · SG Convenience Store</div>
+      <p id="dlgText">Alright Cam, what can I get you?</p>
+      <div id="dlgOptions"></div>
+    </div>
+  </div>
+  <div id="packReveal" hidden><div class="packCard"><h3>PACK OPENED</h3><canvas width="680" height="320"></canvas><p>Press A / Enter to continue</p></div></div>
   <div id="power"><i></i></div>
   <div id="hint">WASD move · Shift run · Space jump · hold F / click to charge a kick, release to shoot · A/D while kicking curls · G emote · B ball · Esc menu · Xbox controller supported</div>
   <div id="padHint" class="hintline">Left stick move · right stick look · <b style="background:#2f9e3a">A</b> jump · hold <b style="background:#2b7fe0">X</b> to charge a kick, release to shoot · <b style="background:#e03c31">B</b> ball · <b style="background:#e8b923;color:#111">Y</b> emote · RB / RT run · LT wide camera · Menu button pauses · View button map</div>
@@ -168,6 +197,7 @@
         <button type="button" data-tab="worlds">Worlds</button>
         <button type="button" data-tab="locker">Locker</button>
         <button type="button" data-tab="map">Map</button>
+        <button type="button" data-tab="cards">Cards</button>
         <button type="button" data-tab="settings">Settings</button>
         <div id="loadStatus">Loading…</div>
       </nav>
@@ -180,6 +210,7 @@
       <section id="tab_worlds" class="tab" hidden><div id="worldsGrid"></div></section>
       <section id="tab_locker" class="tab" hidden><div id="lockerBody"></div></section>
       <section id="tab_map" class="tab" hidden><canvas id="bigmap" width="940" height="780"></canvas></section>
+      <section id="tab_cards" class="tab" hidden><div id="cardsBody"></div></section>
       <section id="tab_settings" class="tab settings" hidden>
         <label class="row"><span><b>Music</b><small>Overworld theme (M key in game)</small></span><input id="musicChk" type="checkbox" /></label>
         <label class="row"><span><b>Graphics quality</b><small>Ultra: cascaded shadows, ambient occlusion, grass, bloom. High: full materials and image-based lighting, bloom, anti-aliasing. Low is kinder to older phones.</small></span><select id="qualitySel"><option value="ultra">Ultra</option><option value="high">High</option><option value="low">Low</option></select></label>

@@ -6,6 +6,7 @@ export const OUTFITS = [
   { id: 'street', name: 'Street Drip', desc: 'Black hoodie, neon green', url: './public/models/cam_street.glb', thumb: './public/art/outfit_street.png' },
   { id: 'knight', name: 'Cyber Knight', desc: 'Silver armour, blue lights', url: './public/models/cam_knight.glb', thumb: './public/art/outfit_knight.png' },
   { id: 'astro', name: 'Moon Cam', desc: 'Orange and white space suit', url: './public/models/cam_astro.glb', thumb: './public/art/outfit_astro.png' },
+  { id: 'bosco', name: 'Bosco FC Home', desc: 'Sky blue, number 9', url: './public/models/cam_bosco.glb', thumb: './public/art/outfit_bosco.png' },
   { id: 'striker', name: 'Striker 9', desc: 'Red and white football kit', url: './public/models/cam_striker.glb', thumb: './public/art/outfit_striker.png' },
 ];
 export const HATS = [

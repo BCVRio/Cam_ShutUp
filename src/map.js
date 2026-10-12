@@ -37,7 +37,7 @@ export function terrainHeight(x, z) {
 }
 export function addFlatZone(x, z, r, blend = 18) { const y = terrainRaw(x, z); world.flat.push({ x, z, r, blend, y }); return y; }
 
-const SURF = { urban: 0, park: 1, road: 2, pavement: 3, astro: 4, court: 5, cemetery: 6, water: 7, school: 8, rail: 9 };
+export const SURF = { urban: 0, park: 1, road: 2, pavement: 3, astro: 4, court: 5, cemetery: 6, water: 7, school: 8, rail: 9 };
 const SURF_NAME = ['grass', 'grass', 'hard', 'hard', 'astro', 'hard', 'grass', 'water', 'hard', 'hard'];
 const RASTER = 2;   // metres per cell
 let RW = 0, RH = 0, raster = null;
@@ -45,7 +45,7 @@ function rasterIndex(x, z) { const i = Math.floor((x - world.bounds.x0) / RASTER
 export function surfaceAt(x, z) { const i = rasterIndex(x, z); return i < 0 ? 0 : raster[i]; }
 export function groundAt(x, z) {
   const s = surfaceAt(x, z);
-  const raise = s === SURF.road ? 0.06 : s === SURF.pavement ? 0.1 : s === SURF.astro || s === SURF.court ? 0.08 : 0;
+  const raise = s === SURF.road ? 0.06 : s === SURF.pavement ? 0.04 : s === SURF.astro || s === SURF.court ? 0.08 : 0;
   return { y: terrainHeight(x, z) + raise, surface: SURF_NAME[s] };
 }
 function pointInPoly(x, z, p) {
@@ -188,7 +188,7 @@ function buildRoads(d) {
     // lamp posts along residential streets
     if (r.w >= 6 && r.k !== 'service') for (let s = 0; s < r.p.length - 1; s++) {
       const [ax, az] = r.p[s], [bx, bz] = r.p[s + 1]; const len = Math.hypot(bx - ax, bz - az); const dx = (bx - ax) / (len || 1), dz = (bz - az) / (len || 1);
-      for (let t = 12; t < len; t += 32) world.lamps.push([ax + dx * t - dz * (r.w / 2 + 1.0), az + dz * t + dx * (r.w / 2 + 1.0)]);
+      for (let t = 12, k = 0; t < len; t += 34, k++) { const side = k % 2 ? -1 : 1; world.lamps.push([ax + dx * t - dz * (r.w / 2 + 1.25) * side, az + dz * t + dx * (r.w / 2 + 1.25) * side]); }
     }
   }
   addMerged(paves.concat(discsP), MAT.pavement, false, true);
@@ -211,7 +211,8 @@ function buildRail(d) {
 }
 
 function buildBuildings(d) {
-  const lists = { terrace: [], flats: [], brick: [], concrete: [], stone: [] }; const roofs = [];
+  const lists = { terrace: [], terraceB: [], terraceC: [], shopfront: [], flats: [], brick: [], concrete: [], stone: [] }; const roofs = [];
+  const shopPts = d.pois.filter((p) => p.n && (p.k.startsWith('shop:') || p.k === 'cafe' || p.k === 'restaurant' || p.k === 'pub' || p.k === 'fast_food')); let styleSeed = 0;
   const rnd = seededRandom(42);
   const tint = new THREE.Color();
   for (const b of d.buildings) {
@@ -219,7 +220,13 @@ function buildBuildings(d) {
     if (anyIn(p, 6)) continue;
     let minY = 1e9; for (const [x, z] of p) minY = Math.min(minY, terrainHeight(x, z));
     const base = minY - 2.5, top = minY + b.h;
-    const matKey = b.k === 'flats' ? 'flats' : b.k === 'terrace' || b.k === 'commercial' ? 'terrace' : b.k === 'church' ? 'stone' : b.k === 'school' || b.k === 'civic' ? 'brick' : b.k === 'shed' ? 'concrete' : 'concrete';
+    let matKey = b.k === 'flats' ? 'flats' : b.k === 'terrace' || b.k === 'commercial' ? 'terrace' : b.k === 'church' ? 'stone' : b.k === 'school' || b.k === 'civic' ? 'brick' : b.k === 'shed' ? 'concrete' : 'concrete';
+    if (matKey === 'terrace') {
+      // shops get a shopfront; the rest of the terraces alternate between three street styles so rows don't repeat
+      const cx = p.reduce((s, q) => s + q[0], 0) / p.length, cz = p.reduce((s, q) => s + q[1], 0) / p.length;
+      const isShop = b.k === 'commercial' || shopPts.some((q) => Math.hypot(q.x - cx, q.z - cz) < Math.max(9, Math.sqrt(b.a || 60) * 0.7));
+      matKey = isShop ? 'shopfront' : ['terrace', 'terraceB', 'terraceC'][(styleSeed++) % 3];
+    }
     const positions = [], normals = [], uvs = [], index = [], colors = [];
     const warm = rnd(); tint.setHSL(0.09 + warm * 0.04, 0.35 + rnd() * 0.25, 0.5 + rnd() * 0.22);
     let vi = 0;
@@ -251,6 +258,7 @@ function buildBuildings(d) {
     polys.push(poly); gridAdd(polyGrid, minx, minz, maxx, maxz, poly);
   }
   const mats = { terrace: MAT.terrace, flats: MAT.flats, brick: MAT.brick, concrete: MAT.concrete, stone: MAT.stone };
+  mats.terraceB = MAT.terraceB; mats.terraceC = MAT.terraceC; mats.shopfront = MAT.shopfront;
   for (const k in lists) { const m = addMerged(lists[k], mats[k], true, true); if (m) m.material.side = THREE.DoubleSide; }
   addMerged(roofs, MAT.slate, false, true);
 }
@@ -296,7 +304,10 @@ function gableRoof(p, top, roofs, lists, tint) {
   const P = (u, v, y) => [r.x + u * ca - v * sa, y, r.z + u * sa + v * ca];
   const L = r.len / 2 + 0.25, W = r.wid / 2 + 0.35, rh = Math.min(r.wid * 0.42, 3.2), ey = top - 0.08, ry = top + rh;
   const pos = [], uv = [], idx = []; let vi = 0;
-  const quad = (a, b, c, d, us, vs) => { pos.push(...a, ...b, ...c, ...d); uv.push(0, 0, us, 0, us, vs, 0, vs); idx.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3); vi += 4; };
+  const quad = (a, b, c, d, us, vs) => { pos.push(...a, ...b, ...c, ...d); uv.push(0, 0, us, 0, us, vs, 0, vs);
+    // wind so the face points up (outside), whatever the building's orientation
+    const ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2]);
+    if (ny >= 0) idx.push(vi, vi + 1, vi + 2, vi, vi + 2, vi + 3); else idx.push(vi, vi + 2, vi + 1, vi, vi + 3, vi + 2); vi += 4; };
   const slope = Math.hypot(W, rh);
   quad(P(-L, -W, ey), P(L, -W, ey), P(L, 0, ry), P(-L, 0, ry), L / 1.3, slope / 1.3);
   quad(P(L, W, ey), P(-L, W, ey), P(-L, 0, ry), P(L, 0, ry), L / 1.3, slope / 1.3);

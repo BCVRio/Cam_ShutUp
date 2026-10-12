@@ -1,5 +1,7 @@
 // Football: four arenas (stadium, cage, park, green), one real ball each, goals, keepers, bots, matches.
-import { THREE, CFG, scene, MAT, TEX, player, say, shutUp, synth, showToast, feed, emit, addScore, $ } from './core.js';
+import { THREE, CFG, scene, MAT, TEX, player, say, shutUp, synth, showToast, feed, emit, addScore, $, playSfx, setAmbience } from './core.js';
+import { makeNpc, npcPlay, npcUpdate } from './npc.js';
+import { teleport } from './player.js';
 import { Ball, BALL_R } from './ball.js';
 import { terrainHeight, groundAt, addFlatZone, findPitch, pitchRect, addSegment, addCircle, collideCircle, stadiumRect, STADIUM } from './map.js';
 
@@ -33,7 +35,7 @@ function makeGoal(r, y, side, w, h, dp, postR = 0.06) {
   const postMat = MAT.white;
   const posts = [];
   for (const sv of [-1, 1]) { const p = new THREE.Mesh(new THREE.CylinderGeometry(postR, postR, h, 10), postMat); const pos = P(gu, sv * w / 2, h / 2); p.position.copy(pos); p.castShadow = true; g.add(p); posts.push({ x: pos.x, z: pos.z }); }
-  const bar = new THREE.Mesh(new THREE.CylinderGeometry(postR, postR, w + postR * 2, 10), postMat); bar.position.copy(P(gu, 0, h)); bar.rotation.z = Math.PI / 2; bar.rotation.y = -r.ang; g.add(bar);
+  const bar = new THREE.Mesh(new THREE.CylinderGeometry(postR, postR, w + postR * 2, 10), postMat); bar.position.copy(P(gu, 0, h)); { const [dx, dz] = rot(0, 1, r.ang); bar.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(dx, 0, dz)); } bar.castShadow = true; g.add(bar);
   // net frame (back + sides) as wireframe boxes
   // net: back, two sides and roof panels with a repeating cord texture (0.12 m squares)
   const netPanel = (pw, ph) => { const geo = new THREE.PlaneGeometry(pw, ph); const uv = geo.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * pw / 0.48, uv.getY(i) * ph / 0.48); const m = new THREE.Mesh(geo, MAT.net); m.castShadow = false; return m; };
@@ -334,7 +336,7 @@ function inRect(a, x, z, pad = 2) { const [u, v] = rot(x - a.rect.x, z - a.rect.
 function spawnBots(a) {
   for (const b of a.bots) scene.remove(b.mesh); a.bots.length = 0;
   const r = a.rect;
-  const add = (kit, u, v, role, team) => { const mesh = makeFootballer(kit); const [x, z] = rot(u, v, r.ang); const b = { mesh, x: r.x + x, z: r.z + z, role, team, vx: 0, vz: 0, cool: 0, home: [u, v], phase: Math.random() * 6 }; a.bots.push(b); return b; };
+  const add = (kit, u, v, role, team) => { const kind = role === 'keeper' ? 'boyKeeper' : team === 'home' ? 'boyHome' : 'boyAway'; const mesh = makeNpc(kind); scene.add(mesh); const [x, z] = rot(u, v, r.ang); const b = { mesh, x: r.x + x, z: r.z + z, role, team, vx: 0, vz: 0, cool: 0, home: [u, v], phase: Math.random() * 6 }; a.bots.push(b); return b; };
   if (a.mode === 'match') {
     add(MAT.kitKeeper, -r.len / 2 + 1.2, 0, 'keeper', 'home');          // Cam's keeper (home attacks +u side)
     add(MAT.kitHome, -r.len * 0.2, 6, 'mate', 'home');
@@ -352,8 +354,9 @@ export function startMatch(a) {
   a.match = { active: true, time: a.mode === 'match' ? 180 : a.mode === 'cage' ? 90 : 0, home: 0, away: 0, kickoffT: 0, celebrate: 0, half: 1 };
   spawnBots(a);
   a.ball.reset(a.rect.x, a.y + 0.5, a.rect.z);
+  if ((a.mode === 'match' || a.mode === 'cage') && !a.ref) { a.ref = makeNpc('referee'); scene.add(a.ref); const [rx, rz] = rot(0, -6, a.rect.ang); a.ref.position.set(a.rect.x + rx, a.y, a.rect.z + rz); a.refX = a.ref.position.x; a.refZ = a.ref.position.z; }
   const h = hud(); h.el.hidden = false; h.names.textContent = `${a.teamHome}  v  ${a.teamAway}`;
-  synth('whistle'); say('woohoo', true);
+  playSfx(CFG.sfx.whistle, 0.8); say('woohoo', true);
   showToast(a.mode === 'match' ? 'KICK OFF!' : a.mode === 'cage' ? 'CAGE MATCH!' : a.mode === 'targets' ? 'KNOCK DOWN THE TARGETS' : 'KICKABOUT', 1600);
   feed(`${a.name}: ${a.mode === 'match' ? '3 minutes, first to the Rovers goal' : a.mode === 'cage' ? '90 seconds in the cage' : 'free play'}`);
   emit('match', a.id);
@@ -368,12 +371,14 @@ function endMatch(a) {
   say(won ? 'woohoo' : 'ooh', true);
   if (won) { addScore(1000); emit('win', a.id); }
   for (const b of a.bots) scene.remove(b.mesh); a.bots.length = 0;
+  playSfx(CFG.sfx.whistle, 0.8); if (a.id === 'stadium') playSfx(CFG.sfx.crowdGoal, 0.5);
   emit('fulltime', a.id);
 }
 function goalScored(a, forHome) {
   const m = a.match;
-  if (forHome) { m.home++; player.goals++; addScore(500); say('ohyeah', true); showToast('GOAL!!!', 1600); synth('crowd'); feed(`GOAL! Cam scores for ${a.teamHome}`); emit('goal', a.id); }
-  else { m.away++; say('ohno', true); showToast(`${a.teamAway} SCORE`, 1400); feed(`${a.teamAway} score`); }
+  if (forHome) { m.home++; player.goals++; addScore(500); say('ohyeah', true); showToast('GOAL!!!', 1600); crowdCheer(a); feed(`GOAL! Cam scores for ${a.teamHome}`); emit('goal', a.id); }
+  else { m.away++; say('ohno', true); showToast(`${a.teamAway} SCORE`, 1400); feed(`${a.teamAway} score`); if (a.id === 'stadium') playSfx(CFG.sfx.groan, 0.8); else crowdCheer(a, 0.4); }
+  playSfx(CFG.sfx.whistle, 0.5);
   m.celebrate = 2.2;
 }
 
@@ -389,11 +394,20 @@ export function updateFootball(dt, t, input) {
   let inside = null; for (const a of arenas) if (inRect(a, player.pos.x, player.pos.z, 3)) inside = a;
   const prev = activeArena;
   activeArena = inside || (nd < 70 ? near : null);
-  if (inside && (!inside.match || !inside.match.active) && player.grounded) startMatch(inside);
+  if (inside && (!inside.match || !inside.match.active) && !inside.pen && !(inside.noAuto > 0) && player.grounded) startMatch(inside);
+  for (const a of arenas) if (a.noAuto > 0) a.noAuto -= dt;
   if (prev && prev !== activeArena && prev.match && prev.match.active && prev.mode !== 'match') { /* leaving a free arena keeps it running */ }
 
+  // crowd beds: the stadium murmurs (louder during a match), the cage has the playground, the parks have birds
+  { const a = activeArena; const inside = a && inRect(a, player.pos.x, player.pos.z, 30);
+    if (a && a.id === 'stadium' && inside) setAmbience(CFG.sfx.crowdLoop, a.match && a.match.active ? 0.9 : 0.45);
+    else if (a && a.id === 'stadium') setAmbience(CFG.sfx.crowdLoop, 0.2);
+    else if (a && a.id === 'cage' && inside) setAmbience(CFG.sfx.playground, 0.5);
+    else setAmbience(null, 0); }
   for (const a of arenas) {
     const ball = a.ball;
+    if (a.ref) updateRef(a, dt, t);
+    if (a.pen) updatePenalties(a, dt, t);
     const far = Math.hypot(ball.pos.x - player.pos.x, ball.pos.z - player.pos.z) > 140;
     if (far && ball.sleep > 2) continue;   // asleep far away: skip physics
     // --- player ↔ ball ---
@@ -431,8 +445,37 @@ function worldBounce(a, b) {
 }
 import { circleSegmentPush as segPush } from './ball.js';
 
+function crowdCheer(a, vol = 1) {
+  if (a.id === 'stadium') playSfx(CFG.sfx.crowdGoal, vol); else if (a.id === 'cage') playSfx(CFG.sfx.kidsCheer, vol * 0.8); else if (a.id === 'park') playSfx(CFG.sfx.parkClap, vol * 0.7); else playSfx(CFG.sfx.kidsCheer, vol * 0.35);
+}
+export function inGoal(a, g, ball) {
+  const [ax, az, bx, bz] = g.line; const mx = (ax + bx) / 2, mz = (az + bz) / 2;
+  const inx = g.inward[0], inz = g.inward[1];
+  const depthIn = -((ball.pos.x - mx) * inx + (ball.pos.z - mz) * inz);
+  const along = Math.abs((ball.pos.x - mx) * -inz + (ball.pos.z - mz) * inx);
+  return depthIn > BALL_R && depthIn < g.dp + 0.5 && along < g.w / 2 && ball.pos.y < g.barY;
+}
+function updateRef(a, dt, t) {
+  const r = a.ref, b = a.ball; const live = a.match && a.match.active;
+  // stand off the play, ~9 m from the ball toward the centre line, never on the pitch edge
+  const [bu, bv] = rot(b.pos.x - a.rect.x, b.pos.z - a.rect.z, -a.rect.ang);
+  const tu = live ? Math.max(-a.rect.len / 2 + 4, Math.min(a.rect.len / 2 - 4, bu * 0.6)) : 0, tv = live ? (bv > 0 ? bv - 8 : bv + 8) : -6;
+  const [tx, tz] = rot(tu, tv, a.rect.ang); const gx = a.rect.x + tx, gz = a.rect.z + tz;
+  const dx = gx - r.position.x, dz = gz - r.position.z, d = Math.hypot(dx, dz);
+  if (d > 1.5) { const sp = Math.min(d, (live ? 3.2 : 1.4) * dt); r.position.x += dx / d * sp; r.position.z += dz / d * sp; r.rotation.y = Math.atan2(dx, dz); npcPlay(r, 'walk'); }
+  else { npcPlay(r, 'idle'); r.rotation.y = Math.atan2(b.pos.x - r.position.x, b.pos.z - r.position.z); }
+  r.position.y = groundAt(r.position.x, r.position.z).y;
+  npcUpdate(r, dt);
+}
 function ballGoal(a, g, ball) {
   const m = a.match; if (!m || !m.active || m.celebrate > 0) return;
+  // near miss: a hard shot from Cam that goes wide or over
+  if (!inGoal(a, g, ball) && ball.lastKicker === 'cam' && ball.vel.length() > 7 && !a._missT) {
+    const [ax, az, bx, bz] = g.line; const mx = (ax + bx) / 2, mz = (az + bz) / 2; const inx = g.inward[0], inz = g.inward[1];
+    const depthIn = -((ball.pos.x - mx) * inx + (ball.pos.z - mz) * inz); const along = Math.abs((ball.pos.x - mx) * -inz + (ball.pos.z - mz) * inx);
+    if (depthIn > BALL_R && depthIn < 2 && along < g.w / 2 + 5 && (along > g.w / 2 || ball.pos.y >= g.barY)) { a._missT = 6; if (a.id === 'stadium') playSfx(CFG.sfx.groan, 0.7); feed(g.side === 1 ? 'Just wide!' : 'Off target'); say('ohno', true); }
+  }
+  if (a._missT > 0) a._missT -= 1 / 60;
   // ball fully past the goal line, between the posts, under the bar, moving into the goal
   const [ax, az, bx, bz] = g.line; const mx = (ax + bx) / 2, mz = (az + bz) / 2;
   const inx = g.inward[0], inz = g.inward[1];
@@ -515,7 +558,8 @@ function updateMatch(a, dt, t) {
     const [nx, nz] = rot(nu, nv, r.ang); bot.x = r.x + nx; bot.z = r.z + nz;
     const y = groundAt(bot.x, bot.z).y;
     bot.mesh.position.set(bot.x, y, bot.z);
-    if (dd > 0.3) { const [wx, wz] = rot(ddu, ddv, r.ang); bot.mesh.rotation.y = Math.atan2(wx, wz); bot.mesh.userData.legs.forEach((l, i) => (l.rotation.x = Math.sin(t * 12 + i * Math.PI) * 0.6)); } else bot.mesh.userData.legs.forEach((l) => (l.rotation.x = 0));
+    if (dd > 0.3) { const [wx, wz] = rot(ddu, ddv, r.ang); bot.mesh.rotation.y = Math.atan2(wx, wz); npcPlay(bot.mesh, 'run'); } else { npcPlay(bot.mesh, 'idle'); bot.mesh.rotation.y = Math.atan2(b.pos.x - bot.x, b.pos.z - bot.z); }
+    npcUpdate(bot.mesh, dt);
     // bot touches the ball
     bot.cool -= dt;
     const bd = Math.hypot(b.pos.x - bot.x, b.pos.z - bot.z);
@@ -545,3 +589,62 @@ export function kickBallToMe() {
   feed('Ball!');
 }
 export function nearestBallDistance() { let d = 1e9; for (const a of arenas) d = Math.min(d, Math.hypot(a.ball.pos.x - player.pos.x, a.ball.pos.z - player.pos.z)); return d; }
+
+
+// ---------------------------------------------------------------------------
+// Penalty shootout (stadium): five from the spot against the Rovers keeper
+// ---------------------------------------------------------------------------
+export function startPenalties() {
+  const a = arenas.find((q) => q.id === 'stadium'); if (!a || a.pen) return;
+  if (a.match && a.match.active) { a.match.active = false; for (const b of a.bots) scene.remove(b.mesh); a.bots.length = 0; }
+  const r = a.rect;
+  a.pen = { n: 0, scored: 0, state: 'setup', t: 0, dive: 0, taken: [] };
+  const keeper = makeNpc('boyKeeper'); scene.add(keeper);
+  a.pen.keeper = keeper;
+  const h = hud(); h.el.hidden = false; h.names.textContent = 'PENALTIES  ·  CAM v ROVERS KEEPER';
+  setupPenalty(a);
+  playSfx(CFG.sfx.chant, 0.9); showToast('PENALTY SHOOTOUT', 1800); feed('Five penalties. Hold kick to charge, A/D to aim, release.');
+  emit('penalties');
+}
+function setupPenalty(a) {
+  const r = a.rect, p = a.pen; p.state = 'ready'; p.t = 0; p.dive = 0;
+  const [sx, sz] = rot(r.len / 2 - 11, 0, r.ang); a.ball.reset(r.x + sx, a.y + 0.3, r.z + sz);
+  const [cx, cz] = rot(r.len / 2 - 14.5, 0, r.ang); const [gx, gz] = rot(1, 0, r.ang); teleport(r.x + cx, r.z + cz, Math.atan2(-gx, -gz));
+  const [kx, kz] = rot(r.len / 2 - 0.8, 0, r.ang); p.keeper.position.set(r.x + kx, a.y, r.z + kz); p.keeper.rotation.y = Math.atan2(-gx, -gz); npcPlay(p.keeper, 'idle');
+  const h = hud(); h.home.textContent = p.scored; h.away.textContent = p.n; h.time.textContent = `${p.n + 1} / 5`;
+  drawScreens(a, `PENALTY ${p.n + 1} OF 5`);
+}
+function updatePenalties(a, dt, t) {
+  const p = a.pen, b = a.ball, r = a.rect, g = a.goals.find((q) => q.side === 1);
+  npcUpdate(p.keeper, dt);
+  if (p.state === 'ready') {
+    if (b.lastKicker === 'cam' && b.vel.length() > 3) { p.state = 'shot'; p.t = 0; const [, bv] = rot(b.vel.x, b.vel.z, -r.ang); p.dive = (Math.random() < 0.65 ? Math.sign(bv || 1) : -Math.sign(bv || 1)) * (2 + Math.random() * 1.2); if (Math.random() < 0.15) p.dive = 0; }
+    return;
+  }
+  if (p.state === 'shot') {
+    p.t += dt;
+    // keeper dives across the line
+    const [ku, kv] = rot(p.keeper.position.x - r.x, p.keeper.position.z - r.z, -r.ang);
+    const tv = p.dive; const nv = kv + (tv - kv) * Math.min(1, 6 * dt); const [kx, kz] = rot(r.len / 2 - 0.8, nv, r.ang); p.keeper.position.set(r.x + kx, a.y, r.z + kz); npcPlay(p.keeper, Math.abs(tv - kv) > 0.3 ? 'run' : 'idle');
+    // save?
+    const kd = Math.hypot(b.pos.x - p.keeper.position.x, b.pos.z - p.keeper.position.z);
+    if (kd < 1.1 && b.pos.y < a.y + 2.3 && !inGoal(a, g, b)) { b.vel.multiplyScalar(-0.25); b.vel.y = 1.5; b.lastKicker = 'bot'; p.state = 'done'; p.t = 0; p.taken.push(false); feed('SAVED by the keeper!'); say('ohno', true); if (a.id === 'stadium') playSfx(CFG.sfx.groan, 0.8); return; }
+    if (inGoal(a, g, b)) { p.scored++; player.goals++; addScore(300); p.state = 'done'; p.t = 0; p.taken.push(true); showToast('GOAL!!!', 1400); say('ohyeah', true); crowdCheer(a); b.vel.multiplyScalar(0.2); hud().home.textContent = p.scored; drawScreens(a, `GOAL!  ${p.scored} / 5`); return; }
+    if (p.t > 3.5 || (b.sleep > 0.5 && p.t > 1)) { p.state = 'done'; p.t = 0; p.taken.push(false); feed('Missed!'); if (a.id === 'stadium') playSfx(CFG.sfx.groan, 0.6); }
+    return;
+  }
+  if (p.state === 'done') {
+    p.t += dt; if (p.t < 2.2) return;
+    p.n++;
+    if (p.n >= 5) { endPenalties(a); return; }
+    setupPenalty(a);
+  }
+}
+function endPenalties(a) {
+  const p = a.pen; scene.remove(p.keeper); a.pen = null; a.noAuto = 10;
+  const h = hud(); setTimeout(() => { if (!a.pen && !(a.match && a.match.active)) h.el.hidden = true; }, 3500);
+  showToast(p.scored >= 4 ? `${p.scored}/5 — HERO!` : p.scored >= 2 ? `${p.scored}/5 PENALTIES` : `${p.scored}/5 — UNLUCKY`, 3200);
+  if (p.scored >= 4) { addScore(500); say('woohoo', true); crowdCheer(a); }
+  drawScreens(a, `PENALTIES  ${p.scored} / 5`);
+  emit('penaltiesDone', p.scored);
+}

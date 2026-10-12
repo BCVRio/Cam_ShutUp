@@ -23,11 +23,13 @@ export const CFG = {
     yay: ['./public/audio/yay.mp3'], ooh: ['./public/audio/ooh.mp3'], ohyeah: ['./public/audio/ohyeah.mp3'], ohno: ['./public/audio/ohno.mp3'], woohoo: ['./public/audio/woohoo.mp3'],
   },
   musicUrl: './public/audio/music_overworld.mp3',
+  sfx: { crowdLoop: './public/audio/crowd_stadium_loop.mp3', crowdGoal: './public/audio/crowd_stadium_goal.mp3', groan: './public/audio/crowd_stadium_groan.mp3', chant: './public/audio/crowd_penalty_chant.mp3', kidsCheer: './public/audio/crowd_kids_cheer.mp3', parkClap: './public/audio/crowd_park_clap.mp3', playground: './public/audio/amb_playground.mp3', meow: './public/audio/cat_meow.mp3', pigeons: './public/audio/pigeons.mp3', carPass: './public/audio/car_pass.mp3', whistle: './public/audio/ref_whistle.mp3', bell: './public/audio/shop_bell.mp3' },
   coinSfx: './public/audio/coin.mp3',
   textures: {
     grass: './public/textures/grass.jpg', dirt: './public/textures/dirt.jpg', brick: './public/textures/brick.jpg', stone: './public/textures/stone.jpg', bark: './public/textures/bark.jpg',
     water: './public/textures/water.jpg', metal: './public/textures/metal.jpg', planks: './public/textures/planks.jpg', concrete: './public/textures/concrete.jpg',
     terrace: './public/textures/facade_terrace.jpg', flats: './public/textures/facade_flats.jpg', slate: './public/textures/slate.jpg', tarmac: './public/textures/tarmac.jpg',
+    victorian: './public/textures/facade_victorian.jpg', edwardian: './public/textures/facade_edwardian.jpg', shopfront: './public/textures/facade_shop.jpg',
     sky: './public/textures/sky.jpg', foliage: './public/textures/foliage.jpg', crowd: './public/textures/crowd.jpg', ball: './public/textures/ball.jpg', cloud: './public/textures/cloud.png', glow: './public/textures/glow.png',
     pavement: './public/textures/pavement.jpg', astro: './public/textures/astro.jpg', seats: './public/textures/seats.jpg', crest: './public/art/crest_bosco.png',
   },
@@ -78,7 +80,8 @@ export function initAudio() {
     audio.ctx = new AC();
     audio.voiceGain = audio.ctx.createGain(); audio.voiceGain.gain.value = 1.0; audio.voiceGain.connect(audio.ctx.destination);
     audio.sfxGain = audio.ctx.createGain(); audio.sfxGain.gain.value = 0.5; audio.sfxGain.connect(audio.ctx.destination);
-    [CFG.coinSfx, ...Object.values(CFG.lines).flat()].forEach((u) => loadBuffer(u));
+    [CFG.coinSfx, ...Object.values(CFG.lines).flat(), ...Object.values(CFG.sfx)].forEach((u) => loadBuffer(u));
+    audio.ambGain = audio.ctx.createGain(); audio.ambGain.gain.value = 0; audio.ambGain.connect(audio.ctx.destination);
   }
 }
 export function unlockAudio() {
@@ -99,7 +102,24 @@ function playBuffer(url, gainNode, rate = 1, cutPrevious = false) {
   const src = audio.ctx.createBufferSource(); src.buffer = buf; src.playbackRate.value = rate; src.connect(gainNode); src.start();
   return src;
 }
-export function playSfx(url) { playBuffer(url, audio.sfxGain, 0.97 + Math.random() * 0.06); }
+export function playSfx(url, vol = 1) {
+  if (!audio.unlocked || !audio.ctx) return; const buf = audio.buffers[url]; if (!buf) return;
+  const src = audio.ctx.createBufferSource(); src.buffer = buf; src.playbackRate.value = 0.97 + Math.random() * 0.06;
+  const g = audio.ctx.createGain(); g.gain.value = vol; src.connect(g); g.connect(audio.sfxGain); src.start();
+}
+// one looping ambience bed at a time (crowd murmur, playground), cross-faded
+const amb = { url: null, src: null, target: 0 };
+export function setAmbience(url, vol) {
+  if (!audio.ctx) return;
+  if (url !== amb.url) {
+    if (amb.src) { try { amb.src.stop(audio.ctx.currentTime + 1.2); } catch (_) {} amb.src = null; }
+    amb.url = url;
+    if (url && audio.unlocked && audio.buffers[url]) { const s = audio.ctx.createBufferSource(); s.buffer = audio.buffers[url]; s.loop = true; s.connect(audio.ambGain); s.start(); amb.src = s; }
+    else if (url) amb.url = null;   // not loaded yet, retry next call
+  }
+  const g = audio.ambGain.gain; const want = url ? vol : 0;
+  if (Math.abs(amb.target - want) > 0.01) { amb.target = want; g.cancelScheduledValues(audio.ctx.currentTime); g.setTargetAtTime(want * 0.6, audio.ctx.currentTime, 0.8); }
+}
 export function synth(kind, vol = 1) {
   if (!audio.unlocked || !audio.ctx) return;
   const c = audio.ctx, t = c.currentTime; const o = c.createOscillator(), g = c.createGain(); o.connect(g); g.connect(audio.sfxGain);
@@ -211,7 +231,7 @@ export function seededRandom(seed) { let s = seed; return () => { s = (s * 16645
 // ---------------------------------------------------------------------------
 const texLoader = new THREE.TextureLoader();
 export const TEX = {};
-const PBR = new Set(['grass', 'dirt', 'brick', 'stone', 'bark', 'metal', 'planks', 'concrete', 'terrace', 'flats', 'slate', 'tarmac', 'pavement', 'astro', 'seats', 'foliage', 'ball']);
+const PBR = new Set(['grass', 'dirt', 'brick', 'stone', 'bark', 'metal', 'planks', 'concrete', 'terrace', 'flats', 'slate', 'tarmac', 'pavement', 'astro', 'seats', 'foliage', 'ball', 'victorian', 'edwardian', 'shopfront']);
 export function loadTexture(name, rx = 1, ry = rx, mirrored = true, kind = '') {
   const url = kind ? CFG.textures[name].replace(/\.(jpg|png)$/, `_${kind}.jpg`) : CFG.textures[name];
   const t = texLoader.load(url, undefined, undefined, () => console.warn('texture missing', name, kind));
@@ -233,6 +253,9 @@ export function buildMaterials() {
   MAT.tarmac = pbr('tarmac', 1, 1, false, { bump: 0.8 });
   MAT.pavement = pbr('pavement', 1, 1, false, { bump: 0.9 });
   MAT.terrace = pbr('terrace', 1, 1, false, { vertexColors: true, bump: 0.8 });
+  MAT.terraceB = pbr('victorian', 1, 1, false, { vertexColors: true, bump: 0.9 });
+  MAT.terraceC = pbr('edwardian', 1, 1, false, { vertexColors: true, bump: 0.9 });
+  MAT.shopfront = pbr('shopfront', 1, 1, false, { vertexColors: true, bump: 0.8 });
   MAT.flats = pbr('flats', 1, 1, false, { bump: 0.7 });
   MAT.brick = pbr('brick', 1, 1, false, { bump: 1.0 });
   MAT.concrete = pbr('concrete', 1, 1, false, { bump: 0.6 });
@@ -290,7 +313,7 @@ export function buildMaterials() {
 export const player = {
   root: new THREE.Group(), model: null, mixer: null, clips: { idle: null, run: null, jump: null, dance: null }, current: null, bones: {},
   pos: new THREE.Vector3(0, 0, 0), vel: new THREE.Vector3(), yaw: 0, grounded: false, jumpHeld: false, running: false,
-  moveTimer: 0, wasMoving: false, emoting: false, score: 0, goals: 0, collected: 0, world: null, kickCharge: 0, kicking: 0,
+  moveTimer: 0, wasMoving: false, emoting: false, score: 0, goals: 0, collected: 0, world: null, kickCharge: 0, kicking: 0, boostT: 0,
 };
 scene.add(player.root);
 export const bus = new EventTarget();
