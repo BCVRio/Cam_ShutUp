@@ -46,7 +46,7 @@ function frame() {
     // location banner
     const nw = nearestWorld(player.pos.x, player.pos.z);
     const id = nw.dist < nw.world.radius ? nw.world.id : null;
-    if (id !== lastWorldId) { lastWorldId = id; if (id) { setLocation(nw.world.name, nw.world.sub); feed('Entering ' + nw.world.name); player.world = id; } }
+    if (id !== lastWorldId) { const leaving = lastWorldId !== null; lastWorldId = id; if (id) { setLocation(nw.world.name, nw.world.sub); feed('Entering ' + nw.world.name); player.world = id; } if (leaving && Math.random() < 0.4) shutUp(true); }
   } else if (player.mixer) player.mixer.update(dt);
   updateAccessories(t);
   if (sky.dome) sky.dome.position.copy(camera.position);

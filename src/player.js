@@ -170,8 +170,7 @@ export function updatePlayer(dt) {
   player.vel.x += (tx - player.vel.x) * Math.min(1, accel * dt / speed); player.vel.z += (tz - player.vel.z) * Math.min(1, accel * dt / speed);
   player.running = run && moving;
   if (moving && player.emoting) { player.emoting = false; setClip('idle'); }
-  if (moving && !player.wasMoving) { shutUp(); player.moveTimer = 0; }
-  if (moving) { player.moveTimer += dt; if (player.moveTimer >= CFG.runShoutEvery) { shutUp(); player.moveTimer = 0; } }
+  // no shouting while running about: Cam only says it when he spawns, now and then when he leaves an area, and on the odd big shot
   player.wasMoving = moving;
   if (moving) { const target = Math.atan2(wx, wz); let d = target - player.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); player.yaw += d * Math.min(1, 14 * dt); }
   else if (input.kickHeld) { const target = cam.yaw + Math.PI; let d = target - player.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); player.yaw += d * Math.min(1, 10 * dt); }
@@ -180,7 +179,7 @@ export function updatePlayer(dt) {
   // jump with buffering + coyote time
   if (input.jumpHeld && !player._jumpWas) jumpBufferT = 0.15; player._jumpWas = input.jumpHeld;
   jumpBufferT = Math.max(0, jumpBufferT - dt); coyoteT = player.grounded ? 0.12 : Math.max(0, coyoteT - dt);
-  if (jumpBufferT > 0 && coyoteT > 0) { player.vel.y = CFG.jumpSpeed * (run ? 1.06 : 1); player.grounded = false; coyoteT = 0; jumpBufferT = 0; player.emoting = false; shutUp(true); }
+  if (jumpBufferT > 0 && coyoteT > 0) { player.vel.y = CFG.jumpSpeed * (run ? 1.06 : 1); player.grounded = false; coyoteT = 0; jumpBufferT = 0; player.emoting = false; }
   else if (!input.jumpHeld && player.vel.y > 3 && !player.grounded) player.vel.y = 3;
 
   player.vel.y -= CFG.gravity * dt; player.vel.y = Math.max(player.vel.y, -30);

@@ -1,8 +1,9 @@
 # Cam's Shut Up: SE London
 
 An open-world football game starring Cam, set in a real slice of south-east
-London rebuilt street by street from OpenStreetMap data. Every time he moves,
-jumps or kicks the ball he says **"shut up"** in his own voice.
+London rebuilt street by street from OpenStreetMap data. He says **"shut up"** in his
+own voice when he spawns, now and then when he leaves an area, and on the odd
+full-power shot.
 
 ![Opening page](public/art/keyart_bosco.jpg)
 

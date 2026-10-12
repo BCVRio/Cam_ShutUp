@@ -466,7 +466,7 @@ function playerBall(a, dt, t, input) {
       const curl = -input.strafe * (0.4 + charge * 0.6);
       b.kick(_d.set(dirx, 0, dirz), speed, loft, curl, 0.15 + charge * 0.3);
       b.lastKicker = 'cam'; b.lastTouch = t; touchCool = 0.25;
-      shutUp(true); emit('kick');
+      if (charge > 0.95 && Math.random() < 0.2) shutUp(true); emit('kick');
       return;
     }
   }
@@ -542,6 +542,6 @@ export function kickBallToMe() {
   const a = activeArena || arenas[0]; const b = a.ball;
   const fx = Math.sin(player.yaw), fz = Math.cos(player.yaw);
   b.reset(player.pos.x + fx * 1.5, player.pos.y + 0.8, player.pos.z + fz * 1.5);
-  say('shutup', true); feed('Ball!');
+  feed('Ball!');
 }
 export function nearestBallDistance() { let d = 1e9; for (const a of arenas) d = Math.min(d, Math.hypot(a.ball.pos.x - player.pos.x, a.ball.pos.z - player.pos.z)); return d; }
