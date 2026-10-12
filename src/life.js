@@ -2,6 +2,7 @@
 import { THREE, CFG, scene, MAT, player, Q, QU, playSfx, setupObject, seededRandom } from './core.js';
 import { world, groundAt, terrainHeight, surfaceAt, SURF, inStadium } from './map.js';
 import { loadNpc, makeNpc, npcPlay } from './npc.js';
+import { loadProp, propClone } from './props.js';
 
 const rnd = seededRandom(1234);
 export const walkers = [], cars = [], cats = [], flocks = [], pigeons = [];
@@ -65,6 +66,10 @@ function stepWalker(w, dt) {
 const CAR_COLORS = [0xd8d8d8, 0x2a2a2e, 0x8a1c1c, 0x1f3f8a, 0x4b6b3a, 0xc0c0c8, 0xe0a020];
 function makeCar(color) {
   const g = new THREE.Group();
+  // modelled car when the prop has loaded (long axis x → turned so +z is forward), tinted per car
+  const kind = rnd() < 0.8 ? 'hatchback' : 'van';
+  const model = propClone(kind);
+  if (model) { model.rotation.y = -Math.PI / 2; model.traverse((o) => { if (o.isMesh && o.material) { o.material = o.material.clone(); if (kind === 'hatchback') o.material.color.setHex(color).lerp(new THREE.Color(0xffffff), 0.35); } }); setupObject(model); g.add(model); return g; }
   const paint = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.5 }); setupObject({ traverse: (f) => f({ material: paint }) });
   const body = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.55, 4.1), paint); body.position.y = 0.55; g.add(body);
   const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.5, 2.0), paint); cabin.position.set(0, 1.07, -0.2); g.add(cabin);
@@ -169,10 +174,12 @@ function spawnPigeons(cx, cz) {
 // ---------------------------------------------------------------------------
 export function buildLife() {
   const d = world.data; buildGraph(d);
+  loadProp('hatchback'); loadProp('van');
   loadNpc('man'); loadNpc('woman');
   const px = player.pos.x, pz = player.pos.z;
   for (let i = 0; i < WALKER_N; i++) spawnWalker(px, pz);
   for (let i = 0; i < CAR_N; i++) spawnCar(px, pz);
+  Promise.all([loadProp('hatchback'), loadProp('van')]).then(() => { for (const c of cars) { const col = CAR_COLORS[Math.floor(rnd() * CAR_COLORS.length)]; scene.remove(c.mesh); c.mesh = makeCar(col); scene.add(c.mesh); } });
   for (let i = 0; i < (Q() ? 6 : 3); i++) spawnCat(px, pz);
   // flocks over the bigger green spaces, pigeons on a few
   const greens = d.areas.filter((a) => (a.k === 'grass' || a.k === 'cemetery') && a.a > 6000).slice(0, Q() ? 8 : 4);

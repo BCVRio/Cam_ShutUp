@@ -8,6 +8,8 @@ import { initUI, ui, openMenu, closeMenu, setLocation, updateMinimap, goFullscre
 import { buildLife, updateLife, walkers, cars, cats } from './life.js';
 import { buildShops, updateShops, interact, talk, choose, closeTalk, shops } from './shops.js';
 import { startPenalties } from './football.js';
+import { buildScenery, updateScenery, HOUSE_FADE } from './scenery.js';
+import { MAT } from './core.js';
 
 const status = (t) => { const e = $('loadStatus'); if (e) e.textContent = t; };
 let started = false, lastWorldId = null;
@@ -44,7 +46,7 @@ function frame() {
   pollPad(ui.open || !started || talk.open);
   if (started && !ui.open && !talk.open) {
     for (let s = 0; s < STEPS; s++) { if (s) { simT += dt; } readInput(); updatePlayer(dt); updateFootball(dt, FAST ? simT : t, input); }
-    updateLife(dt, t); updateShops(dt, t);
+    updateLife(dt, t); updateShops(dt, t); updateScenery(dt);
     updateMinimap(dt);
     const pw = $('power'); if (pw) { pw.style.opacity = player.kickCharge > 0 ? 1 : 0; pw.firstElementChild.style.width = (player.kickCharge * 100).toFixed(0) + '%'; }
     // location banner
@@ -83,6 +85,7 @@ async function main() {
   buildWorld();
   buildShops();
   buildLife();
+  buildScenery();
   buildGrass();
   setupObject(scene);
   initPost(); applyViewport();

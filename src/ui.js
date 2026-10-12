@@ -37,7 +37,8 @@ export function showTab(tab) {
   if (tab === 'locker') { const body = $('lockerBody'); body.innerHTML = ''; renderLocker(body, (o) => ui.onOutfit && ui.onOutfit(o)); }
   if (tab === 'map') { bigMapDirty = true; drawBigMap(); }
   if (tab === 'cards') renderAlbum($('cardsBody'));
-  clearPadFocus();
+  // keep the controller focus on the tab button that was just pressed
+  clearPadFocus(); const tb = document.querySelector(`[data-tab="${tab}"]`); if (tb && document.body.classList.contains('pad')) tb.classList.add('padfocus');
 }
 export function openMenu(mode = 'pause') {
   ui.open = true; ui.mode = mode; $('menu').hidden = false; $('menu').classList.toggle('pause', mode === 'pause');

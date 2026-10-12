@@ -247,6 +247,17 @@ export function pbr(name, rx = 1, ry = rx, mirrored = true, extra = {}) {
   return new THREE.MeshStandardMaterial(o);
 }
 export const MAT = {};
+export const FAR_FADE = { value: 0 };   // metres: fragments of the 'far' materials closer than this to the camera are discarded
+function makeFar(m, key) {
+  const prev = m.onBeforeCompile;   // CSM's hook, when cascaded shadows are on
+  m.onBeforeCompile = (shader, r) => {
+    if (prev && m.userData.csm) prev(shader, r);
+    shader.uniforms.uFade = FAR_FADE;
+    shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vFarPos;').replace('#include <project_vertex>', '#include <project_vertex>\nvFarPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uFade; varying vec3 vFarPos;').replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (uFade > 0.0 && distance(vFarPos, cameraPosition) < uFade) discard;');
+  };
+  m.customProgramCacheKey = () => key + (m.userData.csm ? 'csm' : '');
+}
 export function buildMaterials() {
   const std = (o) => new THREE.MeshStandardMaterial(o);
   MAT.ground = pbr('grass', 1, 1, true, { vertexColors: true, bump: 0.6 });
@@ -304,7 +315,9 @@ export function buildMaterials() {
   MAT.postbox = std({ color: 0xc8161d, roughness: 0.6 });
   MAT.lampGlow = new THREE.MeshBasicMaterial({ color: 0xfff1c0 });
   MAT.glowSprite = new THREE.SpriteMaterial({ map: loadTexture('glow', 1, 1, false), color: 0xfff2cc, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+  MAT.terraceFar = MAT.terraceB.clone(); MAT.slateFar = MAT.slate.clone();   // distant versions of the modelled terraces (cut away near the camera)
   for (const v of Object.values(MAT)) { if (Array.isArray(v)) v.forEach(setupMaterial); else setupMaterial(v); }
+  for (const [m, key] of [[MAT.terraceFar, 'terraceFar'], [MAT.slateFar, 'slateFar']]) makeFar(m, key);
 }
 
 // ---------------------------------------------------------------------------

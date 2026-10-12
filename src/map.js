@@ -211,7 +211,8 @@ function buildRail(d) {
 }
 
 function buildBuildings(d) {
-  const lists = { terrace: [], terraceB: [], terraceC: [], shopfront: [], flats: [], brick: [], concrete: [], stone: [] }; const roofs = [];
+  const lists = { terrace: [], terraceB: [], terraceC: [], terraceMod: [], shopfront: [], flats: [], brick: [], concrete: [], stone: [] }; const roofs = [];
+  world.modules = []; const roofsMod = [];
   const shopPts = d.pois.filter((p) => p.n && (p.k.startsWith('shop:') || p.k === 'cafe' || p.k === 'restaurant' || p.k === 'pub' || p.k === 'fast_food')); let styleSeed = 0;
   const rnd = seededRandom(42);
   const tint = new THREE.Color();
@@ -226,6 +227,15 @@ function buildBuildings(d) {
       const cx = p.reduce((s, q) => s + q[0], 0) / p.length, cz = p.reduce((s, q) => s + q[1], 0) / p.length;
       const isShop = b.k === 'commercial' || shopPts.some((q) => Math.hypot(q.x - cx, q.z - cz) < Math.max(9, Math.sqrt(b.a || 60) * 0.7));
       matKey = isShop ? 'shopfront' : ['terrace', 'terraceB', 'terraceC'][(styleSeed++) % 3];
+      // regular rows become modelled house modules up close (the textured box stays for the distance)
+      if (Q() && !isShop && b.k === 'terrace') {
+        const r = pitchRect(p); const ratio = polyArea(p) / (r.len * r.wid);
+        if (ratio > 0.78 && r.wid >= 6 && r.wid <= 14 && r.len >= 4.5 && r.len <= 120) {
+          const nd = nearestRoadInfo(d, r.x, r.z); const vx = -Math.sin(r.ang), vz = Math.cos(r.ang); const side = Math.sign((nd.px - r.x) * vx + (nd.pz - r.z) * vz) || 1;
+          world.modules.push({ x: r.x, z: r.z, ang: r.ang, len: r.len, wid: r.wid, h: b.h, base: minY - 0.05, front: [vx * side, vz * side], style: styleSeed % 2 });
+          matKey = 'terraceMod';
+        }
+      }
     }
     const positions = [], normals = [], uvs = [], index = [], colors = [];
     const warm = rnd(); tint.setHSL(0.09 + warm * 0.04, 0.35 + rnd() * 0.25, 0.5 + rnd() * 0.22);
@@ -251,15 +261,17 @@ function buildBuildings(d) {
     g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2)); g.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); g.setIndex(index);
     lists[matKey].push(g);
     // pitched slate roofs with chimney stacks on the terraces; flat slab where the footprint is too irregular
-    if (b.k === 'terrace' || b.k === 'commercial') { if (!(Q() && gableRoof(p, top, roofs, lists, tint))) roofs.push(polygonFlat(p, top + 0.02, 0.3)); }
+    if (matKey === 'terraceMod') roofsMod.push(polygonFlat(p, top + 0.02, 0.3));
+    else if (b.k === 'terrace' || b.k === 'commercial') { if (!(Q() && gableRoof(p, top, roofs, lists, tint))) roofs.push(polygonFlat(p, top + 0.02, 0.3)); }
     // collision
     let minx = 1e9, minz = 1e9, maxx = -1e9, maxz = -1e9; for (const [x, z] of p) { minx = Math.min(minx, x); maxx = Math.max(maxx, x); minz = Math.min(minz, z); maxz = Math.max(maxz, z); }
     const poly = { p, minx, minz, maxx, maxz, top, name: b.n, k: b.k };
     polys.push(poly); gridAdd(polyGrid, minx, minz, maxx, maxz, poly);
   }
   const mats = { terrace: MAT.terrace, flats: MAT.flats, brick: MAT.brick, concrete: MAT.concrete, stone: MAT.stone };
-  mats.terraceB = MAT.terraceB; mats.terraceC = MAT.terraceC; mats.shopfront = MAT.shopfront;
+  mats.terraceB = MAT.terraceB; mats.terraceC = MAT.terraceC; mats.shopfront = MAT.shopfront; mats.terraceMod = MAT.terraceFar;
   for (const k in lists) { const m = addMerged(lists[k], mats[k], true, true); if (m) m.material.side = THREE.DoubleSide; }
+  addMerged(roofsMod, MAT.slateFar, false, true);
   addMerged(roofs, MAT.slate, false, true);
 }
 
@@ -372,6 +384,12 @@ export function updateGrass(px, pz, t) {
   grassMesh.instanceMatrix.needsUpdate = true; if (grassMesh.instanceColor) grassMesh.instanceColor.needsUpdate = true;
 }
 
+let _roadCache = null;
+function nearestRoadInfo(d, x, z) {
+  let best = 1e9, px = x, pz = z;
+  for (const r of d.roads) { if (r.w < 4) continue; for (let i = 0; i < r.p.length - 1; i++) { const [ax, az] = r.p[i], [bx, bz] = r.p[i + 1]; if (Math.abs(ax - x) > 60 && Math.abs(bx - x) > 60) continue; const dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l2)); const cx = ax + dx * t, cz = az + dz * t; const dd = Math.hypot(x - cx, z - cz); if (dd < best) { best = dd; px = cx; pz = cz; } } }
+  return { px, pz, dist: best };
+}
 function buildTrees(d) {
   const rnd = seededRandom(7);
   const extra = [];
@@ -400,6 +418,7 @@ function buildTrees(d) {
   });
   trunks.castShadow = true; canopies.castShadow = true; canopies.receiveShadow = true; trunks.instanceMatrix.needsUpdate = true; canopies.instanceMatrix.needsUpdate = true; canopies.instanceColor.needsUpdate = true;
   scene.add(trunks, canopies);
+  world.treeList = all; world.treeMeshes = [trunks, canopies]; world.treeOrig = { trunk: trunks.instanceMatrix.array.slice(), canopy: canopies.instanceMatrix.array.slice(), lobes };
 }
 
 function textTexture(text, w = 512, h = 128, bg = '#1b3a8f', fg = '#ffffff', font = 'bold 64px Oswald, Impact, Arial Narrow, sans-serif', border = '#ffffff') {

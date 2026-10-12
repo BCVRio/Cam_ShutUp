@@ -58,6 +58,20 @@ circle above the parks, pigeons scatter from the greens. Lamp posts stand on
 the pavements, terraces alternate between three London facades (stock brick,
 Victorian bay-fronted, Edwardian red brick) and the shops get real shopfronts.
 
+## Modelled scenery (Higgsfield → Meshy)
+
+Every piece of scenery that isn't a flat surface is now a Higgsfield concept
+turned into a 3D model with Meshy and instanced across the map: London plane,
+oak and cherry trees; Victorian and Edwardian terrace house modules that
+replace the textured boxes on the regular rows near Cam (the boxes stay in the
+distance and are cut away up close); parked hatchbacks and vans on the
+residential streets; bus shelters at the real bus stops; benches, bins and
+flower beds in the parks; playgrounds on the playground polygons. Traffic uses
+the same car models. The locker's hats and back bling are modelled the same
+way (cap, crown, headphones, beanie, halo, kit bag, angel wings, balloons,
+knight shield, jetpack, the Nunhead cat), with thumbnails from their concepts,
+and the auras are additive sprite rings with rising sparks.
+
 ## Shops, talking and cards
 
 Ten real shops from the map have a shopkeeper at the door and a glowing step.
