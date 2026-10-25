@@ -144,6 +144,11 @@
     #cardsBody .album { max-width: 100%; height: auto; display: block; }
     #cardsBody .albumHead { color: #fff; font: 500 16px var(--font); margin: 0 0 10px; }
     .padfocus { outline: 3px solid var(--gold) !important; outline-offset: 2px; box-shadow: 0 0 0 6px rgba(242,194,51,0.25) !important; }
+    #shopList h3 { color: var(--gold); font: 700 15px var(--font); letter-spacing: 2px; margin: 12px 0 8px; }
+    .shopRow { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+    .shopBtn { display: flex; align-items: center; gap: 10px; text-align: left; background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.22); color: #fff; border-radius: 12px; padding: 8px 10px; font: 600 15px var(--font); cursor: pointer; }
+    .shopBtn img { width: 36px; height: 36px; } .shopBtn span { display: flex; flex-direction: column; } .shopBtn small { font-size: 11px; opacity: 0.75; font-weight: 500; }
+    .shopBtn:hover, .shopBtn.padfocus { border-color: var(--gold); background: rgba(242,194,51,0.18); }
     #hint { position: fixed; bottom: calc(10px + var(--sab)); left: 50%; transform: translateX(-50%); color: #fff; font-weight: 500; font-size: 13px; text-shadow: 0 1px 0 #000; opacity: 0.8; pointer-events: none; white-space: nowrap; }
     body.touch #hint { display: none; } body.touch #power { bottom: calc(150px + var(--sab)); }
 
@@ -230,7 +235,7 @@
       </section>
       <section id="tab_worlds" class="tab" hidden><div id="worldsGrid"></div></section>
       <section id="tab_locker" class="tab" hidden><div id="lockerBody"></div></section>
-      <section id="tab_map" class="tab" hidden><canvas id="bigmap" width="940" height="780"></canvas></section>
+      <section id="tab_map" class="tab" hidden><canvas id="bigmap" width="940" height="780"></canvas><div id="shopList"></div></section>
       <section id="tab_cards" class="tab" hidden><div id="cardsBody"></div></section>
       <section id="tab_settings" class="tab settings" hidden>
         <label class="row"><span><b>Music</b><small>Overworld theme (M key in game)</small></span><input id="musicChk" type="checkbox" /></label>

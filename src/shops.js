@@ -6,7 +6,7 @@ import { makeNpc, npcUpdate } from './npc.js';
 import { openPack, showPack, album, ALL_CARDS, duplicates, missing, swapRandom, swapFor, cardCount, drawCard } from './cards.js';
 
 export const shops = [];
-export const talk = { open: false, shop: null, tab: 'buy', options: [], lock: 0 };
+export const talk = { open: false, shop: null, tab: 'buy', options: [], lock: 0, left: true };
 const KEEPER_NAMES = ['Mo', 'Dev', 'Ayesha', 'Tony', 'Grace', 'Kwame', 'Sam', 'Lena', 'Raj', 'Bea', 'Yusuf', 'Pat'];
 const NICE = ['convenience', 'newsagent', 'supermarket', 'bakery', 'greengrocer', 'kiosk', 'butcher', 'seafood', 'deli', 'toys', 'books', 'sports', 'gift', 'cafe'];
 
@@ -141,7 +141,7 @@ function reply(text) {
 }
 export function choose(i) { if (!talk.open) return; const fn = talk.options[i]; if (fn) fn(); }
 export function nextTab(dir = 1) { if (!talk.open) return; const order = ['buy', 'swap', 'chat']; talk.tab = order[(order.indexOf(talk.tab) + dir + 3) % 3]; synth('click'); renderTab(); }
-export function closeTalk() { if (!talk.open) return; talk.open = false; talk.lock = 2.5; const dlg = $('dialog'); dlg.hidden = true; dlg.classList.remove('shop'); const pr = $('packReveal'); if (pr) pr.hidden = true; }
+export function closeTalk() { if (!talk.open) return; talk.open = false; talk.lock = 1.0; const dlg = $('dialog'); dlg.hidden = true; dlg.classList.remove('shop'); const pr = $('packReveal'); if (pr) pr.hidden = true; }
 
 // ---------------------------------------------------------------------------
 // Per frame: doorway auto-open, prompt, compass to the nearest shop
@@ -154,7 +154,8 @@ export function updateShops(dt, t) {
   promptEl = promptEl || $('prompt'); compassEl = compassEl || $('compass');
   const s = talk.open ? null : nearestShop();
   // step onto the mat and the counter opens on its own
-  if (s && !talk.open && talk.lock <= 0 && Math.hypot(s.x - player.pos.x, s.z - player.pos.z) < 1.25) { openTalk(s); return; }
+  if (!s || Math.hypot(s.x - player.pos.x, s.z - player.pos.z) > 2.2) talk.left = true;   // you have to step off the mat and back on for it to open again
+  if (s && !talk.open && talk.lock <= 0 && talk.left && Math.hypot(s.x - player.pos.x, s.z - player.pos.z) < 1.25) { talk.left = false; openTalk(s); return; }
   if (s !== promptShop) { promptShop = s; if (promptEl) { if (s) { promptEl.innerHTML = `<b>${document.body.classList.contains('pad') || document.body.classList.contains('touch') ? 'A' : 'E'}</b> Go into ${s.name}`; promptEl.hidden = false; } else promptEl.hidden = true; } }
   // compass: nearest shop, with distance, hidden while a match is on
   if (compassEl) {

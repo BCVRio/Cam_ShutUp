@@ -66,7 +66,7 @@ const PAD_KEYS = { 1: 'KeyB', 3: 'KeyG', 9: 'Escape', 8: 'KeyN', 0: 'KeyE' };   
 // --- focus navigation for menus / chats (shared with the keyboard arrows) ---
 function focusables() {
   const root = [...document.querySelectorAll('#dialog, #packReveal, #menu')].find((el) => el && !el.hidden); if (!root) return [];
-  return [...root.querySelectorAll('button, [data-tab], .wcard, .chips button, select, input, a.btn')].filter((el) => !el.hidden && !el.disabled && el.offsetParent !== null && el.getClientRects().length);
+  return [...root.querySelectorAll('button, [data-tab], .wcard, .chips button, .shopBtn, select, input, a.btn')].filter((el) => !el.hidden && !el.disabled && el.offsetParent !== null && el.getClientRects().length);
 }
 export function padNav(sx, sy) {
   const els = focusables(); if (!els.length) return;

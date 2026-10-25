@@ -438,9 +438,12 @@ export function updateFootball(dt, t, input) {
     if (a.match && a.match.active) updateMatch(a, dt, t);
   }
   // HUD
+  if (!activeArena || !activeArena.match || !activeArena.match.active) { const h = hud(); if (!h.el.hidden && !arenas.some((q) => q.pen)) h.el.hidden = true; }
   if (activeArena && activeArena.match && activeArena.match.active) {
     const h = hud(), m = activeArena.match;
-    if (activeArena.mode === 'targets') { const near = inRect(activeArena, player.pos.x, player.pos.z, 14); h.el.hidden = !near; if (!near) return; h.home.textContent = activeArena.targets.filter((q) => !q.up).length; h.away.textContent = activeArena.targets.length; h.time.textContent = 'DOWN'; return; }
+    // free kickabouts and the target game only show their board while Cam is on that pitch
+    if (activeArena.mode === 'targets' || activeArena.mode === 'free') { const near = inRect(activeArena, player.pos.x, player.pos.z, 14); h.el.hidden = !near; if (!near) return; }
+    if (activeArena.mode === 'targets') { h.home.textContent = activeArena.targets.filter((q) => !q.up).length; h.away.textContent = activeArena.targets.length; h.time.textContent = 'DOWN'; return; }
     h.el.hidden = false;
     h.home.textContent = m.home; h.away.textContent = m.away;
     if (activeArena.screens && (activeArena._scrT = (activeArena._scrT || 0) + dt) > 0.5) { activeArena._scrT = 0; drawScreens(activeArena); }

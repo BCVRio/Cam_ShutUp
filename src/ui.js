@@ -5,7 +5,8 @@ import { renderLocker } from './locker.js';
 import { renderAlbum } from './cards.js';
 import { clearPadFocus } from './player.js';
 
-export const ui = { open: true, mode: 'menu', onPlay: null, onWorld: null, onOutfit: null, onResume: null, onPenalties: null };
+export const ui = { open: true, mode: 'menu', onPlay: null, onWorld: null, onOutfit: null, onResume: null, onPenalties: null, onShop: null };
+const shopIcon = new Image(); shopIcon.src = './public/art/shop_icon.png';
 let mapCtx = null, mapT = 0, bigMapDirty = true;
 
 export function initUI() {
@@ -74,7 +75,13 @@ function drawMap(c, cx, cz, scale, W, H, detail) {
   for (const r of d.rail) { c.strokeStyle = colors.rail; c.lineWidth = Math.max(1.5, 6 * scale); c.beginPath(); r.p.forEach(([x, z], i) => (i ? c.lineTo(X(x), Z(z)) : c.moveTo(X(x), Z(z)))); c.stroke(); }
   for (const r of d.roads) { if (r.k === 'steps') continue; c.strokeStyle = r.w <= 2 ? colors.foot : colors.road; c.lineWidth = Math.max(r.w <= 2 ? 0.8 : 1.2, r.w * scale); c.beginPath(); r.p.forEach(([x, z], i) => (i ? c.lineTo(X(x), Z(z)) : c.moveTo(X(x), Z(z)))); c.stroke(); }
   // shops
-  if (world.shops) for (const s of world.shops) { c.fillStyle = '#14275e'; c.fillRect(X(s.x) - (detail ? 6 : 4), Z(s.z) - (detail ? 6 : 4), detail ? 12 : 8, detail ? 12 : 8); c.fillStyle = '#f2c233'; c.font = `bold ${detail ? 10 : 7}px Oswald, Impact, sans-serif`; c.textAlign = 'center'; c.fillText('S', X(s.x), Z(s.z) + (detail ? 4 : 3)); }
+  if (world.shops) for (const s of world.shops) {
+    const sz = detail ? 26 : 14; const x = X(s.x), z = Z(s.z);
+    if (x < -sz || z < -sz || x > W + sz || z > H + sz) continue;
+    c.fillStyle = 'rgba(255,255,255,0.9)'; c.beginPath(); c.arc(x, z, sz * 0.62, 0, 7); c.fill();
+    if (shopIcon.complete && shopIcon.naturalWidth) c.drawImage(shopIcon, x - sz / 2, z - sz / 2, sz, sz); else { c.fillStyle = '#14275e'; c.fillRect(x - sz * 0.35, z - sz * 0.35, sz * 0.7, sz * 0.7); }
+    if (detail) { c.font = 'bold 12px Oswald, Impact, sans-serif'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,0.9)'; c.strokeText(s.name, x, z + sz * 0.95); c.fillStyle = '#14275e'; c.fillText(s.name, x, z + sz * 0.95); }
+  }
   // worlds
   c.font = `bold ${detail ? 13 : 9}px Oswald, Impact, sans-serif`; c.textAlign = 'center';
   for (const w of CFG.worlds) { c.fillStyle = '#ffd83d'; c.beginPath(); c.arc(X(w.x), Z(w.z), detail ? 7 : 4, 0, 7); c.fill(); c.strokeStyle = '#14275e'; c.lineWidth = 2; c.stroke(); c.fillStyle = '#14275e'; c.fillText(w.name.toUpperCase(), X(w.x) + 1, Z(w.z) - (detail ? 12 : 7) + 1); c.fillStyle = '#fff'; c.fillText(w.name.toUpperCase(), X(w.x), Z(w.z) - (detail ? 12 : 7)); }
@@ -96,4 +103,11 @@ export function drawBigMap() {
   const b = world.bounds; const scale = Math.min(W / (b.x1 - b.x0), H / (b.z1 - b.z0));
   drawMap(c, (b.x0 + b.x1) / 2, (b.z0 + b.z1) / 2, scale, W, H, true);
   c.fillStyle = 'rgba(255,255,255,0.85)'; c.font = '12px Oswald, Impact, sans-serif'; c.textAlign = 'left'; c.fillText('Map data © OpenStreetMap contributors', 8, H - 8);
+  // the shop list under the map: tap one to go there
+  const list = $('shopList'); if (list && world.shops) {
+    list.innerHTML = '<h3>SHOPS · tap to go there</h3>';
+    const row = document.createElement('div'); row.className = 'shopRow';
+    for (const s of world.shops) { const b = document.createElement('button'); b.type = 'button'; b.className = 'shopBtn'; const d = Math.round(Math.hypot(s.x - player.pos.x, s.z - player.pos.z)); b.innerHTML = `<img src="./public/art/shop_icon.png" alt=""><span>${s.name}<small>${s.keeperName} · ${d} m away</small></span>`; b.addEventListener('click', () => { unlockAudio(); synth('power'); ui.onShop && ui.onShop(s); }); row.appendChild(b); }
+    list.appendChild(row);
+  }
 }

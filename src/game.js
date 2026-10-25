@@ -116,6 +116,10 @@ async function main() {
   ui.onOutfit = (o) => loadOutfit(o, status).then(() => setupObject(player.root));
   ui.onResume = () => { started = true; };
   ui.onPenalties = () => { dropAt(CFG.worlds.find((w) => w.id === 'stadium')); setTimeout(startPenalties, 400); };
+  ui.onShop = (s) => {   // land on the pavement a few metres from the door, facing the shop
+    const dx = s.doorX - s.x, dz = s.doorZ - s.z, l = Math.hypot(dx, dz) || 1; const fx = dx / l, fz = dz / l;
+    teleport(s.x - fx * 4, s.z - fz * 4, Math.atan2(-fx, -fz)); closeMenu(); started = true; lastWorldId = null; showToast(s.name.toUpperCase(), 1500);
+  };
   await loadOutfit(outfitDef(), status); setupObject(player.root);
   status('Ready');
   $('playBtn').disabled = false;
