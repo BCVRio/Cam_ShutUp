@@ -399,7 +399,8 @@ function buildTrees(d) {
     let minx = 1e9, minz = 1e9, maxx = -1e9, maxz = -1e9; for (const [x, z] of a.p) { minx = Math.min(minx, x); maxx = Math.max(maxx, x); minz = Math.min(minz, z); maxz = Math.max(maxz, z); }
     for (let i = 0, tries = 0; i < n && tries < n * 6; tries++) { const x = minx + rnd() * (maxx - minx), z = minz + rnd() * (maxz - minz); if (pointInPoly(x, z, a.p) && surfaceAt(x, z) !== SURF.astro && surfaceAt(x, z) !== SURF.court) { extra.push([x, z]); i++; } }
   }
-  const all = d.trees.concat(extra).filter(([x, z]) => !inStadium(x, z, 6));
+  const onPitch = (x, z) => (world.noTree || []).some((r) => { const dx = x - r.x, dz = z - r.z; const u = dx * Math.cos(-r.ang) - dz * Math.sin(-r.ang), v = dx * Math.sin(-r.ang) + dz * Math.cos(-r.ang); return Math.abs(u) < r.len / 2 && Math.abs(v) < r.wid / 2; });
+  const all = d.trees.concat(extra).filter(([x, z]) => !inStadium(x, z, 6) && !onPitch(x, z));
   const trunkGeo = new THREE.CylinderGeometry(0.22, 0.34, 1, Q() ? 9 : 7); trunkGeo.translate(0, 0.5, 0);
   const canopyGeo = new THREE.IcosahedronGeometry(1, Q() ? 2 : 0);
   if (Q()) { // roughen the canopy silhouette so it reads as foliage, not a ball

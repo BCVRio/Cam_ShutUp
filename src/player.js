@@ -104,7 +104,8 @@ export function pollPad(uiOpen) {
       if (pressed(0)) { if (!padActivate()) { const play = $('playBtn'), res = $('resumeBtn'); if (play && !play.hidden && !play.disabled) play.click(); else if (res && !res.hidden) res.click(); } }
       if (pressed(1) && padHandlers && padHandlers.key) padHandlers.key('Escape');
       if (pressed(2) && padHandlers && padHandlers.key) padHandlers.key('KeyX');
-      if (pressed(4) || pressed(5)) { const tabs = [...document.querySelectorAll('[data-tab]')]; const cur = Math.max(0, tabs.findIndex((t) => t.classList.contains('on'))); const nx = tabs[(cur + (pressed(5) ? 1 : tabs.length - 1)) % tabs.length]; if (nx) nx.click(); }
+      if ((pressed(4) || pressed(5)) && document.querySelector('#dialog.shop:not([hidden])')) { const stabs = [...document.querySelectorAll('.stab')]; const cur = Math.max(0, stabs.findIndex((t) => t.classList.contains('on'))); const nx = stabs[(cur + (pressed(5) ? 1 : stabs.length - 1)) % stabs.length]; if (nx) nx.click(); }
+      else if (pressed(4) || pressed(5)) { const tabs = [...document.querySelectorAll('[data-tab]')]; const cur = Math.max(0, tabs.findIndex((t) => t.classList.contains('on'))); const nx = tabs[(cur + (pressed(5) ? 1 : tabs.length - 1)) % tabs.length]; if (nx) nx.click(); }
     } else {
       const dz = (v) => (Math.abs(v) < 0.16 ? 0 : (v - Math.sign(v) * 0.16) / 0.84);
       pad.ix = dz(ax[0] || 0); pad.iz = dz(ax[1] || 0);

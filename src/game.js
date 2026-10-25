@@ -6,7 +6,7 @@ import { bindInput, readInput, updatePlayer, updateCamera, loadOutfit, teleport,
 import { locker, outfitDef, updateAccessories } from './locker.js';
 import { initUI, ui, openMenu, closeMenu, setLocation, updateMinimap, goFullscreen } from './ui.js';
 import { buildLife, updateLife, walkers, cars, cats } from './life.js';
-import { buildShops, updateShops, interact, talk, choose, closeTalk, shops } from './shops.js';
+import { buildShops, updateShops, interact, talk, choose, closeTalk, shops, nextTab } from './shops.js';
 import { startPenalties } from './football.js';
 import { buildScenery, updateScenery, HOUSE_FADE } from './scenery.js';
 import { MAT } from './core.js';
@@ -95,9 +95,10 @@ async function main() {
   bindInput({ key: (code) => {
     if (talk.open) {   // chatting: 1/2/3 or A/B/C pick, X / Escape leaves, Enter / E / Space continues
       const pr = $('packReveal'); if (pr && !pr.hidden && ['Enter', 'KeyE', 'Space', 'Escape', 'KeyX'].includes(code)) { pr.hidden = true; return; }
-      const idx = { Digit1: 0, Digit2: 1, Digit3: 2, KeyA: 0, KeyB: 1, KeyC: 2 }[code]; if (idx !== undefined) { if (talk.options.length) choose(idx); else closeTalk(); return; }
+      const idx = { Digit1: 0, Digit2: 1, Digit3: 2, Digit4: 3, Digit5: 4, Digit6: 5, Digit7: 6, Digit8: 7, Digit9: 8 }[code]; if (idx !== undefined) { choose(idx); return; }
+      if (code === 'Tab' || code === 'KeyQ') { nextTab(1); return; }
       if (code === 'Escape' || code === 'KeyX') { closeTalk(); return; }
-      if (code === 'Enter' || code === 'KeyE' || code === 'Space') { if (!talk.options.length) closeTalk(); return; }
+      if (code === 'Enter' || code === 'KeyE' || code === 'Space') { choose(0); return; }
       return;
     }
     if (code === 'Escape') { if (ui.open && started) closeMenu(); else openMenu('pause'); }

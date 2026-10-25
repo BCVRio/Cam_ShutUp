@@ -3,7 +3,7 @@ import { THREE, CFG, scene, MAT, TEX, player, say, shutUp, synth, showToast, fee
 import { makeNpc, npcPlay, npcUpdate } from './npc.js';
 import { teleport } from './player.js';
 import { Ball, BALL_R } from './ball.js';
-import { terrainHeight, groundAt, addFlatZone, findPitch, pitchRect, addSegment, addCircle, collideCircle, stadiumRect, STADIUM } from './map.js';
+import { world, terrainHeight, groundAt, addFlatZone, findPitch, pitchRect, addSegment, addCircle, collideCircle, stadiumRect, STADIUM } from './map.js';
 
 export const arenas = [];
 export let activeArena = null;
@@ -255,11 +255,26 @@ function makeFootballer(kit) {
 // ---------------------------------------------------------------------------
 function makeArena(opts) {
   const a = { id: opts.id, name: opts.name, rect: opts.rect, y: opts.y, goals: [], bots: [], ball: null, match: null, mode: opts.mode, walls: [], homeSide: -1, targets: [] };
+  (world.noTree = world.noTree || []).push({ x: opts.rect.x, z: opts.rect.z, ang: opts.rect.ang, len: opts.rect.len + 12, wid: opts.rect.wid + 8 });   // keep trees off the pitches and out of the goalmouths
   a.ball = new Ball(opts.rect.x, opts.y + 1.5, opts.rect.z);
   a.ball.home.set(opts.rect.x, opts.y + 1, opts.rect.z);
   arenas.push(a);
   return a;
 }
+// the largest rectangle (up to len × wid) that sits inside the green containing (x, z), aligned to the green's long axis
+function fitInArea(x, z, len, wid) {
+  const d = world.data; const a = d.areas.find((q) => (q.k === 'grass' || q.k === 'cemetery') && pointIn(x, z, q.p)); if (!a) return null;
+  const r = pitchRect(a.p); const ca = Math.cos(-r.ang), sa = Math.sin(-r.ang);
+  const inside = (u, v) => { const px = r.x + u * Math.cos(r.ang) - v * Math.sin(r.ang), pz = r.z + u * Math.sin(r.ang) + v * Math.cos(r.ang); return pointIn(px, pz, a.p); };
+  // shrink until all four corners (plus the goal mouths, 4 m beyond the ends) are on the grass
+  for (let s = 1; s >= 0.3; s -= 0.05) {
+    const L = len * s, Wd = wid * s; let ok = true;
+    for (const [u, v] of [[-L / 2 - 4, -Wd / 2], [-L / 2 - 4, Wd / 2], [L / 2 + 4, -Wd / 2], [L / 2 + 4, Wd / 2], [0, -Wd / 2 - 2], [0, Wd / 2 + 2]]) if (!inside(u, v)) { ok = false; break; }
+    if (ok) return { x: r.x, z: r.z, ang: r.ang, len: L, wid: Wd };
+  }
+  return { x: r.x, z: r.z, ang: r.ang, len: len * 0.3, wid: wid * 0.3 };
+}
+function pointIn(x, z, p) { let inside = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) { const xi = p[i][0], zi = p[i][1], xj = p[j][0], zj = p[j][1]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside; } return inside; }
 export function buildArenas() {
   const W = Object.fromEntries(CFG.worlds.map((w) => [w.id, w]));
   // --- Bosco FC Stadium (the real pitch by St Thomas the Apostle College) ---
@@ -293,7 +308,7 @@ export function buildArenas() {
   }
   // --- Dr Harold Moody Park ---
   {
-    const w = W.park; const r = { x: w.x + 6, z: w.z - 10, ang: 0.3, len: 36, wid: 22 };
+    const w = W.park; const r = fitInArea(w.x, w.z, 36, 22) || { x: w.x + 6, z: w.z - 10, ang: 0.3, len: 36, wid: 22 };
     const y = addFlatZone(r.x, r.z, 26, 16) + 0.1;
     const a = makeArena({ id: 'park', name: 'Dr Harold Moody Park', rect: r, y, mode: 'free' });
     for (const s of [-1, 1]) a.goals.push(makeGoal(r, y, s, 4.4, 1.9, 1.2, 0.05));
@@ -303,7 +318,7 @@ export function buildArenas() {
   }
   // --- Nunhead Green: street football + target boards ---
   {
-    const w = W.nunhead; const r = { x: w.x + 4, z: w.z + 8, ang: -0.6, len: 26, wid: 16 };
+    const w = W.nunhead; const r = fitInArea(w.x, w.z, 26, 16) || { x: w.x + 4, z: w.z + 8, ang: -0.6, len: 26, wid: 16 };
     const y = addFlatZone(r.x, r.z, 20, 14) + 0.1;
     const a = makeArena({ id: 'nunhead', name: 'Nunhead Green', rect: r, y, mode: 'targets' });
     a.goals.push(makeGoal(r, y, 1, 3.6, 1.8, 1.0, 0.05));
@@ -425,7 +440,8 @@ export function updateFootball(dt, t, input) {
   // HUD
   if (activeArena && activeArena.match && activeArena.match.active) {
     const h = hud(), m = activeArena.match;
-    if (activeArena.mode === 'targets') { h.home.textContent = activeArena.targets.filter((q) => !q.up).length; h.away.textContent = activeArena.targets.length; h.time.textContent = 'DOWN'; return; }
+    if (activeArena.mode === 'targets') { const near = inRect(activeArena, player.pos.x, player.pos.z, 14); h.el.hidden = !near; if (!near) return; h.home.textContent = activeArena.targets.filter((q) => !q.up).length; h.away.textContent = activeArena.targets.length; h.time.textContent = 'DOWN'; return; }
+    h.el.hidden = false;
     h.home.textContent = m.home; h.away.textContent = m.away;
     if (activeArena.screens && (activeArena._scrT = (activeArena._scrT || 0) + dt) > 0.5) { activeArena._scrT = 0; drawScreens(activeArena); }
     h.time.textContent = m.time > 0 ? `${Math.floor(m.time / 60)}:${String(Math.ceil(m.time % 60) % 60).padStart(2, '0')}` : 'FREE';
@@ -548,10 +564,13 @@ function updateMatch(a, dt, t) {
       if (Math.abs(bu - gu) < 10 && Math.abs(bv) < 6) tu = gu + (gu < 0 ? 1 : -1) * Math.min(3, Math.abs(bu - gu) * 0.4);
       speed = 6;
     } else {
-      // chase when the ball is in their half or close; else drift home
-      const mine = bot.team === 'away' ? (bu > -r.len * 0.1) : (bu < r.len * 0.1);
-      const close = Math.hypot(bu - pu, bv - pv) < 18;
-      if (mine || close) { tu = bu; tv = bv; speed = bot.team === 'away' ? 5.2 : 4.8; } else { tu = bot.home[0] + Math.sin(t * 0.3 + bot.phase) * 4; tv = bot.home[1] + Math.cos(t * 0.4 + bot.phase) * 3; speed = 2.5; }
+      // the nearest outfield player on each team goes for the ball; team-mates take up a support position between the ball and the goal they attack
+      const team = a.bots.filter((q) => q.team === bot.team && q.role !== 'keeper');
+      let nearest = bot, nd = 1e9; for (const q of team) { const dq = Math.hypot(b.pos.x - q.x, b.pos.z - q.z); if (dq < nd) { nd = dq; nearest = q; } }
+      const attackU = bot.team === 'away' ? -r.len / 2 : r.len / 2;
+      if (nearest === bot) { tu = bu; tv = bv; speed = bot.team === 'away' ? 5.6 : 5.0; }
+      else { tu = bu + (attackU - bu) * 0.35; tv = bv * 0.4 + (bot.phase > 3 ? 9 : -9); speed = 4.2; }
+      tu = Math.max(-r.len / 2 + 1, Math.min(r.len / 2 - 1, tu)); tv = Math.max(-r.wid / 2 + 1, Math.min(r.wid / 2 - 1, tv));
     }
     const ddu = tu - pu, ddv = tv - pv, dd = Math.hypot(ddu, ddv);
     const mv = Math.min(speed * dt, dd); const nu = pu + (dd > 0.01 ? ddu / dd * mv : 0), nv = pv + (dd > 0.01 ? ddv / dd * mv : 0);
@@ -563,7 +582,7 @@ function updateMatch(a, dt, t) {
     // bot touches the ball
     bot.cool -= dt;
     const bd = Math.hypot(b.pos.x - bot.x, b.pos.z - bot.z);
-    if (bd < 0.45 + BALL_R + 0.1 && b.pos.y - BALL_R < 1.2 && bot.cool <= 0) {
+    if (bd < 0.45 + BALL_R + 0.1 && b.pos.y - BALL_R - a.y < 1.2 && bot.cool <= 0) {
       bot.cool = 0.6;
       if (bot.role === 'keeper') { // catch and throw out
         const outU = bot.home[0] < 0 ? 1 : -1; const [kx, kz] = rot(outU, (Math.random() - 0.5) * 0.8, r.ang); const l = Math.hypot(kx, kz) || 1;
@@ -572,8 +591,9 @@ function updateMatch(a, dt, t) {
         // shoot toward the goal they attack (away → side -1 goal; home → side +1 goal) with a little error
         const attackU = bot.team === 'away' ? -r.len / 2 : r.len / 2;
         const [kx, kz] = rot(attackU - pu, (Math.random() - 0.5) * 3 - pv, r.ang); const l = Math.hypot(kx, kz) || 1;
-        const shoot = Math.abs(attackU - pu) < r.len * 0.45;
-        b.kick(_d.set(kx / l, 0, kz / l), shoot ? 13 + Math.random() * 5 : 7, shoot ? 0.12 : 0.05, (Math.random() - 0.5) * 0.4, 0.15); b.lastKicker = 'bot';
+        const shoot = Math.abs(attackU - pu) < r.len * 0.4;
+        b.kick(_d.set(kx / l, 0, kz / l), shoot ? 13 + Math.random() * 5 : 4.5 + Math.random() * 2, shoot ? 0.12 : 0.03, (Math.random() - 0.5) * 0.4, 0.15); b.lastKicker = 'bot';
+        if (shoot && a.id === 'stadium') feed(`${a.teamAway} shoot!`);
       }
     }
     // keep bots off Cam

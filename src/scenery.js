@@ -46,7 +46,7 @@ export function buildScenery() {
         if (inStadium(x, z, 8)) continue;
         if (world.signs && world.signs.some((q) => Math.hypot(q.x - x, q.z - z) < 7)) continue;
         const kind = rnd() < 0.8 ? 'hatchback' : 'van';
-        const yaw = Math.atan2(dx, dz) + Math.PI / 2 + (side > 0 ? 0 : Math.PI);   // the car models are long along x
+        const yaw = Math.atan2(dx, dz) - Math.PI / 2 + (side > 0 ? 0 : Math.PI);   // the car models are long along x, nose toward -x
         placeProp(kind, x, groundAt(x, z).y, z, yaw); addCircle(x, z, 1.0, 1.5); carN++;
       }
     }

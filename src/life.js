@@ -69,7 +69,7 @@ function makeCar(color) {
   // modelled car when the prop has loaded (long axis x → turned so +z is forward), tinted per car
   const kind = rnd() < 0.8 ? 'hatchback' : 'van';
   const model = propClone(kind);
-  if (model) { model.rotation.y = -Math.PI / 2; model.traverse((o) => { if (o.isMesh && o.material) { o.material = o.material.clone(); if (kind === 'hatchback') o.material.color.setHex(color).lerp(new THREE.Color(0xffffff), 0.35); } }); setupObject(model); g.add(model); return g; }
+  if (model) { model.rotation.y = Math.PI / 2; model.traverse((o) => { if (o.isMesh && o.material) { o.material = o.material.clone(); if (kind === 'hatchback') o.material.color.setHex(color).lerp(new THREE.Color(0xffffff), 0.35); } }); setupObject(model); g.add(model); return g; }
   const paint = new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.5 }); setupObject({ traverse: (f) => f({ material: paint }) });
   const body = new THREE.Mesh(new THREE.BoxGeometry(1.75, 0.55, 4.1), paint); body.position.y = 0.55; g.add(body);
   const cabin = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.5, 2.0), paint); cabin.position.set(0, 1.07, -0.2); g.add(cabin);

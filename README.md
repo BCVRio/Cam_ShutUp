@@ -25,13 +25,15 @@ The page loads Three.js from jsDelivr and every asset from `public/`.
 | `Space` | jump (jump into the ball to head it) |
 | hold `F` / mouse button, release | charge a kick and shoot; `A`/`D` while charging curls it |
 | `B` | call the ball to your feet |
-| `E` / `Enter` | talk to a shopkeeper; `1` `2` `3` pick a reply |
+| `E` / `Enter` | go into a shop when you are within 3 m of the doorway (stepping onto the gold mat opens it on its own) |
+| at the counter | `1`–`9` pick an option, `Tab` / `Q` switch tab (BUY, SWAP CARDS, CHAT), `Enter` picks the first option, `X` / `Esc` leave |
 | `G` | emote |
 | drag the mouse / `Q` `X` | look around |
 | `M` | music on/off |
 | `Esc` | menu |
 | touch | left stick (push far to run), Xbox-style buttons: A jump, X kick (hold to charge), B ball, Y emote, drag to look |
 | Xbox controller | left stick move, right stick look, A jump, X kick (hold), B ball, Y emote, RB/RT run, LT wide camera, Menu pauses, View opens the map |
+| Xbox controller at the counter | d-pad / left stick moves the focus ring, A picks, B leaves, LB/RB switch tabs |
 
 ## The four worlds
 
@@ -74,13 +76,31 @@ and the auras are additive sprite rings with rising sparks.
 
 ## Shops, talking and cards
 
-Ten real shops from the map have a shopkeeper at the door and a glowing step.
-Walk up and press `E` (A on a controller or phone) to talk. Each visit offers
-three random options: buy a pack of Top Cards (50 pts), Match Attax (120 pts,
-no commons), a LucasAid speed boost, directions, or just a chat. Cards go in
-the Cards tab of the menu: the Bosco FC Year 6 squad (ten players, rename
-them in `src/cards.js`) plus five Nunhead legends. New cards score points by
-rarity, duplicates score a little, the full album scores 1000.
+Ten real shops from the map have a shopkeeper at the door, and you can spot
+them from streets away: a tall gold beacon of light rises from each one, a
+floating "S" icon hangs above the door, and a gold doorway mat sits on the
+pavement. Step onto the mat and the counter opens on its own (`E` / `Enter`,
+or A on a controller or phone, also works within 3 m). A compass at the top
+of the screen points to the nearest shop with its name and distance, and
+hides during matches. Shops appear as navy "S" squares on the minimap and
+the big map.
+
+The counter screen has three tabs:
+
+- **BUY** — a Top Cards pack (50 pts, 3 cards of any rarity), a Match Attax
+  pack (120 pts, no commons) or a LucasAid (20 pts, 40-second speed boost).
+- **SWAP CARDS** — swap 2 spares for a random card you are missing, swap 3
+  spares for a card you choose from a grid, or sell a spare for 15 pts.
+- **CHAT** — three random lines of banter with the shopkeeper.
+
+Keys: `1`–`9` pick an option, `Tab` or `Q` switches tab, `X` or `Escape`
+leaves, `Enter` picks the first option. On a controller the d-pad moves the
+focus ring, A picks, B leaves and the bumpers switch tabs.
+
+Cards go in the Cards tab of the menu: the Bosco FC Year 6 squad (ten
+players, rename them in `src/cards.js`) plus five Nunhead legends. New cards
+score points by rarity, duplicates score a little, the full album scores
+1000.
 
 ## Matches, referee, penalties, crowd
 
@@ -92,6 +112,13 @@ miss, and the size of the cheer matches the ground: tens of thousands at the
 stadium, a handful of kids at the Cage, a polite clap in the park. Pick
 **Penalty Shootout** from the Worlds tab for five from the spot against the
 Rovers keeper.
+
+The opposition and your team-mates play properly now: the nearest outfield
+player on each team chases the ball while the others take up support
+positions between the ball and the goal they attack, they dribble with short
+passes and shoot once they are inside the attacking third. The Nunhead Green
+and Dr Harold Moody Park pitches are fitted inside the real green polygons
+from the map, so the goals are on the grass rather than the pavement.
 
 ## The ball
 
@@ -138,9 +165,15 @@ index.html               opening page, HUD, touch controls
 src/core.js              config, audio, renderer, materials, player state
 src/map.js               world from map data: terrain, buildings, roads, collision
 src/ball.js              football physics
-src/football.js          arenas, goals, keepers, bots, matches
+src/football.js          arenas, goals, keepers, bots, matches, penalties
 src/player.js            controller, camera, input, outfit loading
-src/locker.js            outfits and accessories
+src/props.js             Higgsfield/Meshy GLB props instanced across the map (trees, houses, cars, benches)
+src/scenery.js           places the props: trees, house modules, parked cars, shelters, playgrounds, flower beds
+src/life.js              street life: walkers, cars that brake for people, cats, birds, pigeons
+src/npc.js               rigged non-player characters, cloned per instance (shopkeepers, players, referee)
+src/shops.js             shops: beacons, doorway mats, compass, the counter screen
+src/cards.js             collectible cards: squad, legends, packs, swaps, album art
+src/locker.js            outfits, hats, back bling and auras
 src/ui.js                menu, minimap, big map, settings
 src/game.js              main loop
 tools/build_map.py       OSM + elevation → public/maps/selondon.json

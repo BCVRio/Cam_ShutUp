@@ -73,6 +73,8 @@ function drawMap(c, cx, cz, scale, W, H, detail) {
   c.lineCap = 'round'; c.lineJoin = 'round';
   for (const r of d.rail) { c.strokeStyle = colors.rail; c.lineWidth = Math.max(1.5, 6 * scale); c.beginPath(); r.p.forEach(([x, z], i) => (i ? c.lineTo(X(x), Z(z)) : c.moveTo(X(x), Z(z)))); c.stroke(); }
   for (const r of d.roads) { if (r.k === 'steps') continue; c.strokeStyle = r.w <= 2 ? colors.foot : colors.road; c.lineWidth = Math.max(r.w <= 2 ? 0.8 : 1.2, r.w * scale); c.beginPath(); r.p.forEach(([x, z], i) => (i ? c.lineTo(X(x), Z(z)) : c.moveTo(X(x), Z(z)))); c.stroke(); }
+  // shops
+  if (world.shops) for (const s of world.shops) { c.fillStyle = '#14275e'; c.fillRect(X(s.x) - (detail ? 6 : 4), Z(s.z) - (detail ? 6 : 4), detail ? 12 : 8, detail ? 12 : 8); c.fillStyle = '#f2c233'; c.font = `bold ${detail ? 10 : 7}px Oswald, Impact, sans-serif`; c.textAlign = 'center'; c.fillText('S', X(s.x), Z(s.z) + (detail ? 4 : 3)); }
   // worlds
   c.font = `bold ${detail ? 13 : 9}px Oswald, Impact, sans-serif`; c.textAlign = 'center';
   for (const w of CFG.worlds) { c.fillStyle = '#ffd83d'; c.beginPath(); c.arc(X(w.x), Z(w.z), detail ? 7 : 4, 0, 7); c.fill(); c.strokeStyle = '#14275e'; c.lineWidth = 2; c.stroke(); c.fillStyle = '#14275e'; c.fillText(w.name.toUpperCase(), X(w.x) + 1, Z(w.z) - (detail ? 12 : 7) + 1); c.fillStyle = '#fff'; c.fillText(w.name.toUpperCase(), X(w.x), Z(w.z) - (detail ? 12 : 7)); }

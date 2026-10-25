@@ -27,7 +27,19 @@ const RARITY = { common: { w: 60, col: '#8d9199', pts: 100 }, rare: { w: 26, col
 export const album = { have: {}, packs: 0 };
 try { Object.assign(album, JSON.parse(localStorage.getItem('cam_album') || '{}')); } catch (_) {}
 function save() { try { localStorage.setItem('cam_album', JSON.stringify(album)); } catch (_) {} }
-export function cardCount() { return Object.keys(album.have).length; }
+export function cardCount() { return Object.keys(album.have).filter((k) => album.have[k] > 0).length; }
+export function duplicates() { return ALL_CARDS.filter((c) => (album.have[c.id] || 0) > 1).map((c) => ({ card: c, extra: album.have[c.id] - 1 })); }
+export function missing() { return ALL_CARDS.filter((c) => !(album.have[c.id] > 0)); }
+function takeSpares(n) { let left = n; for (const c of ALL_CARDS) { while (left > 0 && (album.have[c.id] || 0) > 1) { album.have[c.id]--; left--; } } return left === 0; }
+export function swapRandom(n = 2) {
+  const miss = missing(); if (!miss.length || !takeSpares(n)) return null;
+  const c = miss[Math.floor(Math.random() * miss.length)]; album.have[c.id] = 1; addScore(RARITY[c.rarity].pts); save(); checkComplete(); return c;
+}
+export function swapFor(id, n = 3) {
+  const c = ALL_CARDS.find((q) => q.id === id); if (!c || album.have[c.id] > 0 || !takeSpares(n)) return null;
+  album.have[c.id] = 1; addScore(RARITY[c.rarity].pts); save(); checkComplete(); return c;
+}
+function checkComplete() { if (cardCount() === ALL_CARDS.length && !album.complete) { album.complete = true; save(); addScore(1000); showToast('ALBUM COMPLETE! +1000', 2500); emit('album'); } }
 
 function draw(card) {
   const n = ALL_CARDS.find((c) => c.id === card.id) || card;
@@ -48,7 +60,7 @@ export function openPack(premium = false) {
   save();
   const fresh = got.filter((g) => g.fresh);
   if (fresh.length) { say(fresh.some((g) => g.rarity === 'legendary' || g.rarity === 'epic') ? 'ohyeah' : 'yay', true); feed(`New card${fresh.length > 1 ? 's' : ''}: ${fresh.map((g) => g.name).join(', ')}`); } else feed('All duplicates — swap them at school');
-  if (cardCount() === ALL_CARDS.length && !album.complete) { album.complete = true; save(); addScore(1000); showToast('ALBUM COMPLETE! +1000', 2500); emit('album'); }
+  checkComplete();
   return got;
 }
 
