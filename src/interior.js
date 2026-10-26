@@ -32,7 +32,7 @@ export function buildInterior() {
   const shelfTex = tex(CFG.textures.shopInterior, 3, 1); const shelfMat = new THREE.MeshStandardMaterial({ map: shelfTex, roughness: 0.8 });
   for (const sx of [-1, 1]) { const unit = box(0.6, 2.4, D - 3.2, shelfMat, sx * (W / 2 - 0.42), 1.2, -0.6); unit.castShadow = true; }
   // a floor island of stock in the middle so the room reads as a shop, not a hall
-  box(2.4, 1.3, 1.0, shelfMat, 0, 0.65, 1.2); box(2.6, 0.08, 1.2, new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.5 }), 0, 1.34, 1.2);
+  box(2.4, 1.3, 1.0, shelfMat, -3.2, 0.65, 1.0); box(2.6, 0.08, 1.2, new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.5 }), -3.2, 1.34, 1.0);
   const counter = box(3.6, 1.0, 0.9, MAT.planks, 0, 0.5, -D / 2 + 1.7); counter.castShadow = true;
   const top = box(3.8, 0.08, 1.0, new THREE.MeshStandardMaterial({ color: 0x3a2a1a, roughness: 0.5 }), 0, 1.04, -D / 2 + 1.7);
   for (const [img, x] of [['./public/art/pack_cards.jpg', -1.0], ['./public/art/pack_attax.jpg', 0], ['./public/art/drink.jpg', 1.0]]) {
@@ -47,7 +47,7 @@ export function buildInterior() {
   // beyond the door: night-black so the void never shows
   const dark = new THREE.Mesh(new THREE.PlaneGeometry(6, 4), new THREE.MeshBasicMaterial({ color: 0x05070f })); dark.position.set(0, 1.8, D / 2 + 1.2); dark.rotation.y = Math.PI; g.add(dark);
   // lights
-  for (const [x, z] of [[-3, -2.5], [3, -2.5], [-3, 2.5], [3, 2.5]]) { const l = new THREE.PointLight(0xfff1d6, 28, 14, 1.7); l.position.set(x, H - 0.3, z); g.add(l); lights.push(l); }
+  for (const [x, z] of [[-3, -2.5], [3, -2.5], [-3, 2.5], [3, 2.5]]) { const l = new THREE.PointLight(0xfff1d6, 28, 14, 1.7); l.position.set(x, H - 0.3, z); l.visible = false; g.add(l); lights.push(l); }   // lit only while Cam is inside: point lights cost every material in the world
   setupObject(g); scene.add(g);
   // collision: the four walls (door gap in the front), the counter and the shelves
   const seg = (ax, az, bx, bz, kind = 'wall') => addSegment(RX + ax, RZ + az, RX + bx, RZ + bz, H, kind);
@@ -55,7 +55,7 @@ export function buildInterior() {
   seg(-W / 2, D / 2, -0.8, D / 2); seg(0.8, D / 2, W / 2, D / 2);
   seg(-1.8, -D / 2 + 2.15, 1.8, -D / 2 + 2.15); seg(-1.8, -D / 2 + 1.25, -1.8, -D / 2 + 2.15); seg(1.8, -D / 2 + 1.25, 1.8, -D / 2 + 2.15);
   seg(-W / 2 + 0.72, -D / 2 + 1, -W / 2 + 0.72, D / 2 - 2.2); seg(W / 2 - 0.72, -D / 2 + 1, W / 2 - 0.72, D / 2 - 2.2);
-  seg(-1.2, 0.7, 1.2, 0.7); seg(-1.2, 1.7, 1.2, 1.7); seg(-1.2, 0.7, -1.2, 1.7); seg(1.2, 0.7, 1.2, 1.7);
+  seg(-4.4, 0.5, -2.0, 0.5); seg(-4.4, 1.5, -2.0, 1.5); seg(-4.4, 0.5, -4.4, 1.5); seg(-2.0, 0.5, -2.0, 1.5);
   interior.keeper = makeNpc('shopkeeper'); interior.keeper.position.set(RX, floorY, RZ - D / 2 + 0.75); interior.keeper.rotation.y = 0; scene.add(interior.keeper);
 }
 function fade(on) { const f = $('fade'); if (f) f.classList.toggle('on', on); }
@@ -64,7 +64,7 @@ export function enterShop(shop) {
   if (interior.active || interior.fading) return;
   buildInterior(); interior.fading = true; fade(true);
   setTimeout(() => {
-    interior.active = shop; document.body.classList.add('inside');
+    interior.active = shop; document.body.classList.add('inside'); for (const l of lights) l.visible = true;
     teleport(RX, RZ + D / 2 - 2.4, 0);   // just inside the door, facing the counter
     savedDist = cam.dist; cam.dist = 2.9; cam.pitch = 0.18;
     setAmbience(null, 0); playSfx(CFG.sfx.bell, 0.5);
@@ -78,7 +78,7 @@ export function leaveShop() {
   const shop = interior.active; if (!shop || interior.fading) return;
   interior.fading = true; fade(true); if (talk.open) closeTalk();
   setTimeout(() => {
-    interior.active = null; document.body.classList.remove('inside');
+    interior.active = null; document.body.classList.remove('inside'); for (const l of lights) l.visible = false;
     const dx = shop.doorX - shop.x, dz = shop.doorZ - shop.z, l = Math.hypot(dx, dz) || 1; const fx = dx / l, fz = dz / l;
     teleport(shop.x - fx * 2.8, shop.z - fz * 2.8, Math.atan2(-fx, -fz));   // back on the pavement in front of the shop
     cam.dist = savedDist;

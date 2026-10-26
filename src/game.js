@@ -53,7 +53,7 @@ function frame() {
     const pw = $('power'); if (pw) { pw.style.opacity = player.kickCharge > 0 ? 1 : 0; pw.firstElementChild.style.width = (player.kickCharge * 100).toFixed(0) + '%'; }
     // location banner
     const nw = nearestWorld(player.pos.x, player.pos.z);
-    const id = nw.dist < nw.world.radius ? nw.world.id : null;
+    const id = interior.active ? lastWorldId : nw.dist < nw.world.radius ? nw.world.id : null;   // a shop interior is off the map: not a change of area
     if (id !== lastWorldId) { const leaving = lastWorldId !== null; lastWorldId = id; if (id) { setLocation(nw.world.name, nw.world.sub); feed('Entering ' + nw.world.name); player.world = id; } if (leaving && Math.random() < 0.4) shutUp(true); }
   } else { if (player.mixer) player.mixer.update(dt); if (talk.open) { updateShops(0, t); updateLife(dt * 0.5, t); } }
   updateAccessories(t);
