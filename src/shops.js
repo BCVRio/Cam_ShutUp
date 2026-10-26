@@ -6,6 +6,7 @@ import { makeNpc, npcUpdate } from './npc.js';
 import { openPack, showPack, album, ALL_CARDS, duplicates, missing, swapRandom, swapFor, cardCount, drawCard } from './cards.js';
 
 export const shops = [];
+let onEnter = null; export function setEnterHandler(fn) { onEnter = fn; }
 export const talk = { open: false, shop: null, tab: 'buy', options: [], lock: 0, left: true };
 const KEEPER_NAMES = ['Mo', 'Dev', 'Ayesha', 'Tony', 'Grace', 'Kwame', 'Sam', 'Lena', 'Raj', 'Bea', 'Yusuf', 'Pat'];
 const NICE = ['convenience', 'newsagent', 'supermarket', 'bakery', 'greengrocer', 'kiosk', 'butcher', 'seafood', 'deli', 'toys', 'books', 'sports', 'gift', 'cafe'];
@@ -152,16 +153,16 @@ export function updateShops(dt, t) {
   if (talk.lock > 0) talk.lock -= dt;
   if (player.boostT > 0) player.boostT -= dt;
   promptEl = promptEl || $('prompt'); compassEl = compassEl || $('compass');
-  const s = talk.open ? null : nearestShop();
+  const s = (talk.open || document.body.classList.contains('inside')) ? null : nearestShop();
   // step onto the mat and the counter opens on its own
-  if (!s || Math.hypot(s.x - player.pos.x, s.z - player.pos.z) > 2.2) talk.left = true;   // you have to step off the mat and back on for it to open again
-  if (s && !talk.open && talk.lock <= 0 && talk.left && Math.hypot(s.x - player.pos.x, s.z - player.pos.z) < 1.25) { talk.left = false; openTalk(s); return; }
+  if (!document.body.classList.contains('inside') && (!s || Math.hypot(s.x - player.pos.x, s.z - player.pos.z) > 2.2)) talk.left = true;   // you have to step off the mat and back on for it to open again
+  if (s && !talk.open && talk.lock <= 0 && talk.left && Math.hypot(s.x - player.pos.x, s.z - player.pos.z) < 1.25) { talk.left = false; if (onEnter) onEnter(s); else openTalk(s); return; }
   if (s !== promptShop) { promptShop = s; if (promptEl) { if (s) { promptEl.innerHTML = `<b>${document.body.classList.contains('pad') || document.body.classList.contains('touch') ? 'A' : 'E'}</b> Go into ${s.name}`; promptEl.hidden = false; } else promptEl.hidden = true; } }
   // compass: nearest shop, with distance, hidden while a match is on
   if (compassEl) {
     const n = nearestShopAny();
     const matchOn = document.getElementById('matchHud') && !document.getElementById('matchHud').hidden;
-    if (n && !talk.open && !matchOn) {
+    if (n && !talk.open && !matchOn && !document.body.classList.contains('inside')) {
       const dx = n.shop.x - player.pos.x, dz = n.shop.z - player.pos.z; const bearing = Math.atan2(dx, dz);
       const camYaw = (window.__cam && window.__cam.cam) ? window.__cam.cam.yaw : player.yaw;
       const rel = bearing - (camYaw + Math.PI);
@@ -169,4 +170,4 @@ export function updateShops(dt, t) {
     } else compassEl.hidden = true;
   }
 }
-export function interact() { const s = nearestShop(3.2); if (s && !talk.open) { openTalk(s); return true; } return false; }
+export function interact() { const s = nearestShop(3.2); if (s && !talk.open) { if (onEnter) onEnter(s); else openTalk(s); return true; } return false; }

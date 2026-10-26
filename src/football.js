@@ -353,12 +353,15 @@ function spawnBots(a) {
   const r = a.rect;
   const add = (kit, u, v, role, team) => { const kind = role === 'keeper' ? 'boyKeeper' : team === 'home' ? 'boyHome' : 'boyAway'; const mesh = makeNpc(kind); scene.add(mesh); const [x, z] = rot(u, v, r.ang); const b = { mesh, x: r.x + x, z: r.z + z, role, team, vx: 0, vz: 0, cool: 0, home: [u, v], phase: Math.random() * 6 }; a.bots.push(b); return b; };
   if (a.mode === 'match') {
+    // five-a-side: Cam + three team-mates + keeper against four Rovers and their keeper
     add(MAT.kitKeeper, -r.len / 2 + 1.2, 0, 'keeper', 'home');          // Cam's keeper (home attacks +u side)
-    add(MAT.kitHome, -r.len * 0.2, 6, 'mate', 'home');
+    add(MAT.kitHome, -r.len * 0.25, 7, 'mate', 'home'); add(MAT.kitHome, -r.len * 0.25, -7, 'mate', 'home'); add(MAT.kitHome, -r.len * 0.1, 0, 'mate', 'home');
     add(MAT.kitKeeper, r.len / 2 - 1.2, 0, 'keeper', 'away');
-    add(MAT.kitAway, r.len * 0.15, -5, 'out', 'away'); add(MAT.kitAway, r.len * 0.3, 6, 'out', 'away');
+    add(MAT.kitAway, r.len * 0.12, -5, 'out', 'away'); add(MAT.kitAway, r.len * 0.12, 5, 'out', 'away'); add(MAT.kitAway, r.len * 0.3, -9, 'out', 'away'); add(MAT.kitAway, r.len * 0.3, 9, 'out', 'away');
   } else if (a.mode === 'cage') {
-    add(MAT.kitAway, r.len * 0.2, -3, 'out', 'away'); add(MAT.kitAway, r.len * 0.3, 3, 'out', 'away');
+    // three-a-side in the cage: Cam and two mates against three
+    add(MAT.kitHome, -r.len * 0.25, 3, 'mate', 'home'); add(MAT.kitHome, -r.len * 0.25, -3, 'mate', 'home');
+    add(MAT.kitAway, r.len * 0.2, -3, 'out', 'away'); add(MAT.kitAway, r.len * 0.3, 3, 'out', 'away'); add(MAT.kitAway, r.len * 0.1, 0, 'out', 'away');
   } else if (a.mode === 'free') {
     add(MAT.kitKeeper, r.len / 2 - 1.2, 0, 'keeper', 'away');
   }
@@ -488,6 +491,8 @@ function updateRef(a, dt, t) {
 }
 function ballGoal(a, g, ball) {
   const m = a.match; if (!m || !m.active || m.celebrate > 0) return;
+  // a keeper's throw-out rolling into a goal is not a goal: goal kick instead
+  if (ball.lastKicker === 'keeper' && inGoal(a, g, ball)) { ball.reset(a.rect.x, a.y + 0.5, a.rect.z); feed('Goal kick'); return; }
   // near miss: a hard shot from Cam that goes wide or over
   if (!inGoal(a, g, ball) && ball.lastKicker === 'cam' && ball.vel.length() > 7 && !a._missT) {
     const [ax, az, bx, bz] = g.line; const mx = (ax + bx) / 2, mz = (az + bz) / 2; const inx = g.inward[0], inz = g.inward[1];
@@ -572,7 +577,7 @@ function updateMatch(a, dt, t) {
       let nearest = bot, nd = 1e9; for (const q of team) { const dq = Math.hypot(b.pos.x - q.x, b.pos.z - q.z); if (dq < nd) { nd = dq; nearest = q; } }
       const attackU = bot.team === 'away' ? -r.len / 2 : r.len / 2;
       if (nearest === bot) { tu = bu; tv = bv; speed = bot.team === 'away' ? 5.6 : 5.0; }
-      else { tu = bu + (attackU - bu) * 0.35; tv = bv * 0.4 + (bot.phase > 3 ? 9 : -9); speed = 4.2; }
+      else { const k = team.indexOf(bot); tu = bu + (attackU - bu) * (0.25 + 0.15 * (k % 3)); tv = bv * 0.4 + (k % 2 ? 9 : -9) * (1 + Math.floor(k / 2) * 0.6); speed = 4.2; }
       tu = Math.max(-r.len / 2 + 1, Math.min(r.len / 2 - 1, tu)); tv = Math.max(-r.wid / 2 + 1, Math.min(r.wid / 2 - 1, tv));
     }
     const ddu = tu - pu, ddv = tv - pv, dd = Math.hypot(ddu, ddv);
@@ -589,7 +594,7 @@ function updateMatch(a, dt, t) {
       bot.cool = 0.6;
       if (bot.role === 'keeper') { // catch and throw out
         const outU = bot.home[0] < 0 ? 1 : -1; const [kx, kz] = rot(outU, (Math.random() - 0.5) * 0.8, r.ang); const l = Math.hypot(kx, kz) || 1;
-        b.kick(_d.set(kx / l, 0, kz / l), 11, 0.3, 0, 0); b.lastKicker = 'bot'; feed('Keeper saves it!'); synth('tap');
+        b.kick(_d.set(kx / l, 0, kz / l), 7.5, 0.3, 0, 0); b.lastKicker = 'keeper'; feed('Keeper saves it!'); synth('tap');
       } else {
         // shoot toward the goal they attack (away → side -1 goal; home → side +1 goal) with a little error
         const attackU = bot.team === 'away' ? -r.len / 2 : r.len / 2;

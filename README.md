@@ -46,10 +46,13 @@ Telegraph Hill). Walk, or pick a world from the menu to drop straight in.
   Thomas the Apostle College, wrapped in a two-tier all-seater bowl in the
   Emirates / Camp Nou mould: executive boxes between the tiers, a cantilever
   roof ring with floodlights, big screens behind both goals, a crowd on every
-  row. A 3-minute match, Bosco FC v Nunhead Rovers, with keepers and outfield bots.
+  row. A 3-minute five-a-side, Bosco FC v Nunhead Rovers: Cam, three
+  team-mates and a keeper against four Rovers and theirs.
 - **The Cage** — the fenced court at Edmund Waller School on Telegraph Hill.
-  A 90-second cage match.
-- **Dr Harold Moody Park** — a free kickabout with a keeper on the park.
+  A 90-second three-a-side cage match.
+- **Dr Harold Moody Park** — a free kickabout with a keeper on the park. The
+  keeper only throws the ball out; a throw that rolls into a goal is a goal
+  kick, never a goal.
 
 ## Life on the streets
 
@@ -79,8 +82,12 @@ and the auras are additive sprite rings with rising sparks.
 Ten real shops from the map have a shopkeeper at the door, and you can spot
 them from streets away: a tall gold beacon of light rises from each one, a
 floating "S" icon hangs above the door, and a gold doorway mat sits on the
-pavement. Step onto the mat and the counter opens on its own (`E` / `Enter`,
-or A on a controller or phone, also works within 3 m). A compass at the top
+pavement. Step onto the mat (`E` / `Enter`, or A on a controller or phone,
+also works within 3 m) and the screen fades: you walk into the actual shop, a
+room with stocked shelves, a counter and the shopkeeper behind it, who says
+hello (voiced with Higgsfield). Walk up to the counter to open the BUY / SWAP
+/ CHAT screen, and walk back out of the door to return to the street. The
+minimap and compass hide while you are inside. A compass at the top
 of the screen points to the nearest shop with its name and distance, and
 hides during matches. Shops appear as navy "S" squares on the minimap and
 the big map.
@@ -172,6 +179,7 @@ src/scenery.js           places the props: trees, house modules, parked cars, sh
 src/life.js              street life: walkers, cars that brake for people, cats, birds, pigeons
 src/npc.js               rigged non-player characters, cloned per instance (shopkeepers, players, referee)
 src/shops.js             shops: beacons, doorway mats, compass, the counter screen
+src/interior.js          the walk-in shop room (enter/exit mats, shopkeeper greeting)
 src/cards.js             collectible cards: squad, legends, packs, swaps, album art
 src/locker.js            outfits, hats, back bling and auras
 src/ui.js                menu, minimap, big map, settings

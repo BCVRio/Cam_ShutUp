@@ -9,6 +9,8 @@ import { buildLife, updateLife, walkers, cars, cats } from './life.js';
 import { buildShops, updateShops, interact, talk, choose, closeTalk, shops, nextTab } from './shops.js';
 import { startPenalties } from './football.js';
 import { buildScenery, updateScenery, HOUSE_FADE } from './scenery.js';
+import { buildInterior, enterShop, leaveShop, updateInterior, interior } from './interior.js';
+import { setEnterHandler } from './shops.js';
 import { MAT } from './core.js';
 
 const status = (t) => { const e = $('loadStatus'); if (e) e.textContent = t; };
@@ -46,7 +48,7 @@ function frame() {
   pollPad(ui.open || !started || talk.open);
   if (started && !ui.open && !talk.open) {
     for (let s = 0; s < STEPS; s++) { if (s) { simT += dt; } readInput(); updatePlayer(dt); updateFootball(dt, FAST ? simT : t, input); }
-    updateLife(dt, t); updateShops(dt, t); updateScenery(dt);
+    updateLife(dt, t); updateShops(dt, t); updateScenery(dt); updateInterior(dt, t);
     updateMinimap(dt);
     const pw = $('power'); if (pw) { pw.style.opacity = player.kickCharge > 0 ? 1 : 0; pw.firstElementChild.style.width = (player.kickCharge * 100).toFixed(0) + '%'; }
     // location banner
@@ -83,7 +85,7 @@ async function main() {
   sky = buildSky();
   buildArenas();   // before the terrain so the pitches' flat zones shape the ground Cam walks on
   buildWorld();
-  buildShops();
+  buildShops(); setEnterHandler(enterShop); buildInterior();
   buildLife();
   buildScenery();
   buildGrass();
@@ -117,6 +119,7 @@ async function main() {
   ui.onResume = () => { started = true; };
   ui.onPenalties = () => { dropAt(CFG.worlds.find((w) => w.id === 'stadium')); setTimeout(startPenalties, 400); };
   ui.onShop = (s) => {   // land on the pavement a few metres from the door, facing the shop
+    if (interior.active) leaveShop();
     const dx = s.doorX - s.x, dz = s.doorZ - s.z, l = Math.hypot(dx, dz) || 1; const fx = dx / l, fz = dz / l;
     teleport(s.x - fx * 4, s.z - fz * 4, Math.atan2(-fx, -fz)); closeMenu(); started = true; lastWorldId = null; showToast(s.name.toUpperCase(), 1500);
   };
@@ -125,6 +128,6 @@ async function main() {
   $('playBtn').disabled = false;
   if (urlParams.has('at')) { const [ax, az] = urlParams.get('at').split(',').map(Number); teleport(ax, az); }
   if (urlParams.has('autoplay')) { const id = urlParams.get('autoplay'); dropAt(CFG.worlds.find((w) => w.id === id) || CFG.worlds[0]); }
-  window.__cam = { THREE, pad, walkers, cars, cats, shops, talk, startPenalties, interact, player, keys, cam, arenas, world, ui, locker, input, renderer, scene, teleport, dropAt, openMenu, closeMenu, get frames() { return frames; }, get simT() { return simT; } };
+  window.__cam = { THREE, pad, interior, enterShop, leaveShop, walkers, cars, cats, shops, talk, startPenalties, interact, player, keys, cam, arenas, world, ui, locker, input, renderer, scene, teleport, dropAt, openMenu, closeMenu, get frames() { return frames; }, get simT() { return simT; } };
 }
 main();

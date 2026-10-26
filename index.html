@@ -107,6 +107,8 @@
     #prompt { position: fixed; left: 50%; bottom: calc(64px + var(--sab)); transform: translateX(-50%); background: rgba(10,18,50,0.85); color: #fff; border: 2px solid var(--gold); border-radius: 999px; padding: 8px 18px; font: 600 16px var(--font); letter-spacing: 0.5px; pointer-events: none; white-space: nowrap; }
     #prompt b { display: inline-block; width: 26px; height: 26px; border-radius: 50%; background: #2f9e3a; color: #fff; text-align: center; line-height: 26px; margin-right: 8px; font-size: 14px; }
     body.touch #prompt { bottom: calc(230px + var(--sab)); }
+    #fade { position: fixed; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity 0.35s; z-index: 40; } #fade.on { opacity: 1; }
+    body.inside #minimap, body.inside #compass, body.inside #locBanner { display: none !important; }
     #compass { position: fixed; top: calc(12px + var(--sat)); left: 50%; transform: translateX(-50%); background: rgba(10,18,50,0.75); color: #fff; border: 2px solid var(--gold); border-radius: 999px; padding: 4px 14px; font: 600 14px var(--font); letter-spacing: 0.5px; pointer-events: none; white-space: nowrap; z-index: 5; }
     #compass i { display: inline-block; font-style: normal; color: var(--gold); margin-right: 6px; transition: transform 0.15s; }
     #matchHud:not([hidden]) ~ #compass { display: none; }
@@ -191,6 +193,7 @@
   <div id="locBanner"><div id="locName">NUNHEAD</div><div id="locSub">South-east London</div></div>
   <div id="feed"></div>
   <div id="toast"></div>
+  <div id="fade"></div>
   <div id="prompt" hidden></div>
   <div id="compass" hidden></div>
   <div id="dialog" hidden>
