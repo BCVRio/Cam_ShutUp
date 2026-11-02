@@ -19,9 +19,33 @@ const modelCache = {};
 function loadGLB(kind) {
   if (modelCache[kind]) return modelCache[kind];
   modelCache[kind] = new Promise((resolve) => {
-    loader.load(asset(`assets/models/${kind}.glb`), (g) => resolve(g), undefined, () => resolve(null));
+    const url = asset(`assets/models/${kind}.glb`);
+    if (/\.zip($|\?)/.test(url)) {
+      // GLB packed in an uncompressed (stored) zip: skip the local file header and parse the raw bytes.
+      fetch(url).then((r) => r.arrayBuffer()).then((buf) => {
+        const dv = new DataView(buf);
+        if (dv.getUint32(0, true) !== 0x04034b50) throw new Error('not a zip');
+        const n = dv.getUint16(26, true), m = dv.getUint16(28, true), size = dv.getUint32(22, true);
+        const start = 30 + n + m;
+        loader.parse(buf.slice(start, start + size), '', (g) => resolve(g), () => resolve(null));
+      }).catch(() => resolve(null));
+      return;
+    }
+    loader.load(url, (g) => resolve(g), undefined, () => resolve(null));
   });
   return modelCache[kind];
+}
+
+
+// World-space bounds of a (possibly skinned) model in its rest pose.
+export function skinnedBounds(root) {
+  root.updateMatrixWorld(true);
+  const box = new THREE.Box3();
+  root.traverse((o) => {
+    if (o.isSkinnedMesh) { o.skeleton.update(); o.computeBoundingBox(); box.union(o.boundingBox.clone().applyMatrix4(o.matrixWorld)); }
+    else if (o.isMesh) { if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); box.union(o.geometry.boundingBox.clone().applyMatrix4(o.matrixWorld)); }
+  });
+  return box;
 }
 
 let modelsEnabled = true;
@@ -109,7 +133,13 @@ export class Character {
     const scene = gltf.scene;
     scene.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; if (o.material) { o.material.side = THREE.DoubleSide; o.material.transparent = false; o.material.alphaTest = 0; o.material.depthWrite = true; } } });
     const wrap = new THREE.Group(); wrap.add(scene);
-    scene.scale.setScalar(this.cfg.modelScale || 1);
+    // Fit to the configured height using the SKINNED bounds (plain geometry bounds ignore the armature scale).
+    const box = skinnedBounds(scene);
+    const size = new THREE.Vector3(); box.getSize(size);
+    const s = size.y > 0.01 ? this.cfg.height / size.y : 1;
+    scene.scale.setScalar(s);
+    const c = new THREE.Vector3(); box.getCenter(c);
+    scene.position.set(-c.x * s, -box.min.y * s, -c.z * s);
     wrap.rotation.y = this.cfg.yaw;
     if (gltf.animations && gltf.animations.length) {
       this.mixer = new THREE.AnimationMixer(scene);

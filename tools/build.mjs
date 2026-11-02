@@ -31,8 +31,18 @@ let single = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\
 single = single.replace(/src="(assets\/[^"]+)"/g, (m, p) => assets[p] ? `src="${assets[p]}"` : m);
 writeFileSync(join(root, 'dist/cam-xmas-rush.html'), single);
 
-// 2) artifact page (no doctype/html/head/body; assets relative)
-const models = Object.fromEntries(Object.entries(assets).filter(([k]) => k.endsWith('.glb')));
-const artifact = `<title>Cam's Xmas Soccer Rush</title>\n<style>:root{color-scheme:dark}html,body{height:100%}${css}</style>\n${body}\n<script>window.__ASSETS=${JSON.stringify(models)};</script>\n<script>${js}</script>\n`;
+// 2) artifact page (claude.ai): fully self-contained, no doctype/html/head/body
+const artifact = `<title>Cam's Xmas Soccer Rush</title>\n<style>:root{color-scheme:dark}html,body{height:100%}${css}</style>\n${body.replace(/src="(assets\/[^"]+)"/g, (m, p) => assets[p] ? `src="${assets[p]}"` : m)}\n<script>window.__ASSETS=${JSON.stringify(assets)};</script>\n<script>${js}</script>\n`;
 writeFileSync(join(root, 'dist/artifact.html'), artifact);
-console.log('bundle js', (js.length / 1024).toFixed(0), 'KB; single', (single.length / 1024 / 1024).toFixed(2), 'MB; artifact', (artifact.length / 1024).toFixed(0), 'KB');
+
+// 3) CDN variant: small page, assets fetched from URLs listed in a map file (path -> {url})
+const mapFile = process.env.CDN_MAP;
+if (mapFile) {
+  const cdn = JSON.parse(readFileSync(mapFile, 'utf8'));
+  const urls = Object.fromEntries(Object.entries(cdn).map(([k, v]) => [k, v.url]));
+  let page = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n<title>Cam's Xmas Soccer Rush</title>\n<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#0b1a33">\n<style>${css}</style>\n</head>\n<body>\n${body}\n<script>window.__ASSETS=${JSON.stringify(urls)};</script>\n<script>${js}</script>\n</body>\n</html>\n`;
+  page = page.replace(/src="(assets\/[^"]+)"/g, (m, p) => urls[p] ? `src="${urls[p]}"` : m);
+  writeFileSync(join(root, 'dist/cam-xmas-rush-cdn.html'), page);
+  console.log('cdn page', (page.length / 1024).toFixed(0), 'KB');
+}
+console.log('bundle js', (js.length / 1024).toFixed(0), 'KB; single', (single.length / 1024 / 1024).toFixed(2), 'MB; artifact', (artifact.length / 1024 / 1024).toFixed(2), 'MB');

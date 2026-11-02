@@ -5,7 +5,7 @@ import { Sfx } from './audio.js';
 import { Save, SKINS } from './save.js';
 
 const clamp = THREE.MathUtils.clamp, lerp = THREE.MathUtils.lerp;
-const PLAYER_SPEED = 7.2, PLAYER_R = 0.45;
+const PLAYER_SPEED = 7.2, PLAYER_R = 0.45, BALL_R = 0.17;
 const COMET_ON = 70, COMET_OFF = 35;
 
 export class Game {
@@ -36,7 +36,7 @@ export class Game {
 
   // ---------- builders ----------
   _buildBall() {
-    const geo = new THREE.SphereGeometry(0.23, 20, 16);
+    const geo = new THREE.SphereGeometry(BALL_R, 20, 16);
     this.ballMats = {
       classic: new THREE.MeshStandardMaterial({ map: tex('assets/textures/ball_leather.jpg'), roughness: 0.6 }),
       bauble: new THREE.MeshStandardMaterial({ color: 0xd62828, roughness: 0.15, metalness: 0.5, emissive: 0x3a0000 }),
@@ -78,7 +78,7 @@ export class Game {
     this.cam.position.set(0, 0, 2); this.cam.setHeading(0, 1);
     this.mia.position.set(WING_X, 0, 6); this.mia.setHeading(0, 1);
     this.keeper.position.set(0, 0, this.world.L - 1); this.keeper.setHeading(0, -1);
-    this.ball.position.set(0.1, 0.23, 2.9);
+    this.ball.position.set(0.1, BALL_R, 2.9);
     this.camera.position.set(-4, 2.2, -4); this.camera.lookAt(0, 1, 6);
   }
 
@@ -96,11 +96,11 @@ export class Game {
     this.cam.position.set(0, 0, 0); this.cam.setHeading(0, 1); this.cam.setDown(0);
     this.mia.position.set(WING_X, 0, 5); this.mia.setHeading(0, 1);
     this.keeper.position.set(0, 0, this.L - 1.2); this.keeper.setHeading(0, -1); this.keeper.setDown(0);
-    this.ball.position.set(0, 0.23, 0.8); this.ballVel.set(0, 0, 0); this.ballFree = false; this.ballAway = false;
+    this.ball.position.set(0, BALL_R, 0.8); this.ballVel.set(0, 0, 0); this.ballFree = false; this.ballAway = false;
     this.heading = new THREE.Vector3(0, 0, 1);
     for (const s of this.world.defenderSpawns) this._spawnDefender(s);
     this.shoot = null; this.state = 'play';
-    this.camera.position.set(0, 5, -8);
+    this.camera.position.set(0, 2.5, -3.6);
     this.ui.setLevel(index); this.ui.lives(this.lives); this.ui.coins(this.coins); this.ui.heat(0, false);
     this.ui.tip(`Dribble to the ${this.level.stadium} goal. Watch for red lanes!`, 3500);
     Sfx.whistle(); Sfx.crowd(0.08);
@@ -220,21 +220,21 @@ export class Game {
     // enter the box
     if (P.z > this.L - 15 && !this.ballFree && !this.ballAway) this._enterShoot();
     // camera
-    this._followCamera(dt, 5.6, -9, 0.9, 11);
+    this._followCamera(dt, 2.5, -3.6, 0.9, 7);
   }
   _updateBall(dt, speed) {
     const B = this.ball.position, P = this.cam.position;
     if (this.ballAway) return; // handled by pass animation
     if (!this.ballFree) {
-      const target = this.tmp.copy(P).addScaledVector(this.heading, 0.75); target.y = 0.23;
+      const target = this.tmp.copy(P).addScaledVector(this.heading, 0.75); target.y = BALL_R;
       B.lerp(target, 1 - Math.pow(0.0005, dt));
-      this.ball.rotation.x += speed * dt / 0.23; this.ball.rotation.y = this.cam.root.rotation.y;
+      this.ball.rotation.x += speed * dt / BALL_R; this.ball.rotation.y = this.cam.root.rotation.y;
       if (speed > 0.5 && Math.random() < dt * 4) Sfx.touch();
     } else {
       B.addScaledVector(this.ballVel, dt); this.ballVel.multiplyScalar(Math.pow(0.4, dt));
-      if (B.y > 0.23) { this.ballVel.y -= 20 * dt; } else { B.y = 0.23; if (this.ballVel.y < 0) this.ballVel.y *= -0.4; }
-      this._collideObstacles(B, 0.23);
-      this.ball.rotation.x += this.ballVel.length() * dt / 0.23;
+      if (B.y > BALL_R) { this.ballVel.y -= 20 * dt; } else { B.y = BALL_R; if (this.ballVel.y < 0) this.ballVel.y *= -0.4; }
+      this._collideObstacles(B, BALL_R);
+      this.ball.rotation.x += this.ballVel.length() * dt / BALL_R;
       if (B.distanceTo(P) < 1.1 && this.stun <= 0) { this.ballFree = false; Sfx.touch(); }
     }
   }
@@ -254,11 +254,11 @@ export class Game {
   }
   _doPass() {
     this.ballAway = true; this.passCooldown = 2.8; this.tricks++; Sfx.pass();
-    const start = this.ball.position.clone(); const toM = this.mia.position.clone(); toM.y = 0.23; toM.z += 0.4;
+    const start = this.ball.position.clone(); const toM = this.mia.position.clone(); toM.y = BALL_R; toM.z += 0.4;
     const t0 = performance.now();
     const step = () => {
       const k = Math.min(1, (performance.now() - t0) / 420);
-      this.ball.position.lerpVectors(start, toM, k); this.ball.position.y = 0.23 + Math.sin(k * Math.PI) * 0.8; this.ball.rotation.x += 0.4;
+      this.ball.position.lerpVectors(start, toM, k); this.ball.position.y = BALL_R + Math.sin(k * Math.PI) * 0.8; this.ball.rotation.x += 0.4;
       if (k < 1 && this.state === 'play') requestAnimationFrame(step); else this._returnPass();
     };
     step();
@@ -269,8 +269,8 @@ export class Game {
     const start = this.ball.position.clone(); const t0 = performance.now();
     const step = () => {
       const k = Math.min(1, (performance.now() - t0) / 380);
-      const dest = this.tmp.copy(this.cam.position).addScaledVector(this.heading, 3.0); dest.y = 0.23; dest.x = clamp(dest.x, -HALF_W + 0.5, HALF_W + 1.5);
-      this.ball.position.lerpVectors(start, dest, k); this.ball.position.y = 0.23 + Math.sin(k * Math.PI) * 1.0; this.ball.rotation.x += 0.4;
+      const dest = this.tmp.copy(this.cam.position).addScaledVector(this.heading, 3.0); dest.y = BALL_R; dest.x = clamp(dest.x, -HALF_W + 0.5, HALF_W + 1.5);
+      this.ball.position.lerpVectors(start, dest, k); this.ball.position.y = BALL_R + Math.sin(k * Math.PI) * 1.0; this.ball.rotation.x += 0.4;
       if (k < 1 && this.state === 'play') requestAnimationFrame(step); else { this.ballAway = false; this.ballFree = false; }
     };
     step();
@@ -357,14 +357,14 @@ export class Game {
     if (dist > 0.05) { P.x += dx / dist * step; P.z += dz / dist * step; this.heading.set(dx, 0, dz).normalize(); this.cam.setHeading(dx, dz); }
     this.cam.update(dt, dist > 0.05 ? PLAYER_SPEED : 0); this.cam.setDown(0);
     this._updateBall(dt, PLAYER_SPEED); this.mia.update(dt, 0); this.keeper.update(dt, 0);
-    this._followCamera(dt, 4.5, -7.5, 1.0, 11);
+    this._followCamera(dt, 3.0, -4.6, 0.9, 10);
     this.input.consume('tap'); this.input.consume('trick'); this.input.consume('pass');
     if (dist <= 0.05) this._beginShoot();
   }
   _beginShoot() {
     this.state = 'shoot';
     const P = this.cam.position; this.cam.setHeading(0, 1); this.heading.set(0, 0, 1);
-    this.ball.position.set(P.x, 0.23, P.z + 0.8);
+    this.ball.position.set(P.x, BALL_R, P.z + 0.8);
     const lvl = this.level;
     this.shoot = { t: 0, ringSpeed: lvl.ring, keeperSpeed: lvl.keeper, reach: lvl.reach, phase: Math.random() * 6, fired: false, result: null, attempts: 0 };
     if (!this.ring) {
@@ -438,7 +438,7 @@ export class Game {
     setTimeout(() => {
       if (this.state !== 'shoot') return;
       const s = this.shoot; s.fired = false; s.done = false; s.result = null; s.ringSpeed *= 1.15; s.phase = Math.random() * 6;
-      this.ball.position.set(this.cam.position.x, 0.23, this.cam.position.z + 0.8); this.keeper.tilt.rotation.z = 0; this.keeper.tilt.position.y = 0;
+      this.ball.position.set(this.cam.position.x, BALL_R, this.cam.position.z + 0.8); this.keeper.tilt.rotation.z = 0; this.keeper.tilt.position.y = 0;
       this.ring.visible = true; this.ui.shootMode(true);
     }, 1300);
   }
