@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Cam's Xmas Soccer Rush</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0b1a33">
+<meta name="description" content="Dribble Cam through zombie footballers and evil elves across five floodlit stadiums to win Christmas back.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/img/icon-192.png">
+<link rel="apple-touch-icon" href="assets/img/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+
+<div id="hud" class="hidden">
+  <div class="hud-top">
+    <div class="pill" id="hud-level">1 · London</div>
+    <div class="pill" id="hud-time">0:00</div>
+    <div class="pill coin" id="hud-coins">🪙 0</div>
+  </div>
+  <div class="hud-lives" id="hud-lives">⚽⚽⚽</div>
+  <div class="heat">
+    <div class="heat-label" id="heat-label">HEAT</div>
+    <div class="heat-bar"><div class="heat-fill" id="heat-fill"></div></div>
+  </div>
+  <div id="toast"></div>
+  <div id="tip"></div>
+  <div id="joystick"><div id="joy-base"><div id="joy-knob"></div></div></div>
+  <div id="buttons">
+    <button class="act" id="btn-pass">ONE-TWO</button>
+    <button class="act big" id="btn-trick">TRICK</button>
+  </div>
+  <button id="btn-pause">II</button>
+  <div id="shoot-ui" class="hidden">
+    <div class="shoot-msg">TAP when the target is clear of the keeper!</div>
+  </div>
+</div>
+
+<div id="screens">
+  <section id="s-title" class="screen">
+    <img class="keyart" src="assets/img/title_art.jpg" alt="">
+    <div class="title-block">
+      <h1>CAM'S<br><span>XMAS SOCCER RUSH</span></h1>
+      <p class="story">The evil elves have kidnapped Santa and stolen Christmas! Dribble past the zombie footballers, nutmeg the elves and score in five famous stadiums to win Christmas back.</p>
+      <button class="btn primary" id="btn-play">PLAY</button>
+      <div class="row">
+        <button class="btn" id="btn-shop">BALL SHOP</button>
+        <button class="btn" id="btn-howto">HOW TO PLAY</button>
+      </div>
+      <div class="loadnote" id="loadnote">Loading Cam…</div>
+    </div>
+  </section>
+
+  <section id="s-levels" class="screen hidden">
+    <h2>CHOOSE A STADIUM</h2>
+    <div id="level-list"></div>
+    <button class="btn" id="btn-levels-back">BACK</button>
+  </section>
+
+  <section id="s-shop" class="screen hidden">
+    <h2>BALL SHOP</h2>
+    <div class="coins-big" id="shop-coins">🪙 0</div>
+    <div id="skin-list"></div>
+    <button class="btn" id="btn-shop-back">BACK</button>
+  </section>
+
+  <section id="s-howto" class="screen hidden">
+    <h2>HOW TO PLAY</h2>
+    <ul class="howto">
+      <li>🕹️ <b>Left thumb</b>: drag anywhere on the left to run and dribble.</li>
+      <li>🔴 Defenders flash a <b>red lane</b> before they slide-tackle. Get out of that lane!</li>
+      <li>✨ <b>TRICK</b> near a defender = <b>nutmeg</b> through their legs. Away from one = spin dash.</li>
+      <li>🤝 <b>ONE-TWO</b>: pass to Mia on the wing and she returns it ahead of you. Can't be tackled while the ball is away.</li>
+      <li>🔥 Every trick heats the ball up. Full heat = <b>FLAMING COMET</b>: it knocks defenders flat and burns the keeper's gloves.</li>
+      <li>🥅 In the box a target slides across the goal. <b>TAP</b> when it is outside the keeper's reach.</li>
+      <li>⭐ Earn stars: score, keep all your lives, and pull off enough tricks. Spend coins on ball skins.</li>
+    </ul>
+    <button class="btn" id="btn-howto-back">BACK</button>
+  </section>
+
+  <section id="s-pause" class="screen dim hidden">
+    <h2>PAUSED</h2>
+    <button class="btn primary" id="btn-resume">RESUME</button>
+    <button class="btn" id="btn-quit">QUIT TO MENU</button>
+  </section>
+
+  <section id="s-result" class="screen dim hidden">
+    <h2 id="result-title">GOAL!</h2>
+    <div class="stars" id="result-stars">☆☆☆</div>
+    <div class="result-lines" id="result-lines"></div>
+    <button class="btn primary" id="btn-next">NEXT STADIUM</button>
+    <button class="btn" id="btn-retry">REPLAY</button>
+    <button class="btn" id="btn-result-menu">MENU</button>
+  </section>
+
+  <section id="s-win" class="screen hidden">
+    <img class="keyart" src="assets/img/santa.jpg" alt="">
+    <div class="title-block">
+      <h1>YOU WON<br><span>CHRISTMAS BACK!</span></h1>
+      <p class="story">Santa is free, the elves are grounded and the zombies have gone back to bed. Merry Christmas, Cam!</p>
+      <button class="btn primary" id="btn-win-menu">MENU</button>
+    </div>
+  </section>
+</div>
+
+<div id="rotate-hint">Turn your phone upright for the best view 📱</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
