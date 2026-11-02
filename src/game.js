@@ -100,7 +100,7 @@ export class Game {
     this.heading = new THREE.Vector3(0, 0, 1);
     for (const s of this.world.defenderSpawns) this._spawnDefender(s);
     this.shoot = null; this.state = 'play';
-    this.camera.position.set(0, 2.5, -3.6);
+    this.camera.position.set(-0.75, 1.6, -2.2);
     this.ui.setLevel(index); this.ui.lives(this.lives); this.ui.coins(this.coins); this.ui.heat(0, false);
     this.ui.tip(`Dribble to the ${this.level.stadium} goal. Watch for red lanes!`, 3500);
     Sfx.whistle(); Sfx.crowd(0.08);
@@ -184,7 +184,7 @@ export class Game {
     if (this.stun <= 0) {
       const len = Math.hypot(mv.x, mv.y);
       if (len > 0.1) {
-        const dx = mv.x / Math.max(len, 1), dz = mv.y / Math.max(len, 1);
+        const dx = -mv.x / Math.max(len, 1), dz = mv.y / Math.max(len, 1); // screen-right = world -X (camera faces +Z)
         const sp = PLAYER_SPEED * (this.dash > 0 ? 1.7 : 1) * (this.comet ? 1.08 : 1);
         P.x += dx * sp * dt; P.z += dz * sp * dt; speed = sp * Math.min(len, 1);
         this.heading.set(dx, 0, dz).normalize(); this.cam.setHeading(dx, dz);
@@ -220,7 +220,16 @@ export class Game {
     // enter the box
     if (P.z > this.L - 15 && !this.ballFree && !this.ballAway) this._enterShoot();
     // camera
-    this._followCamera(dt, 2.5, -3.6, 0.9, 7);
+    this._followCamera(dt, 1.6, -2.2, 1.0, 6, -0.75);
+    this._hideObstaclesAroundCamera();
+  }
+  // With a close chase camera, hide any obstacle the camera is inside or right behind so the view never fills with a wall.
+  _hideObstaclesAroundCamera() {
+    const C = this.camera.position;
+    for (const o of this.world.obstacles) {
+      const inside = Math.abs(C.x - o.x) < o.hw + 0.7 && Math.abs(C.z - o.z) < o.hd + 0.7 && C.y < o.h + 0.5;
+      if (o.mesh.visible === inside) o.mesh.visible = !inside;
+    }
   }
   _updateBall(dt, speed) {
     const B = this.ball.position, P = this.cam.position;
@@ -335,11 +344,11 @@ export class Game {
     d.state = 'ko'; d.t = 2.2; d.flash.material.opacity = 0; d.ch.position.y = 1.2; Sfx.ko(); this._toast(msg, 800);
     this.coins += 5; this.ui.coins(this.coins); this.tricks++;
   }
-  _followCamera(dt, up, back, lookUp, lookAhead) {
-    const P = this.cam.position; const k = 1 - Math.pow(0.02, dt);
-    const dest = this.tmp.set(P.x * 0.7, up, P.z + back);
+  _followCamera(dt, up, back, lookUp, lookAhead, side = 0) {
+    const P = this.cam.position; const k = 1 - Math.pow(0.005, dt);
+    const dest = this.tmp.set(P.x + side, up, P.z + back);
     this.camera.position.lerp(dest, k);
-    this._look = this._look || new THREE.Vector3(); this._look.lerp(new THREE.Vector3(P.x * 0.7, lookUp, P.z + lookAhead), k);
+    this._look = this._look || new THREE.Vector3(); this._look.lerp(new THREE.Vector3(P.x - side * 0.4, lookUp, P.z + lookAhead), k);
     this.camera.lookAt(this._look);
   }
 
@@ -357,7 +366,7 @@ export class Game {
     if (dist > 0.05) { P.x += dx / dist * step; P.z += dz / dist * step; this.heading.set(dx, 0, dz).normalize(); this.cam.setHeading(dx, dz); }
     this.cam.update(dt, dist > 0.05 ? PLAYER_SPEED : 0); this.cam.setDown(0);
     this._updateBall(dt, PLAYER_SPEED); this.mia.update(dt, 0); this.keeper.update(dt, 0);
-    this._followCamera(dt, 3.0, -4.6, 0.9, 10);
+    this._followCamera(dt, 1.6, -2.2, 1.0, 7, -0.75); this._hideObstaclesAroundCamera();
     this.input.consume('tap'); this.input.consume('trick'); this.input.consume('pass');
     if (dist <= 0.05) this._beginShoot();
   }
