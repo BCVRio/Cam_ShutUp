@@ -1,11 +1,12 @@
 // Tiny WebAudio synth: no audio files needed, works offline.
+import { asset } from './assets.js';
 let ctx = null, master = null, crowdGain = null, started = false;
 const samples = {}; let crowdSrc = null;
 const SAMPLE_FILES = { crowd: 'assets/audio/crowd_loop.mp3', roar: 'assets/audio/goal_roar.mp3', whistle: 'assets/audio/whistle.mp3', bells: 'assets/audio/bells.mp3' };
 async function loadSamples() {
   const c = ensure(); if (!c) return;
   await Promise.all(Object.entries(SAMPLE_FILES).map(async ([k, url]) => {
-    try { const r = await fetch(url); const b = await r.arrayBuffer(); samples[k] = await c.decodeAudioData(b); } catch (e) { /* synth fallback */ }
+    try { const r = await fetch(asset(url)); const b = await r.arrayBuffer(); samples[k] = await c.decodeAudioData(b); } catch (e) { /* synth fallback */ }
   }));
   if (samples.crowd && crowdGain) {
     crowdSrc = c.createBufferSource(); crowdSrc.buffer = samples.crowd; crowdSrc.loop = true; crowdSrc.connect(crowdGain); crowdSrc.start();

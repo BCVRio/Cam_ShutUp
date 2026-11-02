@@ -1,3 +1,5 @@
 .DS_Store
 *.tmp.glb
 node_modules/
+node_modules
+dist/

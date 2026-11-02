@@ -1,5 +1,6 @@
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import * as THREE from '../vendor/three.module.js';
+import { GLTFLoader } from '../vendor/jsm/loaders/GLTFLoader.js';
+import { asset } from './assets.js';
 
 // Characters face +Z. heading = atan2(dirX, dirZ) sets rotation.y directly.
 // Each character kind tries assets/models/<kind>.glb (Higgsfield / Meshy rigged export);
@@ -18,7 +19,7 @@ const modelCache = {};
 function loadGLB(kind) {
   if (modelCache[kind]) return modelCache[kind];
   modelCache[kind] = new Promise((resolve) => {
-    loader.load(`assets/models/${kind}.glb`, (g) => resolve(g), undefined, () => resolve(null));
+    loader.load(asset(`assets/models/${kind}.glb`), (g) => resolve(g), undefined, () => resolve(null));
   });
   return modelCache[kind];
 }

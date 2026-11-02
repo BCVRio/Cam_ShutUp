@@ -1,4 +1,5 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
+import { asset } from './assets.js';
 
 export const LANES = 5, LANE_W = 3.0;
 export const laneX = (i) => (i - (LANES - 1) / 2) * LANE_W;
@@ -19,7 +20,7 @@ const texCache = {};
 export function tex(name, repeat = [1, 1], srgb = true) {
   const key = name + repeat.join('x');
   if (texCache[key]) return texCache[key];
-  const t = texLoader.load(name);
+  const t = texLoader.load(asset(name));
   t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(repeat[0], repeat[1]);
   if (srgb) t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 4;

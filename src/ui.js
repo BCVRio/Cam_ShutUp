@@ -1,6 +1,7 @@
 import { LEVELS } from './world.js';
 import { Save, SKINS } from './save.js';
 import { Sfx } from './audio.js';
+import { asset } from './assets.js';
 
 const $ = (id) => document.getElementById(id);
 const SKIN_CSS = { classic: 'radial-gradient(circle at 35% 30%,#fff,#bbb 60%,#333)', bauble: 'radial-gradient(circle at 35% 30%,#ff9a9a,#d62828 60%,#5a0000)', snow: 'radial-gradient(circle at 35% 30%,#fff,#dbe8ff 70%,#9fb3d6)', gold: 'radial-gradient(circle at 35% 30%,#fff3b0,#ffc83d 60%,#8a5a00)', comet: 'radial-gradient(circle at 35% 30%,#fff3b0,#ff8800 50%,#ff2200)' };
@@ -50,7 +51,7 @@ export class UI {
     LEVELS.forEach((lv, i) => {
       const unlocked = Save.isUnlocked(i);
       const card = document.createElement('div'); card.className = 'card' + (unlocked ? '' : ' locked');
-      card.innerHTML = `<img src="assets/img/${lv.img}.jpg" alt=""><div><div class="ttl">${i + 1}. ${lv.name}</div><div class="sub">${lv.stadium} · ${lv.defenders} defenders</div></div><div class="stars">${'★'.repeat(s.stars[i] || 0)}${'☆'.repeat(3 - (s.stars[i] || 0))}</div>`;
+      card.innerHTML = `<img src="${asset(`assets/img/${lv.img}.jpg`)}" alt=""><div><div class="ttl">${i + 1}. ${lv.name}</div><div class="sub">${lv.stadium} · ${lv.defenders} defenders</div></div><div class="stars">${'★'.repeat(s.stars[i] || 0)}${'☆'.repeat(3 - (s.stars[i] || 0))}</div>`;
       if (unlocked) card.onclick = () => { this.show(null); this.hud(true); this.game.startLevel(i); };
       else card.onclick = () => this.toast('Score in the previous stadium first!', 1200);
       list.appendChild(card);

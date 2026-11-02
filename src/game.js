@@ -1,4 +1,4 @@
-import * as THREE from 'three';
+import * as THREE from '../vendor/three.module.js';
 import { World, LEVELS, LANES, LANE_W, laneX, HALF_W, WING_X, BOARD_X, glowTex, fireTex, tex } from './world.js';
 import { Character } from './characters.js';
 import { Sfx } from './audio.js';
