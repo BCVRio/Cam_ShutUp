@@ -1,0 +1,33 @@
+{
+  "_comment": "Generated assets for Steal a Nunhead. kind: audio | image | itemIcon | mesh. key: the Luau key in src/shared/Assets.luau (for itemIcon/mesh it is the collectible Id). aliases: other collectible Ids that reuse the same uploaded asset. robloxAssetId is filled in by scripts/upload_assets.py (or by hand after uploading in Studio); run scripts/sync_assets.py afterwards.",
+  "assets": [
+    { "kind": "audio", "key": "Pickup", "file": "assets/audio/sfx_pickup.mp3", "displayName": "SAN Pickup", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "Place", "file": "assets/audio/sfx_place.mp3", "displayName": "SAN Place", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "Collect", "file": "assets/audio/sfx_collect.mp3", "displayName": "SAN Collect", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "StealAlarm", "file": "assets/audio/sfx_steal_alarm.mp3", "displayName": "SAN Steal Alarm", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "Lock", "file": "assets/audio/sfx_lock.mp3", "displayName": "SAN Lock", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "Whack", "file": "assets/audio/sfx_whack.mp3", "displayName": "SAN Whack", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "RareSpawn", "file": "assets/audio/sfx_rare_spawn.mp3", "displayName": "SAN Rare Spawn", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "Click", "file": "assets/audio/sfx_click.mp3", "displayName": "SAN Click", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "Deny", "file": "assets/audio/sfx_deny.mp3", "displayName": "SAN Deny", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "ConveyorLoop", "file": "assets/audio/sfx_conveyor_loop.mp3", "displayName": "SAN Conveyor Loop", "source": "Higgsfield / Mirelo SFX", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "MusicMain", "file": "assets/audio/music_main_a.mp3", "displayName": "SAN Music - Evelina Road", "source": "FlashBoards / Suno V6 (variant A; music_main_b.mp3 is the alternate take)", "robloxAssetId": 0 },
+    { "kind": "audio", "key": "MusicNight", "file": "assets/audio/music_night_a.mp3", "displayName": "SAN Music - Cemetery Nights", "source": "FlashBoards / Suno V6 (variant A; music_night_b.mp3 is the alternate take)", "robloxAssetId": 0 },
+
+    { "kind": "image", "key": "GameIcon", "file": "assets/images/game_icon.png", "displayName": "SAN Game Icon", "source": "Higgsfield / GPT Image 2.6, 1024x1024", "robloxAssetId": 0 },
+    { "kind": "image", "key": "Thumbnail", "file": "assets/images/thumbnail.png", "displayName": "SAN Thumbnail", "source": "Higgsfield / GPT Image 2.6, 16:9", "robloxAssetId": 0 },
+
+    { "kind": "mesh", "key": "urban_fox", "aliases": ["cemetery_fox_cub", "fox_king", "mega_fox"], "file": "assets/models/fox.glb", "displayName": "SAN Fox", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "station_pigeon", "file": "assets/models/pigeon.glb", "displayName": "SAN Pigeon", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "parakeet", "aliases": ["golden_parakeet"], "file": "assets/models/parakeet.glb", "displayName": "SAN Parakeet", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "cemetery_angel", "file": "assets/models/cemetery_angel.glb", "displayName": "SAN Cemetery Angel", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "red_phone_box", "file": "assets/models/red_phone_box.glb", "displayName": "SAN Phone Box", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "bus_78", "file": "assets/models/bus_78.glb", "displayName": "SAN 78 Bus", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "chapel_ruins", "file": "assets/models/chapel_ruins.glb", "displayName": "SAN Chapel Ruins", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "ghost_nun", "file": "assets/models/ghost_nun.glb", "displayName": "SAN Ghost Nun", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "reservoir_nessie", "file": "assets/models/nessie.glb", "displayName": "SAN Nessie", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "nunhead_train", "file": "assets/models/train.glb", "displayName": "SAN Train", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "whippy_van", "file": "assets/models/whippy_van.glb", "displayName": "SAN Whippy Van", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 },
+    { "kind": "mesh", "key": "pub_dog", "file": "assets/models/pub_dog.glb", "displayName": "SAN Pub Dog", "source": "Higgsfield / Meshy 6 low-poly", "robloxAssetId": 0 }
+  ]
+}

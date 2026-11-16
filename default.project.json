@@ -1,0 +1,80 @@
+{
+  "name": "StealANunhead",
+  "globIgnorePaths": ["**/*.spec.luau", "**/tests/**"],
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/server"
+      }
+    },
+
+    "StarterPlayer": {
+      "$properties": {
+        "CharacterWalkSpeed": 20,
+        "CharacterJumpPower": 50,
+        "EnableMouseLockOption": true
+      },
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/client"
+        }
+      }
+    },
+
+    "Workspace": {
+      "$properties": {
+        "Gravity": 196.2
+      }
+    },
+
+    "Lighting": {
+      "$properties": {
+        "ClockTime": 17.6,
+        "Brightness": 2.2,
+        "Ambient": [0.33, 0.30, 0.36],
+        "OutdoorAmbient": [0.42, 0.38, 0.45],
+        "ColorShift_Top": [1.0, 0.86, 0.72],
+        "ShadowSoftness": 0.3,
+        "GlobalShadows": true,
+        "EnvironmentDiffuseScale": 0.6,
+        "EnvironmentSpecularScale": 0.6
+      },
+      "Atmosphere": {
+        "$className": "Atmosphere",
+        "$properties": {
+          "Density": 0.32,
+          "Offset": 0.25,
+          "Color": [0.78, 0.69, 0.66],
+          "Decay": [0.42, 0.36, 0.44],
+          "Glare": 0.3,
+          "Haze": 1.4
+        }
+      },
+      "Bloom": {
+        "$className": "BloomEffect",
+        "$properties": { "Intensity": 0.4, "Size": 24, "Threshold": 1.2 }
+      }
+    },
+
+    "SoundService": {
+      "$properties": {
+        "RespectFilteringEnabled": true
+      }
+    },
+
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": true,
+        "RespawnTime": 3
+      }
+    }
+  }
+}
