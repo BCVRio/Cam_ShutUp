@@ -102,6 +102,9 @@ function DataService.load(player: Player)
 		local ok, result = pcall(function()
 			return ds:GetAsync(key(player))
 		end)
+		if player.Parent == nil then
+			return -- left while we were waiting on the DataStore
+		end
 		if ok then
 			profile = result
 			loaded[player] = true
@@ -131,6 +134,7 @@ function DataService.load(player: Player)
 end
 
 function DataService.init()
+	-- One handler so the order is explicit: save (while the plot still has its items), then release.
 	Players.PlayerRemoving:Connect(function(player)
 		DataService.save(player)
 		-- The carried item (if any) was banked into the save above; now get rid of the model.
@@ -140,6 +144,7 @@ function DataService.init()
 		end
 		loaded[player] = nil
 		EconomyService.cleanup(player)
+		PlotService.release(player)
 	end)
 
 	-- Autosave

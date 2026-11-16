@@ -100,25 +100,26 @@ local function swing(player: Player)
 		local dir = (flat.Magnitude > 0.1 and flat.Unit or root.CFrame.LookVector)
 		oroot.AssemblyLinearVelocity = dir * Config.Bat.KnockbackForce + Vector3.new(0, 25, 0)
 
+		-- Drop the goods first (dropCarried resets walk speed; the stun below must win)
+		if CarryService.isCarrying(other) then
+			CarryService.dropCarried(other)
+			Remotes.get(Remotes.Names.Notify):FireClient(player, "You clobbered " .. other.DisplayName .. "!", "good")
+		end
+
 		-- Stun
 		if not stunned[other] then
 			stunned[other] = true
-			local prev = ohum.WalkSpeed
+			other:SetAttribute("Stunned", true)
 			ohum.WalkSpeed = 0
 			ohum.JumpPower = 0
 			task.delay(Config.Bat.StunSeconds, function()
 				stunned[other] = nil
+				other:SetAttribute("Stunned", nil)
 				if ohum.Parent then
-					ohum.WalkSpeed = prev > 0 and prev or (game:GetService("StarterPlayer") :: StarterPlayer).CharacterWalkSpeed
+					ohum.WalkSpeed = CarryService.baseWalkSpeed(other)
 					ohum.JumpPower = (game:GetService("StarterPlayer") :: StarterPlayer).CharacterJumpPower
 				end
 			end)
-		end
-
-		-- Drop the goods
-		if CarryService.isCarrying(other) then
-			CarryService.dropCarried(other)
-			Remotes.get(Remotes.Names.Notify):FireClient(player, "You clobbered " .. other.DisplayName .. "!", "good")
 		end
 		Remotes.get(Remotes.Names.PlaySound):FireClient(other, "Whack")
 	end

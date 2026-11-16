@@ -62,9 +62,6 @@ for _, p in Players:GetPlayers() do
 	task.spawn(onPlayerAdded, p)
 end
 
-Players.PlayerRemoving:Connect(function(player)
-	-- DataService saves on PlayerRemoving before this (connected earlier), then we free the plot.
-	PlotService.release(player)
-end)
+-- Leaving is handled in one place (DataService.init): save first, then free the plot.
 
 print(string.format("[%s] ready: %d plots", Config.GameName, #plotOrigins))

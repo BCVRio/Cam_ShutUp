@@ -116,8 +116,7 @@ function EconomyService.collect(player: Player): number
 			slot.Stored = 0
 		end
 	end
-	if total >= 1 then
-		total = math.floor(total)
+	if total > 0 then
 		EconomyService.addCash(player, total, true)
 		Remotes.get(Remotes.Names.PlaySound):FireClient(player, "Collect")
 		Remotes.get(Remotes.Names.Notify):FireClient(player, "Collected " .. Format.cash(total), "good")

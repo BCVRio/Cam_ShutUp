@@ -7,6 +7,7 @@
 --   "Label" BillboardGui showing name + rarity (hidden while carried)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local AssetService = game:GetService("AssetService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Collectibles = require(Shared.Collectibles)
@@ -19,6 +20,30 @@ local CollectibleFactory = {}
 type Visual = Collectibles.Visual
 
 local UNIT = 3 -- studs: height of a scale-1 item
+
+-- MeshId cannot be assigned on a script-made MeshPart, so meshes come from
+-- AssetService:CreateMeshPartAsync (yields) and are cached as templates to clone.
+local meshTemplates: { [string]: MeshPart | false } = {}
+
+local function getMeshTemplate(meshId: string): MeshPart?
+	local cached = meshTemplates[meshId]
+	if cached ~= nil then
+		return cached or nil
+	end
+	local ok, result = pcall(function()
+		return AssetService:CreateMeshPartAsync(Content.fromUri(meshId), {
+			CollisionFidelity = Enum.CollisionFidelity.Box,
+			RenderFidelity = Enum.RenderFidelity.Automatic,
+		})
+	end)
+	if ok and result then
+		meshTemplates[meshId] = result
+		return result
+	end
+	warn("[CollectibleFactory] mesh load failed for", meshId, result)
+	meshTemplates[meshId] = false
+	return nil
+end
 
 local function rgb(t: { number }?, fallback: { number }): Color3
 	return Palette.rgb(t or fallback)
@@ -364,20 +389,23 @@ function CollectibleFactory.build(itemId: string): Model
 	local height: number
 
 	local meshId = Assets.meshId(item.Id)
-	if meshId then
-		-- Uploaded mesh: a single MeshPart scaled so it is ~UNIT*s tall.
-		local mesh = Instance.new("MeshPart")
+	local template = meshId and getMeshTemplate(meshId) or nil
+	if template then
+		-- Uploaded mesh: scale it uniformly so it is ~UNIT*s tall, standing on the root.
+		local mesh = template:Clone()
 		mesh.Name = "Mesh"
-		mesh.MeshId = meshId
-		mesh.Size = Vector3.new(UNIT, UNIT, UNIT) * s
-		mesh.CFrame = CFrame.new(0, UNIT * s / 2, 0)
+		local native = mesh.MeshSize
+		local tallest = math.max(native.X, native.Y, native.Z, 0.01)
+		local factor = (UNIT * s) / tallest
+		mesh.Size = native * factor
+		mesh.CFrame = CFrame.new(0, mesh.Size.Y / 2, 0)
 		mesh.Anchored = false
 		mesh.CanCollide = false
 		mesh.CanQuery = false
 		mesh.CanTouch = false
 		mesh.Massless = true
 		mesh.Parent = model
-		height = UNIT * s
+		height = mesh.Size.Y
 	else
 		local builder = Builders[item.Visual.Builder] or Builders.Blob
 		height = builder(model, item.Visual, s)

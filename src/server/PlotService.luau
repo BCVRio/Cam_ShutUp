@@ -185,7 +185,7 @@ local function buildPlot(index: number, origin: Vector3): Plot
 			prompt.ActionText = "Steal"
 			prompt.ObjectText = ""
 			prompt.HoldDuration = Config.StealHoldSeconds
-			prompt.MaxActivationDistance = 9
+			prompt.MaxActivationDistance = 7
 			prompt.RequiresLineOfSight = false
 			prompt.Enabled = false
 			prompt.Parent = ped

@@ -4,7 +4,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
-local Debris = game:GetService("Debris")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared.Config)
@@ -51,12 +50,20 @@ local function fireCarryChanged(player: Player)
 	end
 end
 
+-- The walk speed a player should have right now (BatService zeroes it while stunned).
+function CarryService.baseWalkSpeed(player: Player): number
+	local base = (game:GetService("StarterPlayer") :: StarterPlayer).CharacterWalkSpeed
+	return carrying[player] and base * Config.CarryWalkSpeedMultiplier or base
+end
+
 local function setWalkSpeed(player: Player)
+	if player:GetAttribute("Stunned") then
+		return -- BatService restores it when the stun ends
+	end
 	local character = player.Character
 	local hum = character and character:FindFirstChildOfClass("Humanoid")
 	if hum then
-		local base = (game:GetService("StarterPlayer") :: StarterPlayer).CharacterWalkSpeed
-		hum.WalkSpeed = carrying[player] and base * Config.CarryWalkSpeedMultiplier or base
+		hum.WalkSpeed = CarryService.baseWalkSpeed(player)
 	end
 end
 
@@ -219,6 +226,18 @@ local function trySteal(thief: Player, plot: PlotService.Plot, slot: PlotService
 		sound(thief, "Deny")
 		return
 	end
+	-- You have to actually be inside the base (no reaching through the back wall).
+	local thiefChar = thief.Character
+	local thiefRoot = thiefChar and thiefChar:FindFirstChild("HumanoidRootPart")
+	if not thiefRoot or not thiefRoot:IsA("BasePart") then
+		return
+	end
+	local localPos = plot.Base:PointToObjectSpace(thiefRoot.Position)
+	if math.abs(localPos.X) > Config.Map.PlotSize / 2 or math.abs(localPos.Z) > Config.Map.PlotDepth / 2 then
+		notify(thief, "Get inside the base to nick that!", "bad")
+		sound(thief, "Deny")
+		return
+	end
 	local owner = plot.Owner
 	local itemId, model = clearSlot(slot)
 	if not itemId or not model then
@@ -304,7 +323,12 @@ function CarryService.dropCarried(player: Player, position: Vector3?)
 		CarryService.startCarry(picker, itemId, model)
 		sound(picker, "Pickup")
 	end)
-	Debris:AddItem(model, Config.DroppedItemLifetime)
+	task.delay(Config.DroppedItemLifetime, function()
+		-- Only clean up if nobody picked it up in the meantime
+		if model.Parent == droppedFolder then
+			model:Destroy()
+		end
+	end)
 	notify(player, "You dropped your " .. (item and item.Name or itemId) .. "!", "bad")
 end
 
@@ -376,7 +400,7 @@ function CarryService.init()
 
 	Remotes.get(Remotes.Names.RequestSell).OnServerEvent:Connect(trySell)
 
-	Players.PlayerAdded:Connect(function(player)
+	local function onPlayer(player: Player)
 		player.CharacterAdded:Connect(function(character)
 			local hum = character:WaitForChild("Humanoid", 5)
 			if hum and hum:IsA("Humanoid") then
@@ -385,7 +409,20 @@ function CarryService.init()
 				end)
 			end
 		end)
-	end)
+		-- Character gone without dying (reset/respawn edge cases): never leave stale carry state.
+		player.CharacterRemoving:Connect(function()
+			if carrying[player] then
+				local _, model = CarryService.stopCarry(player)
+				if model then
+					model:Destroy()
+				end
+			end
+		end)
+	end
+	Players.PlayerAdded:Connect(onPlayer)
+	for _, p in Players:GetPlayers() do
+		onPlayer(p)
+	end
 
 	-- NOTE: a carried item is banked into the save by DataService on leave, then destroyed there.
 	Players.PlayerRemoving:Connect(function(player)
