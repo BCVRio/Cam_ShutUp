@@ -7,7 +7,15 @@ into a fresh level, lights it (sun, sky light, sky atmosphere, volumetric fog an
 and saves it. Lumen global illumination and reflections are on in any new UE 5 project, so the same meshes get
 real bounced light, soft contact shadows and proper reflections on the puddles.
 
-## Steps (Unreal 5.3 or newer)
+## Quickest way (Windows)
+
+    python unreal\create_project.py F:\NunheadGTA
+
+makes the project on the F drive (any path works, e.g. a Claude folder), copies the level script and the GLB in,
+and writes `OpenAndBuild.bat`. Double-click that: the editor opens the project and builds the level itself.
+First run compiles shaders, so give it a few minutes. Then open Content → Nunhead → NunheadGreen and press Play.
+
+## Manual steps (Unreal 5.3 or newer)
 
 1. Create a new project: Games → Third Person, Blueprint, Starter Content off, Raytracing on if offered.
    Name it `NunheadGTA` anywhere you like.
