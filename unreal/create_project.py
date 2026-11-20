@@ -1,12 +1,14 @@
 """Create the NunheadGTA Unreal project on this machine (Windows, no Unreal needed to run this).
-    python create_project.py F:\\NunheadGTA
+    python create_project.py            (makes unreal\\NunheadGTA inside this repo)
+    python create_project.py F:\\NunheadGTA   (or anywhere else)
 Makes the .uproject (Third Person-style blank project with the Python plugin on, Lumen defaults), copies the
 level build script and the Nunhead Green GLB next to it, and writes OpenAndBuild.bat which launches the editor
 and builds the level in one go. Then double-click OpenAndBuild.bat (or open the .uproject and run build_green.py
 from the Output Log with Cmd set to Python)."""
 import json, os, shutil, sys, glob
 
-dest = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else r'F:\NunheadGTA')
+here0 = os.path.dirname(os.path.abspath(__file__))
+dest = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here0, 'NunheadGTA'))
 name = os.path.basename(dest)
 here = os.path.dirname(os.path.abspath(__file__))
 os.makedirs(os.path.join(dest, 'Config'), exist_ok=True)

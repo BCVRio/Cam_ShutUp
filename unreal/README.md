@@ -9,9 +9,9 @@ real bounced light, soft contact shadows and proper reflections on the puddles.
 
 ## Quickest way (Windows)
 
-    python unreal\create_project.py F:\NunheadGTA
+    python unreal\create_project.py
 
-makes the project on the F drive (any path works, e.g. a Claude folder), copies the level script and the GLB in,
+makes the project at `unreal\NunheadGTA` inside this repo (pass another path to put it elsewhere), copies the level script and the GLB in,
 and writes `OpenAndBuild.bat`. Double-click that: the editor opens the project and builds the level itself.
 First run compiles shaders, so give it a few minutes. Then open Content → Nunhead → NunheadGreen and press Play.
 
