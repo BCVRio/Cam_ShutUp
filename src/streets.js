@@ -31,17 +31,20 @@ function offsetLine(p, off) {
   }
   return out;
 }
-// split a polyline into runs where keep(x, z) holds, sampling every `step` metres; original vertices are kept
+// split a polyline into runs where keep(x, z) holds, sampling every `step` metres. Only the original vertices and
+// the run boundaries become vertices, so a straight road stays two points long.
 function splitRuns(p, keep, step = 1.2) {
   const runs = []; let run = null;
-  const push = (x, z) => { if (!run) run = []; run.push([x, z]); };
   const close = () => { if (run && run.length >= 2) runs.push(run); run = null; };
+  let prevKeep = keep(p[0][0], p[0][1]); if (prevKeep) run = [[p[0][0], p[0][1]]];
   for (let s = 0; s < p.length - 1; s++) {
     const [ax, az] = p[s], [bx, bz] = p[s + 1]; const len = Math.hypot(bx - ax, bz - az); const n = Math.max(1, Math.ceil(len / step));
-    for (let k = 0; k <= n; k++) {
-      if (k === n && s < p.length - 2) break;   // the next segment adds this vertex
-      const t = k / n; const x = ax + (bx - ax) * t, z = az + (bz - az) * t;
-      if (keep(x, z)) push(x, z); else close();
+    for (let k = 1; k <= n; k++) {
+      const t = k / n; const x = ax + (bx - ax) * t, z = az + (bz - az) * t; const kp = keep(x, z);
+      if (kp && !prevKeep) run = [[x, z]];
+      else if (!kp && prevKeep) { if (run) { run.push([x, z]); close(); } }
+      else if (kp && k === n) run.push([x, z]);
+      prevKeep = kp;
     }
   }
   close(); return runs;
