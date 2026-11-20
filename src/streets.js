@@ -99,6 +99,10 @@ export function buildStreets(d) {
   const roads = [], paves = [], kerbs = [], faces = [], foot = [], white = [], yellow = [], humps = [], manholes = [], drains = [], zebra = [];
   const isRoad = (x, z) => surfaceAt(x, z) === SURF.road;
   const roadList = d.roads.filter((r) => r.p.length >= 2 && r.k !== 'steps' && !r.p.every(([x, z]) => inStadium(x, z, 4)));
+  // geometric test: is (x, z) inside another road's carriageway? (the 2 m raster is too coarse for kerb lines)
+  const CELL = 24; const segGrid = new Map(); const ck = (x, z) => `${Math.floor(x / CELL)},${Math.floor(z / CELL)}`;
+  roadList.forEach((r, ri) => { if (r.w <= 2) return; for (let s = 0; s < r.p.length - 1; s++) { const [ax, az] = r.p[s], [bx, bz] = r.p[s + 1]; const seg = { ax, az, bx, bz, hw: r.w / 2, ri }; for (let x = Math.min(ax, bx) - r.w; x <= Math.max(ax, bx) + r.w; x += CELL) for (let z = Math.min(az, bz) - r.w; z <= Math.max(az, bz) + r.w; z += CELL) { const k = ck(x, z); if (!segGrid.has(k)) segGrid.set(k, []); const l = segGrid.get(k); if (!l.includes(seg)) l.push(seg); } } });
+  const inOtherRoad = (x, z, ri, pad = 0.25) => { const l = segGrid.get(ck(x, z)); if (!l) return false; for (const g of l) { if (g.ri === ri) continue; const dx = g.bx - g.ax, dz = g.bz - g.az, l2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - g.ax) * dx + (z - g.az) * dz) / l2)); if (Math.hypot(x - (g.ax + dx * t), z - (g.az + dz * t)) < g.hw + pad) return true; } return false; };
   // junction index: which road ends touch another road's vertex (shared OSM nodes)
   const key = (x, z) => `${Math.round(x * 2)},${Math.round(z * 2)}`; const nodes = new Map();
   roadList.forEach((r, ri) => r.p.forEach(([x, z], vi) => { const k = key(x, z); if (!nodes.has(k)) nodes.set(k, []); nodes.get(k).push([ri, vi]); }));
@@ -112,11 +116,12 @@ export function buildStreets(d) {
     // pavements + kerbs on both sides, cut where another carriageway crosses
     for (const s of [-1, 1]) {
       const kerbLine = offsetLine(p, s * (w / 2 + 0.03)), paveLine = offsetLine(p, s * (w / 2 + 1.5)), faceLine = offsetLine(p, s * (w / 2 + 0.01));
-      const keep = (x, z) => !isRoad(x, z);
+      const keep = (x, z) => !inOtherRoad(x, z, ri);
       // kerb stones and the face
-      for (const run of splitRuns(kerbLine, keep)) { kerbs.push(ribbon(run, KERB_W, PAVE_LIFT + 0.004, 1)); }
+      for (const run of splitRuns(kerbLine, keep)) kerbs.push(ribbon(run, KERB_W, PAVE_LIFT + 0.004, 1));
       for (const run of splitRuns(faceLine, keep)) faces.push(skirt(run, lift - 0.02, PAVE_LIFT + 0.004, s < 0));
-      for (const run of splitRuns(paveLine, (x, z) => !isRoad(x - (x - 0) * 0, z))) paves.push(ribbon(run, 2.8, PAVE_LIFT, 2));
+      // the slab band (2.8 m wide) is tested with a 1.6 m pad so no raised corner pokes into a side street
+      for (const run of splitRuns(paveLine, (x, z) => !inOtherRoad(x, z, ri, 1.6))) paves.push(ribbon(run, 2.8, PAVE_LIFT, 2));
       // double yellow lines: all along the main roads, around the ends of residential streets
       if (w >= 6 && r.k !== 'service') {
         const yl = (off) => offsetLine(p, s * (w / 2 - off));
@@ -182,7 +187,7 @@ export function buildStreets(d) {
   for (const r of roadList) {
     if (r.w >= 6 && r.k !== 'service') for (let s = 0; s < r.p.length - 1; s++) {
       const [ax, az] = r.p[s], [bx, bz] = r.p[s + 1]; const len = Math.hypot(bx - ax, bz - az); const dx = (bx - ax) / (len || 1), dz = (bz - az) / (len || 1);
-      for (let t = 12, k = 0; t < len; t += 34, k++) { const side = k % 2 ? -1 : 1; const x = ax + dx * t - dz * (r.w / 2 + 1.25) * side, z = az + dz * t + dx * (r.w / 2 + 1.25) * side; if (!isRoad(x, z)) world.lamps.push([x, z]); }
+      for (let t = 12, k = 0; t < len; t += 34, k++) { const side = k % 2 ? -1 : 1; const x = ax + dx * t - dz * (r.w / 2 + 1.25) * side, z = az + dz * t + dx * (r.w / 2 + 1.25) * side; if (!inOtherRoad(x, z, -1, 0.6)) world.lamps.push([x, z]); }
     }
   }
 }
