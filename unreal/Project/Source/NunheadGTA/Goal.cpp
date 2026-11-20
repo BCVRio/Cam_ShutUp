@@ -26,7 +26,7 @@ void AGoal::OnConstruction(const FTransform& T)
 	const float R = 6.f;   // post radius cm (cylinder is 100 cm wide, 100 tall)
 	LeftPost->SetRelativeLocation(FVector(0, -Width / 2, Height / 2)); LeftPost->SetRelativeScale3D(FVector(R * 2 / 100.f, R * 2 / 100.f, Height / 100.f));
 	RightPost->SetRelativeLocation(FVector(0, Width / 2, Height / 2)); RightPost->SetRelativeScale3D(FVector(R * 2 / 100.f, R * 2 / 100.f, Height / 100.f));
-	Crossbar->SetRelativeLocation(FVector(0, 0, Height)); Crossbar->SetRelativeRotation(FRotator(90.f, 0, 0)); Crossbar->SetRelativeScale3D(FVector(R * 2 / 100.f, R * 2 / 100.f, (Width + R * 2) / 100.f));
+	Crossbar->SetRelativeLocation(FVector(0, 0, Height)); Crossbar->SetRelativeRotation(FRotator(0.f, 0.f, 90.f)); Crossbar->SetRelativeScale3D(FVector(R * 2 / 100.f, R * 2 / 100.f, (Width + R * 2) / 100.f));   // roll: the bar runs along Y
 	// the net back-stop, 1.5 m behind the line (goal faces +X: the ball comes from +X toward -X)
 	Back->SetRelativeLocation(FVector(-150.f, 0, Height / 2)); Back->SetRelativeScale3D(FVector(0.1f, (Width + 20.f) / 100.f, Height / 100.f));
 	Trigger->SetRelativeLocation(FVector(-80.f, 0, Height / 2)); Trigger->SetBoxExtent(FVector(60.f, Width / 2 - 10.f, Height / 2 - 5.f));

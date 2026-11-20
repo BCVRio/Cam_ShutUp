@@ -8,7 +8,6 @@
 #include "Animation/AnimSequence.h"
 #include "AIController.h"
 #include "EngineUtils.h"
-#include "AssetRegistry/AssetRegistryModule.h"
 
 ABotPlayer::ABotPlayer()
 {
@@ -32,7 +31,6 @@ void ABotPlayer::BeginPlay()
 		const float MeshH = SM->GetBounds().BoxExtent.Z * 2.f; if (MeshH > 10.f) GetMesh()->SetRelativeScale3D(FVector(140.f / MeshH));
 		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 		// clips imported next to the mesh: <name>_Anim_idle / _Anim_run (whatever Interchange called them)
-		const FString Base = FPackageName::GetLongPackagePath(Path);
 		IdleAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_idle"))); RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_run")));
 		if (!RunAnim) RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_walk")));
 		PlayClip(IdleAnim);

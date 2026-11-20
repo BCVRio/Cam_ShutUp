@@ -26,7 +26,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	void Think(float Dt);
 	void MoveToward(const FVector& Target, float SpeedScale);
-	AFootball* Ball = nullptr; AGoal* TargetGoal = nullptr; AGoal* OwnGoal = nullptr;
+	UPROPERTY() TObjectPtr<AFootball> Ball = nullptr; UPROPERTY() TObjectPtr<AGoal> TargetGoal = nullptr; UPROPERTY() TObjectPtr<AGoal> OwnGoal = nullptr;
 	float Cooldown = 0.f; float Phase = 0.f;
 	UPROPERTY() UAnimSequence* IdleAnim = nullptr; UPROPERTY() UAnimSequence* RunAnim = nullptr; UPROPERTY() UAnimSequence* CurrentClip = nullptr;
 	void PlayClip(UAnimSequence* Clip);

@@ -48,9 +48,8 @@ First run compiles shaders, so give it a few minutes. Then open Content → Nunh
 
 ## Cam
 
-Cam's rigged, animated models are in `public/models/cam_idle.glb`, `cam_run.glb`, `cam_jump.glb` and
-`cam_dance.glb`. Drag any of them into the Content Browser: Interchange imports the skeletal mesh, skeleton and
-animation. To play as Cam: open `BP_ThirdPersonCharacter`, set the Mesh component's Skeletal Mesh to Cam's,
+Cam's rigged, animated model is `public/models/cam.glb` (idle, run, jump and dance clips in one file); the
+build script imports it and names the clips `cam_Anim_idle` etc. so the C++ character finds them. To play as Cam: open `BP_ThirdPersonCharacter`, set the Mesh component's Skeletal Mesh to Cam's,
 then retarget the mannequin's animation blueprint with an IK Retargeter (mannequin → Cam's skeleton), or make a
 small Animation Blueprint that blends `cam_idle` and `cam_run` by speed.
 
