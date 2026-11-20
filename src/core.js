@@ -6,6 +6,7 @@ import { GTAOPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/js
 import { UnrealBloomPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/UnrealBloomPass.js/+esm';
 import { SMAAPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/SMAAPass.js/+esm';
 import { OutputPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/OutputPass.js/+esm';
+import { ShaderPass } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/postprocessing/ShaderPass.js/+esm';
 import { CSM } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/csm/CSM.js/+esm';
 export { THREE };
 
@@ -31,7 +32,7 @@ export const CFG = {
     terrace: './public/textures/facade_terrace.jpg', flats: './public/textures/facade_flats.jpg', slate: './public/textures/slate.jpg', tarmac: './public/textures/tarmac.jpg',
     victorian: './public/textures/facade_victorian.jpg', edwardian: './public/textures/facade_edwardian.jpg', shopfront: './public/textures/facade_shop.jpg',
     shopInterior: './public/art/shop_interior.jpg',
-    sky: './public/textures/sky.jpg', foliage: './public/textures/foliage.jpg', crowd: './public/textures/crowd.jpg', ball: './public/textures/ball.jpg', cloud: './public/textures/cloud.png', glow: './public/textures/glow.png',
+    sky: './public/textures/sky.jpg', skyEvening: './public/textures/sky_evening.jpg', foliage: './public/textures/foliage.jpg', crowd: './public/textures/crowd.jpg', ball: './public/textures/ball.jpg', cloud: './public/textures/cloud.png', glow: './public/textures/glow.png',
     pavement: './public/textures/pavement.jpg', astro: './public/textures/astro.jpg', seats: './public/textures/seats.jpg', crest: './public/art/crest_bosco.png',
   },
   gravity: 24, walkSpeed: 5.5, runSpeed: 9.5, jumpSpeed: 8.5, runShoutEvery: 1.6,
@@ -155,9 +156,9 @@ export const shutUp = (force = false) => say('shutup', force);
 export const canvas = $('game');
 export const renderer = new THREE.WebGLRenderer({ canvas, antialias: !Q(), powerPreference: 'high-performance' });
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.AgXToneMapping; renderer.toneMappingExposure = 1.12;
 export const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0xdfe9f3, 160, 520);
+scene.fog = new THREE.Fog(0xcfdbe8, 90, 650);   // aerial perspective: the far end of the street goes hazy blue
 export const camera = new THREE.PerspectiveCamera(60, 1, 0.1, 1400);
 export const hemi = new THREE.HemisphereLight(0xdfeeff, 0x5f6f4a, Q() ? 0.35 : 0.65); scene.add(hemi);
 export const SUN_DIR = new THREE.Vector3(60, 90, 40).normalize();
@@ -167,6 +168,25 @@ sun.shadow.camera.near = 1; sun.shadow.camera.far = 320;
 sun.shadow.camera.left = -70; sun.shadow.camera.right = 70; sun.shadow.camera.top = 70; sun.shadow.camera.bottom = -70;
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.03;
 scene.add(sun); scene.add(sun.target);
+
+// Time of day: 'day' (high sun, blue haze) or 'evening' (golden hour: low warm sun, pink haze, lamps lit)
+export const tod = { mode: 'day' };
+try { const m = localStorage.getItem('cam_tod'); if (m === 'evening' || m === 'day') tod.mode = m; } catch (_) {}
+if (urlParams.get('tod') === 'evening' || urlParams.get('tod') === 'day') tod.mode = urlParams.get('tod');
+export const TOD = {
+  day: { dir: [60, 90, 40], sunCol: 0xfff0d8, sunI: 2.4, hemiSky: 0xdfeeff, hemiGround: 0x5f6f4a, hemiI: 0.35, fog: 0xcfdbe8, exposure: 1.12, env: 0.7, bg: 1.0, bloom: 0.28, sky: 'sky' },
+  evening: { dir: [70, 19, 30], sunCol: 0xffb067, sunI: 2.6, hemiSky: 0xd9a7b8, hemiGround: 0x3d3430, hemiI: 0.42, fog: 0xe6b9a4, exposure: 1.0, env: 0.5, bg: 1.0, bloom: 0.42, sky: 'skyEvening' },
+};
+export function applyTimeOfDay() {
+  const t = TOD[tod.mode] || TOD.day;
+  SUN_DIR.set(...t.dir).normalize(); sun.position.set(...t.dir); sun.color.setHex(t.sunCol); sun.intensity = t.sunI;
+  hemi.color.setHex(t.hemiSky); hemi.groundColor.setHex(t.hemiGround); hemi.intensity = Q() ? t.hemiI : t.hemiI + 0.3;
+  scene.fog.color.setHex(t.fog); renderer.toneMappingExposure = t.exposure;
+  if (csm) { csm.lightDirection.copy(SUN_DIR).negate(); for (const l of csm.lights) { l.color.setHex(t.sunCol); l.intensity = t.sunI; } }
+  if (bloom) bloom.strength = t.bloom;
+  scene.environmentIntensity = t.env; scene.backgroundIntensity = t.bg;
+  document.body.classList.toggle('evening', tod.mode === 'evening');
+}
 
 // Cascaded shadow maps (ultra): crisp shadows from Cam's feet to the far end of the street
 export let csm = null;
@@ -184,15 +204,38 @@ export function setupObject(root) { if (!csm) return; root.traverse((o) => { if 
 // Image-based lighting from the Higgsfield sky panorama
 export function loadEnvironment() {
   if (!Q()) return;
-  new THREE.TextureLoader().load(CFG.textures.sky, (t) => {
+  const t0 = TOD[tod.mode] || TOD.day; const url = CFG.textures[t0.sky] || CFG.textures.sky;
+  new THREE.TextureLoader().load(url, (t) => {
     t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
     scene.background = t; scene.backgroundIntensity = 1.0;
-    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(t).texture; scene.environmentIntensity = 0.7; pm.dispose();
+    const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(t).texture; scene.environmentIntensity = t0.env; scene.backgroundIntensity = t0.bg; pm.dispose();
+  }, undefined, () => { if (url !== CFG.textures.sky) { console.warn('sky missing, using the day sky'); new THREE.TextureLoader().load(CFG.textures.sky, (t) => { t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace; scene.background = t; const pm = new THREE.PMREMGenerator(renderer); scene.environment = pm.fromEquirectangular(t).texture; pm.dispose(); }); }
   });
 }
 
 // Post-processing: ambient occlusion (ultra), bloom, filmic output, SMAA
-export let composer = null; let gtao = null, bloom = null, smaa = null;
+export let composer = null; let gtao = null, bloom = null, smaa = null, grade = null;
+// Colour grade: a touch more contrast and saturation, teal shadows / warm highlights, vignette, film grain, a hint of
+// chromatic aberration at the edges. Runs after tone mapping, before anti-aliasing.
+const GradeShader = {
+  uniforms: { tDiffuse: { value: null }, uTime: { value: 0 }, uVignette: { value: 0.32 }, uGrain: { value: 0.035 }, uSat: { value: 1.1 }, uContrast: { value: 1.08 }, uWarm: { value: 1.0 } },
+  vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+  fragmentShader: `uniform sampler2D tDiffuse; uniform float uTime, uVignette, uGrain, uSat, uContrast, uWarm; varying vec2 vUv;
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+    void main() {
+      vec2 d = vUv - 0.5; float r2 = dot(d, d);
+      vec2 ca = d * r2 * 0.012;
+      vec3 c = vec3(texture2D(tDiffuse, vUv + ca).r, texture2D(tDiffuse, vUv).g, texture2D(tDiffuse, vUv - ca).b);
+      float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+      c = mix(vec3(l), c, uSat);
+      c = (c - 0.5) * uContrast + 0.5;
+      // split tone: cool the shadows, warm the highlights
+      c += (vec3(-0.012, 0.004, 0.028) * (1.0 - l) + vec3(0.02, 0.008, -0.016) * l * l) * uWarm;
+      c *= 1.0 - uVignette * smoothstep(0.12, 0.62, r2);
+      c += (hash(vUv * vec2(1920.0, 1080.0) + fract(uTime)) - 0.5) * uGrain * (1.0 - l * 0.6);
+      gl_FragColor = vec4(clamp(c, 0.0, 1.0), 1.0);
+    }`,
+};
 export function initPost() {
   if (!Q()) return;
   try {
@@ -207,17 +250,18 @@ export function initPost() {
     }
     bloom = new UnrealBloomPass(new THREE.Vector2(w, h), 0.28, 0.5, 0.93); composer.addPass(bloom);
     composer.addPass(new OutputPass());
+    grade = new ShaderPass(GradeShader); composer.addPass(grade);
     smaa = new SMAAPass(w * renderer.getPixelRatio(), h * renderer.getPixelRatio()); composer.addPass(smaa);
   } catch (e) { console.warn('post-processing unavailable', e); composer = null; }
 }
-export function render() { if (csm) csm.update(); if (composer) composer.render(); else renderer.render(scene, camera); }
+export function render() { if (csm) csm.update(); if (grade) grade.uniforms.uTime.value = performance.now() * 0.001; if (composer) composer.render(); else renderer.render(scene, camera); }
 
 export function applyQuality() {
   const high = Q();
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, high ? 1.5 : 1));
   const s = high ? (IS_TOUCH ? 2048 : 4096) : 1024;
   if (sun.shadow.mapSize.x !== s) { sun.shadow.mapSize.set(s, s); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
-  scene.fog.near = high ? 200 : 110; scene.fog.far = high ? 620 : 360;
+  scene.fog.near = high ? 90 : 110; scene.fog.far = high ? 650 : 360;
 }
 export function applyViewport() {
   const w = window.innerWidth, h = window.innerHeight; camera.aspect = w / h; camera.fov = w < h ? 74 : 60; camera.updateProjectionMatrix(); renderer.setSize(w, h);
@@ -249,15 +293,39 @@ export function pbr(name, rx = 1, ry = rx, mirrored = true, extra = {}) {
 }
 export const MAT = {};
 export const FAR_FADE = { value: 0 };   // metres: fragments of the 'far' materials closer than this to the camera are discarded
+export const WET = { value: 0.55 };      // how many puddles sit on the tarmac (0 dry .. 1 after rain)
+// Weathering: grime where walls meet the pavement, worn tyre lanes and puddles on the tarmac, dirt on the slabs.
+// Injected into the standard shader so the PBR maps, shadows and fog all still apply.
+const NOISE_GLSL = `
+  float wHash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+  float wNoise(vec2 p) { vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(wHash(i), wHash(i + vec2(1, 0)), f.x), mix(wHash(i + vec2(0, 1)), wHash(i + vec2(1, 1)), f.x), f.y); }`;
+export function weather(m, kind) {
+  if (!Q() || !m) return m;
+  const prev = m.onBeforeCompile; m.userData.wkey = kind;
+  m.onBeforeCompile = (shader, r) => {
+    if (prev) prev(shader, r);
+    shader.uniforms.uWet = WET;
+    shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWPos;').replace('#include <project_vertex>', '#include <project_vertex>\nvWPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uWet; varying vec3 vWPos;' + NOISE_GLSL);
+    let after = '', rough = '', metal = '';
+    if (kind === 'facade') after = `float wG = smoothstep(0.0, 0.3, vMapUv.y + 0.02 * wNoise(vWPos.xz * 3.0)); diffuseColor.rgb *= mix(0.58, 1.0, wG) * (0.92 + 0.08 * wNoise(vWPos.xz * 0.7 + vWPos.y));`;
+    if (kind === 'tarmac') { after = `float wN = wNoise(vWPos.xz * 0.11) * 0.6 + wNoise(vWPos.xz * 0.43) * 0.4; float wP = smoothstep(0.66, 0.74, wN) * uWet; float wLane = exp(-pow((vMapUv.y - 0.3) * 7.0, 2.0)) + exp(-pow((vMapUv.y - 0.7) * 7.0, 2.0)); diffuseColor.rgb *= (0.86 + 0.14 * wNoise(vWPos.xz * 0.9)) * (1.0 - 0.10 * wLane) * (1.0 - 0.5 * wP);`; rough = `roughnessFactor = mix(roughnessFactor * (0.9 + 0.2 * wNoise(vWPos.xz * 1.7)), 0.06, wP);`; metal = `metalnessFactor = mix(metalnessFactor, 0.0, wP);`; }
+    if (kind === 'pavement') { after = `float wD = wNoise(vWPos.xz * 0.5) * 0.5 + wNoise(vWPos.xz * 2.1) * 0.5; diffuseColor.rgb *= 0.78 + 0.22 * wD; float wP = smoothstep(0.7, 0.78, wNoise(vWPos.xz * 0.23 + 5.0)) * uWet * 0.6; diffuseColor.rgb *= 1.0 - 0.35 * wP;`; rough = `roughnessFactor = mix(roughnessFactor, 0.12, wP);`; }
+    if (kind === 'slate') after = `diffuseColor.rgb *= 0.85 + 0.15 * wNoise(vWPos.xz * 1.3) ; diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.75, 0.85, 0.7), 0.5 * smoothstep(0.55, 0.8, wNoise(vWPos.xz * 0.37)));`;
+    shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', '#include <map_fragment>\n' + after).replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\n' + rough).replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\n' + metal);
+  };
+  m.customProgramCacheKey = () => 'w_' + kind + (m.userData.csm ? 'csm' : '');
+  return m;
+}
 function makeFar(m, key) {
   const prev = m.onBeforeCompile;   // CSM's hook, when cascaded shadows are on
   m.onBeforeCompile = (shader, r) => {
-    if (prev && m.userData.csm) prev(shader, r);
+    if (prev) prev(shader, r);
     shader.uniforms.uFade = FAR_FADE;
     shader.vertexShader = shader.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vFarPos;').replace('#include <project_vertex>', '#include <project_vertex>\nvFarPos = (modelMatrix * vec4(transformed, 1.0)).xyz;');
     shader.fragmentShader = shader.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uFade; varying vec3 vFarPos;').replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\nif (uFade > 0.0 && distance(vFarPos, cameraPosition) < uFade) discard;');
   };
-  m.customProgramCacheKey = () => key + (m.userData.csm ? 'csm' : '');
+  m.customProgramCacheKey = () => key + (m.userData.csm ? 'csm' : '') + (m.userData.wkey || '');
 }
 export function buildMaterials() {
   const std = (o) => new THREE.MeshStandardMaterial(o);
@@ -318,6 +386,8 @@ export function buildMaterials() {
   MAT.glowSprite = new THREE.SpriteMaterial({ map: loadTexture('glow', 1, 1, false), color: 0xfff2cc, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
   MAT.terraceFar = MAT.terraceB.clone(); MAT.slateFar = MAT.slate.clone();   // distant versions of the modelled terraces (cut away near the camera)
   for (const v of Object.values(MAT)) { if (Array.isArray(v)) v.forEach(setupMaterial); else setupMaterial(v); }
+  for (const m of [MAT.terrace, MAT.terraceB, MAT.terraceC, MAT.shopfront, MAT.flats, MAT.terraceFar]) weather(m, 'facade');
+  weather(MAT.tarmac, 'tarmac'); weather(MAT.pavement, 'pavement'); weather(MAT.slate, 'slate'); weather(MAT.slateFar, 'slate');
   for (const [m, key] of [[MAT.terraceFar, 'terraceFar'], [MAT.slateFar, 'slateFar']]) makeFar(m, key);
 }
 

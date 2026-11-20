@@ -1,5 +1,5 @@
 // Menu (opening page), HUD, minimap, panels (locker, settings, worlds).
-import { THREE, CFG, $, player, audio, setMusic, toggleMusic, unlockAudio, quality, applyQuality, synth, showToast } from './core.js';
+import { THREE, CFG, $, player, audio, setMusic, toggleMusic, unlockAudio, quality, applyQuality, synth, showToast, tod } from './core.js';
 import { world } from './map.js';
 import { renderLocker } from './locker.js';
 import { renderAlbum } from './cards.js';
@@ -28,6 +28,7 @@ export function initUI() {
   { const card = document.createElement('button'); card.type = 'button'; card.className = 'wcard pen'; card.innerHTML = `<img src="./public/art/keyart_bosco.jpg" alt=""><span class="wname">Penalty Shootout</span><span class="wsub">Five from the spot at the Bosco stadium</span>`; card.addEventListener('click', () => { unlockAudio(); synth('power'); ui.onPenalties && ui.onPenalties(); }); grid.appendChild(card); }
   // settings
   const q = $('qualitySel'); q.value = quality.level; q.addEventListener('change', () => { quality.level = q.value; try { localStorage.setItem('cam_quality', q.value); } catch (_) {} showToast('RELOADING…', 1200); setTimeout(() => location.reload(), 500); });
+  const td = $('todSel'); if (td) { td.value = tod.mode; td.addEventListener('change', () => { tod.mode = td.value; try { localStorage.setItem('cam_tod', td.value); } catch (_) {} showToast('RELOADING…', 1200); setTimeout(() => location.reload(), 500); }); }
   const m = $('musicChk'); m.checked = audio.musicOn; m.addEventListener('change', () => { unlockAudio(); setMusic(m.checked); });
   setMusic(audio.musicOn);
   showTab('home');

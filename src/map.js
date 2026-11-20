@@ -1,13 +1,14 @@
 // Map renderer: builds the SE London open world from public/maps/selondon.json (OpenStreetMap + elevation).
 import { THREE, CFG, Q, scene, MAT, TEX, seededRandom, clamp, QU, setupMaterial } from './core.js';
 import { circleSegmentPush } from './ball.js';
+import { buildStreets, ROAD_LIFT, PAVE_LIFT } from './streets.js';
 
 export const world = { data: null, grid: null, surface: null, flat: [], signs: [], lamps: [], bounds: { x0: -940, x1: 940, z0: -780, z1: 780 } };
 const CELL = 24;
-const segGrid = new Map(), polyGrid = new Map(), circleGrid = new Map();
+export const segGrid = new Map(), polyGrid = new Map(), circleGrid = new Map();
 const key = (cx, cz) => cx * 100000 + cz;
 const cellOf = (v) => Math.floor(v / CELL);
-function gridAdd(grid, minx, minz, maxx, maxz, item) {
+export function gridAdd(grid, minx, minz, maxx, maxz, item) {
   for (let cx = cellOf(minx); cx <= cellOf(maxx); cx++) for (let cz = cellOf(minz); cz <= cellOf(maxz); cz++) { const k = key(cx, cz); let a = grid.get(k); if (!a) grid.set(k, (a = [])); a.push(item); }
 }
 export const segments = [];   // {ax,az,bx,bz, h, kind}
@@ -45,7 +46,7 @@ function rasterIndex(x, z) { const i = Math.floor((x - world.bounds.x0) / RASTER
 export function surfaceAt(x, z) { const i = rasterIndex(x, z); return i < 0 ? 0 : raster[i]; }
 export function groundAt(x, z) {
   const s = surfaceAt(x, z);
-  const raise = s === SURF.road ? 0.06 : s === SURF.pavement ? 0.04 : s === SURF.astro || s === SURF.court ? 0.08 : 0;
+  const raise = s === SURF.road ? ROAD_LIFT : s === SURF.pavement ? PAVE_LIFT : s === SURF.astro || s === SURF.court ? 0.08 : 0;
   return { y: terrainHeight(x, z) + raise, surface: SURF_NAME[s] };
 }
 function pointInPoly(x, z, p) {
@@ -93,12 +94,12 @@ function mergeGeometries(list) {
   out.setIndex(new THREE.BufferAttribute(idx, 1));
   return out;
 }
-function addMerged(list, mat, shadow = true, receive = true) {
+export function addMerged(list, mat, shadow = true, receive = true) {
   if (!list.length) return null;
   const m = new THREE.Mesh(mergeGeometries(list), mat); m.castShadow = shadow; m.receiveShadow = receive; m.frustumCulled = true; scene.add(m); return m;
 }
 // quad strip ribbon along a polyline at terrain height + lift; uv u along length/uvLen, v 0..1
-function ribbon(p, w, lift, uvLen = 4, yFn = null, flatY = null) {
+export function ribbon(p, w, lift, uvLen = 4, yFn = null, flatY = null) {
   const hw = w / 2; const positions = [], normals = [], uvs = [], index = [];
   let dist = 0;
   for (let i = 0; i < p.length; i++) {
@@ -120,7 +121,7 @@ function ribbon(p, w, lift, uvLen = 4, yFn = null, flatY = null) {
   g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2)); g.setIndex(index);
   return g;
 }
-function disc(x, z, r, lift, segs = 10) {
+export function disc(x, z, r, lift, segs = 10) {
   const g = new THREE.CircleGeometry(r, segs); g.rotateX(-Math.PI / 2);
   const pos = g.attributes.position; for (let i = 0; i < pos.count; i++) pos.setY(i, terrainHeight(x + pos.getX(i), z + pos.getZ(i)) + lift);
   g.translate(x, 0, z);
@@ -166,35 +167,6 @@ function buildTerrain() {
   const skirt = new THREE.Mesh(new THREE.PlaneGeometry(W * 4, H * 4), new THREE.MeshStandardMaterial({ color: 0x86a862, roughness: 1 }));
   let minY = 1e9; const pa = geo.attributes.position; for (let i = 0; i < pa.count; i++) minY = Math.min(minY, pa.getY(i));
   skirt.rotation.x = -Math.PI / 2; skirt.position.y = minY - 0.6; skirt.receiveShadow = true; scene.add(skirt);
-}
-
-function buildRoads(d) {
-  const roads = [], paves = [], foot = [], marks = [], discsR = [], discsP = [];
-  for (const r of d.roads) {
-    if (r.p.length < 2) continue;
-    if (r.k === 'steps') continue;
-    if (r.p.every(([x, z]) => inStadium(x, z, 4))) continue;
-    if (r.w <= 2) { foot.push(ribbon(r.p, 2.2, 0.05, 3)); continue; }
-    roads.push(ribbon(r.p, r.w, 0.06, 5));
-    paves.push(ribbon(r.p, r.w + 3.2, 0.04, 2));
-    for (let i = 1; i < r.p.length - 1; i++) { discsR.push(disc(r.p[i][0], r.p[i][1], r.w / 2, 0.061, 10)); discsP.push(disc(r.p[i][0], r.p[i][1], (r.w + 3.2) / 2, 0.041, 10)); }
-    if (r.w >= 7) {
-      // dashed centre line
-      for (let s = 0; s < r.p.length - 1; s++) {
-        const [ax, az] = r.p[s], [bx, bz] = r.p[s + 1]; const len = Math.hypot(bx - ax, bz - az); const n = Math.floor(len / 6);
-        for (let k = 0; k < n; k++) { const t0 = (k * 6 + 1) / len, t1 = (k * 6 + 4) / len; marks.push(ribbon([[ax + (bx - ax) * t0, az + (bz - az) * t0], [ax + (bx - ax) * t1, az + (bz - az) * t1]], 0.18, 0.075, 4)); }
-      }
-    }
-    // lamp posts along residential streets
-    if (r.w >= 6 && r.k !== 'service') for (let s = 0; s < r.p.length - 1; s++) {
-      const [ax, az] = r.p[s], [bx, bz] = r.p[s + 1]; const len = Math.hypot(bx - ax, bz - az); const dx = (bx - ax) / (len || 1), dz = (bz - az) / (len || 1);
-      for (let t = 12, k = 0; t < len; t += 34, k++) { const side = k % 2 ? -1 : 1; world.lamps.push([ax + dx * t - dz * (r.w / 2 + 1.25) * side, az + dz * t + dx * (r.w / 2 + 1.25) * side]); }
-    }
-  }
-  addMerged(paves.concat(discsP), MAT.pavement, false, true);
-  addMerged(roads.concat(discsR), MAT.tarmac, false, true);
-  addMerged(foot, MAT.pavement, false, true);
-  const mk = addMerged(marks, new THREE.MeshStandardMaterial({ color: 0xf2f2e8, roughness: 0.9 }), false, false);
 }
 
 function buildRail(d) {
@@ -482,6 +454,12 @@ function buildLamps() {
   const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(1, 1, 1), v = new THREE.Vector3();
   world.lamps.forEach(([x, z], i) => { v.set(x, terrainHeight(x, z), z); m.compose(v, q, s); poles.setMatrixAt(i, m); heads.setMatrixAt(i, m); const circ = { x, z, r: 0.2, h: 6 }; circles.push(circ); gridAdd(circleGrid, x - 1, z - 1, x + 1, z + 1, circ); });
   poles.castShadow = true; scene.add(poles, heads);
+  // lamp glow: one Points object for every lamp, lit at golden hour
+  const gp = new Float32Array(n * 3); world.lamps.forEach(([x, z], i) => { gp[i * 3] = x + 0.2; gp[i * 3 + 1] = terrainHeight(x, z) + 5.95; gp[i * 3 + 2] = z; });
+  const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.BufferAttribute(gp, 3));
+  const glow = new THREE.Points(gg, new THREE.PointsMaterial({ map: TEX.glow || null, color: 0xffd9a0, size: 3.2, sizeAttenuation: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, opacity: 0.9 }));
+  glow.visible = document.body.classList.contains('evening'); glow.frustumCulled = false; scene.add(glow); world.lampGlow = glow;
+  MAT.lampGlow.color.setHex(document.body.classList.contains('evening') ? 0xffe3b0 : 0xd8d8d0);
 }
 
 // ---------------------------------------------------------------------------
@@ -521,7 +499,7 @@ export function buildWorld() {
   stadiumRect();
   // the stadium apron reads as hard standing on the terrain and the minimap
   { const s = world.stadium; const R = Math.hypot(s.len / 2 + STADIUM.bowl + 6, s.wid / 2 + STADIUM.bowl + 6); for (let z = s.z - R; z <= s.z + R; z += RASTER) for (let x = s.x - R; x <= s.x + R; x += RASTER) if (inStadium(x, z, 6)) { const i = rasterIndex(x, z); if (i >= 0) raster[i] = inStadium(x, z, 6 - STADIUM.bowl) ? SURF.astro : SURF.court; } }
-  buildTerrain(); buildAreas(d); buildRoads(d); buildRail(d); buildBuildings(d); buildFences(d); buildTrees(d); buildSigns(d); buildLamps();
+  buildTerrain(); buildAreas(d); buildStreets(d); buildRail(d); buildBuildings(d); buildFences(d); buildTrees(d); buildSigns(d); buildLamps();
 }
 export function findPitch(x, z, maxDist = 60, pred = null) {
   let best = null, bd = maxDist;

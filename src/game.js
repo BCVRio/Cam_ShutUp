@@ -1,4 +1,5 @@
 // Cam's Shut Up: SE London — main loop.
+import { applyTimeOfDay, tod } from './core.js';
 import { THREE, CFG, IS_TOUCH, $, player, renderer, scene, camera, applyQuality, applyViewport, initAudio, unlockAudio, buildMaterials, say, shutUp, synth, showToast, feed, addScore, bus, urlParams, toggleMusic, TEX, Q, render, initLighting, loadEnvironment, initPost, setupObject, loadTexture } from './core.js';
 import { loadWorld, buildWorld, nearestWorld, groundAt, world, buildGrass, updateGrass } from './map.js';
 import { buildArenas, updateFootball, kickBallToMe, activeArena, arenas, arenaSpawn } from './football.js';
@@ -76,7 +77,7 @@ function dropAt(w) {
 }
 
 async function main() {
-  applyQuality(); initLighting(); applyViewport();
+  applyQuality(); applyTimeOfDay(); initLighting(); applyTimeOfDay(); applyViewport();
   window.addEventListener('resize', applyViewport); window.addEventListener('orientationchange', () => setTimeout(applyViewport, 150));
   initAudio(); buildMaterials(); loadTexture('cloud', 1, 1, false); loadEnvironment(); initUI();
   status('Loading south-east London…');

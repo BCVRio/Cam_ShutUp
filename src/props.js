@@ -17,6 +17,9 @@ export const PROPS = {
   shelter: { url: './public/models/prop_bus_shelter.glb', size: 4.2, dim: 'x' },
   playground: { url: './public/models/prop_playground.glb', size: 3.0 },
   flowers: { url: './public/models/prop_flowerbed.glb', size: 2.6, dim: 'x' },
+  wheelie: { url: './public/models/prop_wheelie.glb', size: 1.1 },
+  hedge: { url: './public/models/prop_hedge.glb', size: 2.0, dim: 'x' },
+  dish: { url: './public/models/prop_dish.glb', size: 0.45, dim: 'x' },
   // locker accessories: normalised to 1 m tall here, scaled to the item's real size in locker.js
   acc_cap: { url: './public/models/acc_cap.glb', size: 1 }, acc_crown: { url: './public/models/acc_crown.glb', size: 1 }, acc_headphones: { url: './public/models/acc_headphones.glb', size: 1 },
   acc_beanie: { url: './public/models/acc_beanie.glb', size: 1 }, acc_halo: { url: './public/models/acc_halo.glb', size: 1, dim: 'x' }, acc_bag: { url: './public/models/acc_bag.glb', size: 1 },

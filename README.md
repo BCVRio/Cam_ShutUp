@@ -148,6 +148,27 @@ seats, the foliage, the crowd in the stands, the ball leather and the sky
 were all generated with Higgsfield; the terraces get pitched slate roofs with
 chimney stacks built from their real footprints.
 
+### The street pass (photoreal push)
+
+- **Streets** (`src/streets.js`): pavements stand 8 cm above the carriageway
+  on real kerb stones with a vertical face, cut where a side street joins so
+  junctions open properly. Double yellow lines run the main roads and wrap
+  the ends of residential streets, give-way dashes mark every T-junction,
+  zebra crossings with belisha beacons sit on the long straights, speed humps
+  on residential streets, manhole covers and gully drains on everything else.
+- **Weathering** (`weather()` in `src/core.js`): grime where every wall meets
+  the pavement, worn tyre lanes and puddles that reflect the sky on the
+  tarmac, dirt and damp patches on the slabs, moss on the slate. Injected
+  into the standard PBR shader so shadows, normal maps and fog still apply.
+- **Colour** : AgX tone mapping, a colour grade (contrast, saturation, teal
+  shadows / warm highlights, vignette, film grain, a hint of chromatic
+  aberration) and aerial perspective so the far end of the street goes hazy.
+- **Golden hour**: Settings → Time of day. Low warm sun, long shadows, pink
+  haze, a Higgsfield sunset panorama for the sky and lighting, lamps lit.
+- **Front gardens**: every modelled terrace gets a low brick wall with gate
+  piers, and behind it a privet hedge or a wheelie bin; satellite dishes on
+  a third of the houses; twice as many parked cars.
+
 ## How it was made
 
 - **Map** — `tools/build_map.py` pulls OpenStreetMap buildings, roads, rail,

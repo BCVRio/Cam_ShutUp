@@ -1,6 +1,6 @@
 // Scenery built from Higgsfield/Meshy props: real trees, house modules on the terraces near Cam, parked cars,
 // bus shelters, benches, bins, playgrounds and flower beds. Procedural stand-ins stay for the low preset.
-import { THREE, CFG, scene, player, Q, QU, seededRandom, FAR_FADE } from './core.js';
+import { THREE, CFG, scene, player, Q, QU, seededRandom, FAR_FADE, MAT } from './core.js';
 import { world, terrainHeight, groundAt, inStadium, addCircle } from './map.js';
 import { PROPS, loadProp, placeProp, placePropFit, propInfo, resetPool } from './props.js';
 
@@ -33,14 +33,14 @@ export function buildScenery() {
     placeProp('bin', bx, terrainHeight(bx, bz), bz, rnd() * 6.28, 0.9);
   }
   // --- parked cars on the residential streets (left-hand kerb) ---
-  let carN = 0; const carMax = QU() ? 160 : 90;
+  let carN = 0; const carMax = QU() ? 260 : 150;
   for (const r of d.roads) {
     if (r.w < 5 || r.w > 9 || !r.n || r.p.length < 2) continue;
     for (let i = 0; i < r.p.length - 1 && carN < carMax; i++) {
       const [ax, az] = r.p[i], [bx, bz] = r.p[i + 1]; const len = Math.hypot(bx - ax, bz - az); if (len < 14) continue;
       const dx = (bx - ax) / len, dz = (bz - az) / len; const nx = -dz, nz = dx;
-      for (let s = 7; s < len - 7; s += 11 + rnd() * 9) {
-        if (rnd() > 0.42) continue;
+      for (let s = 7; s < len - 7; s += 7.5 + rnd() * 6) {
+        if (rnd() > 0.62) continue;
         const side = rnd() < 0.5 ? 1 : -1;
         const x = ax + dx * s + nx * side * (r.w / 2 - 1.05), z = az + dz * s + nz * side * (r.w / 2 - 1.05);
         if (inStadium(x, z, 8)) continue;
@@ -101,7 +101,7 @@ export function updateScenery(dt) {
   if (!housesReady || !world.modules) return;
   if (lastHouse && Math.hypot(px - lastHouse[0], pz - lastHouse[1]) < 12) return;
   lastHouse = [px, pz];
-  resetPool('houseVic'); resetPool('houseEdw');
+  resetPool('houseVic'); resetPool('houseEdw'); resetPool('hedge'); resetPool('wheelie'); resetPool('dish'); wallPool.n = 0;
   const vic = propInfo('houseVic'), edw = propInfo('houseEdw');
   for (const m of world.modules) {
     if (Math.hypot(m.x - px, m.z - pz) > HOUSE_R) continue;
@@ -113,6 +113,39 @@ export function updateScenery(dt) {
     for (let i = 0; i < n; i++) {
       const u = -m.len / 2 + (i + 0.5) * mw; const x = m.x + u * ca, z = m.z + u * sa;
       placePropFit(kind, x, m.base, z, yaw, sx, sy, sz);
+      frontGarden(m, x, z, u, mw, yaw, i);
     }
   }
+  if (wallPool.inst) { wallPool.inst.count = wallPool.n; wallPool.inst.instanceMatrix.needsUpdate = true; }
+}
+// --- front gardens -----------------------------------------------------------
+// Every terrace in Nunhead has a low brick wall at the pavement, a gate gap, and a bin or a hedge behind it. The wall
+// is one InstancedMesh of boxes; hedges, wheelie bins and satellite dishes are Higgsfield props when they have loaded.
+const wallPool = { inst: null, n: 0, cap: QU() ? 1400 : 900 };
+const _wm = new THREE.Matrix4(), _wq = new THREE.Quaternion(), _ws = new THREE.Vector3(), _wv = new THREE.Vector3(), _we = new THREE.Euler();
+function wallBox(x, y, z, yaw, len, h, d) {
+  if (!wallPool.inst) { const geo = new THREE.BoxGeometry(1, 1, 1); geo.translate(0, 0.5, 0); wallPool.inst = new THREE.InstancedMesh(geo, MAT.brick, wallPool.cap); wallPool.inst.castShadow = true; wallPool.inst.receiveShadow = true; wallPool.inst.frustumCulled = false; scene.add(wallPool.inst); }
+  if (wallPool.n >= wallPool.cap) return;
+  _we.set(0, yaw, 0); _wq.setFromEuler(_we); _ws.set(len, h, d); _wv.set(x, y, z); _wm.compose(_wv, _wq, _ws); wallPool.inst.setMatrixAt(wallPool.n++, _wm);
+}
+function frontGarden(m, x, z, u, mw, yaw, i) {
+  const fx = m.front[0], fz = m.front[1];
+  const nd = nearestRoadDir(world.data, m.x + fx * m.wid / 2, m.z + fz * m.wid / 2); if (nd.dist > 24) return;
+  const paveEdge = nd.w / 2 + 2.9;                                   // outer edge of the pavement, from the road centreline
+  const garden = nd.dist - m.wid / 2 - paveEdge;                     // depth of the front garden
+  if (garden < 1.2) return;
+  const wx = x + fx * (m.wid / 2 + garden - 0.25), wz = z + fz * (m.wid / 2 + garden - 0.25); const wy = groundAt(wx, wz).y;
+  const h = 0.55 + ((i * 7) % 3) * 0.12;
+  // the wall, with a 0.9 m gate gap at the house's path
+  const gate = 0.9; const side = (i % 2 ? 1 : -1); const gateAt = side * (mw / 2 - gate / 2 - 0.3);
+  const ca = Math.cos(m.ang), sa = Math.sin(m.ang);
+  const segs = [[-mw / 2, gateAt - gate / 2], [gateAt + gate / 2, mw / 2]];
+  for (const [a, b] of segs) { if (b - a < 0.3) continue; const c = (a + b) / 2; wallBox(wx + c * ca, wy, wz + c * sa, m.ang, b - a, h, 0.24); }
+  // a pier either side of the gate
+  for (const g of [gateAt - gate / 2 - 0.15, gateAt + gate / 2 + 0.15]) wallBox(wx + g * ca, wy, wz + g * sa, m.ang, 0.32, h + 0.25, 0.32);
+  const r = rnd();
+  const inner = (off) => [x + fx * (m.wid / 2 + off) + (-side) * (mw / 2 - 0.6) * ca, z + fz * (m.wid / 2 + off) + (-side) * (mw / 2 - 0.6) * sa];
+  if (r < 0.42 && PROPS.hedge && garden > 1.8) { const [hx, hz] = [wx - fx * 0.55 + (-side) * 0.2 * ca, wz - fz * 0.55 + (-side) * 0.2 * sa]; const hl = Math.max(1, mw - gate - 0.8); placePropFit('hedge', hx, groundAt(hx, hz).y, hz, m.ang, hl / 2, 1, 1); }
+  else if (r < 0.8 && PROPS.wheelie) { const [bx, bz] = inner(garden - 0.75); placeProp('wheelie', bx, groundAt(bx, bz).y, bz, yaw + (rnd() - 0.5) * 0.8); }
+  if (rnd() < 0.3 && PROPS.dish) { const dx = x + fx * (m.wid / 2 + 0.2) + side * (mw / 2 - 0.5) * ca, dz = z + fz * (m.wid / 2 + 0.2) + side * (mw / 2 - 0.5) * sa; placeProp('dish', dx, m.base + 4.6, dz, yaw); }
 }
