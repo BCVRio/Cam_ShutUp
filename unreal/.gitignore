@@ -1,0 +1,6 @@
+Project/Binaries/
+Project/Intermediate/
+Project/Saved/
+Project/DerivedDataCache/
+Project/.vs/
+Project/*.sln

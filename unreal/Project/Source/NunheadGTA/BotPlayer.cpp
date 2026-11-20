@@ -1,0 +1,102 @@
+#include "BotPlayer.h"
+#include "NunheadGTA.h"
+#include "Football.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Engine/SkeletalMesh.h"
+#include "Animation/AnimSequence.h"
+#include "AIController.h"
+#include "EngineUtils.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+
+ABotPlayer::ABotPlayer()
+{
+	PrimaryActorTick.bCanEverTick = true;
+	GetCapsuleComponent()->InitCapsuleSize(30.f, 72.f);
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true; GetCharacterMovement()->RotationRate = FRotator(0, 540.f, 0); GetCharacterMovement()->MaxWalkSpeed = Speed;
+	GetMesh()->SetRelativeLocation(FVector(0, 0, -72.f)); GetMesh()->SetRelativeRotation(FRotator(0, -90.f, 0));
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned; AIControllerClass = AAIController::StaticClass();
+	Phase = FMath::FRand() * 6.28f;
+}
+
+void ABotPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+	HomeSpot = GetActorLocation();
+	const FString& Path = Role == EBotRole::Keeper ? KeeperMeshPath : Team == ETeam::Home ? HomeMeshPath : AwayMeshPath;
+	if (USkeletalMesh* SM = LoadObject<USkeletalMesh>(nullptr, *Path))
+	{
+		GetMesh()->SetSkeletalMesh(SM);
+		const float MeshH = SM->GetBounds().BoxExtent.Z * 2.f; if (MeshH > 10.f) GetMesh()->SetRelativeScale3D(FVector(140.f / MeshH));
+		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
+		// clips imported next to the mesh: <name>_Anim_idle / _Anim_run (whatever Interchange called them)
+		const FString Base = FPackageName::GetLongPackagePath(Path);
+		IdleAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_idle"))); RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_run")));
+		if (!RunAnim) RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_walk")));
+		PlayClip(IdleAnim);
+	}
+	else UE_LOG(LogNunhead, Warning, TEXT("Bot mesh not found at %s"), *Path);
+	for (TActorIterator<AFootball> It(GetWorld()); It; ++It) { Ball = *It; break; }
+	for (TActorIterator<AGoal> It(GetWorld()); It; ++It) { if (It->DefendingTeam == Team) OwnGoal = *It; else TargetGoal = *It; }
+}
+
+void ABotPlayer::PlayClip(UAnimSequence* Clip) { if (!Clip || Clip == CurrentClip) return; CurrentClip = Clip; GetMesh()->PlayAnimation(Clip, true); }
+void ABotPlayer::ReturnHome() { SetActorLocation(HomeSpot, false, nullptr, ETeleportType::TeleportPhysics); }
+void ABotPlayer::MoveToward(const FVector& Target, float SpeedScale)
+{
+	const FVector D = (Target - GetActorLocation()).GetSafeNormal2D();
+	GetCharacterMovement()->MaxWalkSpeed = Speed * SpeedScale;
+	AddMovementInput(D, 1.f);
+}
+
+void ABotPlayer::Tick(float Dt)
+{
+	Super::Tick(Dt);
+	Cooldown -= Dt; Phase += Dt;
+	if (Ball) Think(Dt);
+	if (GetVelocity().Size2D() > 60.f) PlayClip(RunAnim); else PlayClip(IdleAnim);
+}
+
+void ABotPlayer::Think(float Dt)
+{
+	const FVector Me = GetActorLocation(), B = Ball->GetActorLocation();
+	const float DistToBall = FVector::Dist2D(Me, B);
+	const FVector AttackDir = TargetGoal ? (TargetGoal->GetActorLocation() - B).GetSafeNormal2D() : GetActorForwardVector();
+	if (Role == EBotRole::Keeper)
+	{
+		// hold the line, slide across to the ball, dive at it when it comes close
+		const FVector Line = OwnGoal ? OwnGoal->GetActorLocation() + OwnGoal->GetActorForwardVector() * 60.f : HomeSpot;
+		const FVector Right = OwnGoal ? OwnGoal->GetActorRightVector() : FVector::RightVector;
+		const float Side = FMath::Clamp(FVector::DotProduct(B - Line, Right), -200.f, 200.f);
+		FVector Target = Line + Right * Side;
+		const float DistToLine = FVector::Dist2D(B, Line);
+		if (DistToLine < 450.f) Target = B;
+		MoveToward(Target, 1.1f);
+		if (DistToBall < 90.f && Cooldown <= 0.f && B.Z < Me.Z + 120.f) { Ball->Kick(AttackDir + FVector(FMath::FRandRange(-0.4f, 0.4f), FMath::FRandRange(-0.4f, 0.4f), 0), 750.f, 0.f, 0.25f, TEXT("keeper")); Cooldown = 1.5f; }
+		return;
+	}
+	// nearest outfield team-mate chases; the rest take up a supporting position ahead of the ball
+	ABotPlayer* Nearest = nullptr; float Best = 1e9f;
+	for (TActorIterator<ABotPlayer> It(GetWorld()); It; ++It) { if (It->Team != Team || It->Role == EBotRole::Keeper) continue; const float D = FVector::Dist2D(It->GetActorLocation(), B); if (D < Best) { Best = D; Nearest = *It; } }
+	if (Nearest == this)
+	{
+		MoveToward(B, 1.0f);
+		if (DistToBall < 95.f && Cooldown <= 0.f)
+		{
+			const float ToGoal = TargetGoal ? FVector::Dist2D(B, TargetGoal->GetActorLocation()) : 9999.f;
+			const bool bShoot = ToGoal < 1600.f && FMath::FRand() < 0.6f;
+			const FVector Dir = (AttackDir + FVector(FMath::FRandRange(-0.25f, 0.25f), FMath::FRandRange(-0.25f, 0.25f), 0)).GetSafeNormal2D();
+			Ball->Kick(Dir, bShoot ? 1900.f : 800.f, FMath::FRandRange(-0.3f, 0.3f), bShoot ? 0.2f : 0.05f, TEXT("bot"));
+			Cooldown = bShoot ? 1.2f : 0.45f;
+		}
+	}
+	else
+	{
+		const FVector Right = FVector::CrossProduct(FVector::UpVector, AttackDir);
+		const float Lane = (GetUniqueID() % 2 ? 1.f : -1.f) * (500.f + 200.f * FMath::Sin(Phase * 0.7f));
+		const FVector Support = B + AttackDir * 600.f + Right * Lane;
+		if (FVector::Dist2D(Me, Support) > 120.f) MoveToward(Support, 0.8f);
+	}
+}

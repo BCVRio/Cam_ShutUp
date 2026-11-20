@@ -1,0 +1,14 @@
+{
+  "FileVersion": 3,
+  "EngineAssociation": "5.4",
+  "Category": "",
+  "Description": "Nunhead GTA: Cam's Shut Up SE London, rebuilt in Unreal",
+  "Modules": [
+    { "Name": "NunheadGTA", "Type": "Runtime", "LoadingPhase": "Default", "AdditionalDependencies": [ "Engine", "EnhancedInput", "AIModule" ] }
+  ],
+  "Plugins": [
+    { "Name": "PythonScriptPlugin", "Enabled": true },
+    { "Name": "EnhancedInput", "Enabled": true },
+    { "Name": "PixelStreaming2", "Enabled": true, "Optional": true }
+  ]
+}

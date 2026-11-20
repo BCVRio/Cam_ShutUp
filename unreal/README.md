@@ -7,6 +7,21 @@ into a fresh level, lights it (sun, sky light, sky atmosphere, volumetric fog an
 and saves it. Lumen global illumination and reflections are on in any new UE 5 project, so the same meshes get
 real bounced light, soft contact shadows and proper reflections on the puddles.
 
+## What is in here
+
+- `Project/` — the Unreal C++ project: `NunheadGTA.uproject`, the `NunheadGTA` game module
+  (the player character with Enhanced Input for keyboard and Xbox pad, a Chaos football with Magnus curl,
+  goals, match flow and HUD, team-mates and Rovers with a chase / support / keeper brain) and the
+  Lumen + Nanite project settings.
+- `build_green.py` — builds the level in the editor: imports the street export and the player model, lights it,
+  places the goals, ball, Bosco team-mates and Rovers, sets the game mode, saves.
+- `nunhead_green.glb` — Nunhead Green exported from the browser game (626 objects, PBR textures).
+- `create_project.py` — Windows one-shot: copies the project, writes `OpenAndBuild.bat`.
+
+The C++ needs a compiler: on Windows install Visual Studio 2022 Community with the
+"Game development with C++" workload (free) before opening the project; the editor compiles the module
+on first open. On Linux the engine ships its own toolchain.
+
 ## Quickest way (Windows)
 
     python unreal\create_project.py

@@ -9,44 +9,19 @@ import json, os, shutil, sys, glob
 
 here0 = os.path.dirname(os.path.abspath(__file__))
 dest = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(here0, 'NunheadGTA'))
-name = os.path.basename(dest)
+name = 'NunheadGTA'   # the C++ module and targets are named NunheadGTA, so the project is too
 here = os.path.dirname(os.path.abspath(__file__))
-os.makedirs(os.path.join(dest, 'Config'), exist_ok=True)
 os.makedirs(os.path.join(dest, 'Content'), exist_ok=True)
 
-uproject = {
-    'FileVersion': 3, 'EngineAssociation': '5.4', 'Category': '', 'Description': 'Nunhead GTA: Cam\'s Shut Up SE London in Unreal',
-    'Plugins': [
-        {'Name': 'PythonScriptPlugin', 'Enabled': True},
-        {'Name': 'Interchange', 'Enabled': True},
-        {'Name': 'InterchangeEditor', 'Enabled': True},
-        {'Name': 'GLTFExporter', 'Enabled': False},
-    ],
-}
-# use the newest installed engine if we can see one
+# the C++ project template lives in unreal/Project: uproject, Source (game module), Config
+tpl = os.path.join(here, 'Project')
+for root, dirs, files in os.walk(tpl):
+    rel = os.path.relpath(root, tpl); out = os.path.join(dest, rel) if rel != '.' else dest; os.makedirs(out, exist_ok=True)
+    for fn in files: shutil.copy2(os.path.join(root, fn), os.path.join(out, fn))
+# name the project after the folder
 eng = sorted(glob.glob(r'C:\Program Files\Epic Games\UE_5.*'))
-if eng: uproject['EngineAssociation'] = os.path.basename(eng[-1]).replace('UE_', '')
-with open(os.path.join(dest, name + '.uproject'), 'w') as f: json.dump(uproject, f, indent=2)
-
-with open(os.path.join(dest, 'Config', 'DefaultEngine.ini'), 'w') as f:
-    f.write('''[/Script/Engine.RendererSettings]
-r.DynamicGlobalIlluminationMethod=1
-r.ReflectionMethod=1
-r.Lumen.HardwareRayTracing=0
-r.GenerateMeshDistanceFields=True
-r.Nanite.ProjectEnabled=True
-r.VirtualTextures=True
-r.DefaultFeature.AutoExposure.ExtendDefaultLuminanceRange=True
-r.AntiAliasingMethod=4
-r.SkinCache.CompileShaders=True
-r.RayTracing=False
-
-[/Script/Engine.Engine]
-+ActiveGameNameRedirects=(OldGameName="TP_ThirdPerson",NewGameName="/Script/%s")
-''' % name)
-with open(os.path.join(dest, 'Config', 'DefaultGame.ini'), 'w') as f:
-    f.write('[/Script/EngineSettings.GeneralProjectSettings]\nProjectName=Nunhead GTA\nProjectID=4D5E6F70A1B2C3D4E5F60718\n')
-
+if eng:
+    up = os.path.join(dest, name + '.uproject'); j = json.load(open(up)); j['EngineAssociation'] = os.path.basename(eng[-1]).replace('UE_', ''); json.dump(j, open(up, 'w'), indent=2)
 for fn in ['build_green.py', 'nunhead_green.glb']:
     src = os.path.join(here, fn)
     if os.path.exists(src): shutil.copy2(src, os.path.join(dest, fn)); print('copied', fn)
