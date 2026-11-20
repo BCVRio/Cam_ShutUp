@@ -116,12 +116,12 @@ export function buildStreets(d) {
     // pavements + kerbs on both sides, cut where another carriageway crosses
     for (const s of [-1, 1]) {
       const kerbLine = offsetLine(p, s * (w / 2 + 0.03)), paveLine = offsetLine(p, s * (w / 2 + 1.5)), faceLine = offsetLine(p, s * (w / 2 + 0.01));
-      const keep = (x, z) => !inOtherRoad(x, z, ri);
+      const keep = (x, z) => !inOtherRoad(x, z, ri, 0.5);
       // kerb stones and the face
       for (const run of splitRuns(kerbLine, keep)) kerbs.push(ribbon(run, KERB_W, PAVE_LIFT + 0.004, 1));
       for (const run of splitRuns(faceLine, keep)) faces.push(skirt(run, lift - 0.02, PAVE_LIFT + 0.004, s < 0));
-      // the slab band (2.8 m wide) is tested with a 1.6 m pad so no raised corner pokes into a side street
-      for (const run of splitRuns(paveLine, (x, z) => !inOtherRoad(x, z, ri, 1.6))) paves.push(ribbon(run, 2.8, PAVE_LIFT, 2));
+      // kerb and slab band are cut with the same pad so no strip of ground shows between them at a junction
+      for (const run of splitRuns(paveLine, (x, z) => !inOtherRoad(x, z, ri, 0.5))) paves.push(ribbon(run, 2.8, PAVE_LIFT, 2));
       // double yellow lines: all along the main roads, around the ends of residential streets
       if (w >= 6 && r.k !== 'service') {
         const yl = (off) => offsetLine(p, s * (w / 2 - off));
