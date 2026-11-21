@@ -18,17 +18,39 @@ tpl = os.path.join(here, 'Project')
 for root, dirs, files in os.walk(tpl):
     rel = os.path.relpath(root, tpl); out = os.path.join(dest, rel) if rel != '.' else dest; os.makedirs(out, exist_ok=True)
     for fn in files: shutil.copy2(os.path.join(root, fn), os.path.join(out, fn))
-# name the project after the folder
-eng = sorted(glob.glob(r'C:\Program Files\Epic Games\UE_5.*'))
+
+def find_engines():
+    """Every UE 5 install on this machine as (version, path): the Epic launcher's registry first (it knows about
+    installs on any drive), then the default C:\\Program Files\\Epic Games folder."""
+    found = []
+    dat = os.path.join(os.environ.get('ProgramData', r'C:\ProgramData'), 'Epic', 'UnrealEngineLauncher', 'LauncherInstalled.dat')
+    if os.path.exists(dat):
+        try:
+            with open(dat) as f: installs = json.load(f).get('InstallationList', [])
+            for it in installs:
+                app, loc = it.get('AppName', ''), it.get('InstallLocation', '')
+                if app.startswith('UE_5') and os.path.isdir(loc): found.append((app[3:], loc))
+        except Exception as e: print('could not read', dat, e)
+    for e in glob.glob(r'C:\Program Files\Epic Games\UE_5.*'):
+        v = os.path.basename(e)[3:]
+        if not any(v == f[0] for f in found): found.append((v, e))
+    return sorted(found, key=lambda f: [int(x) if x.isdigit() else 0 for x in f[0].split('.')])
+
+# associate the project with the newest engine on this machine
+eng = find_engines()
 if eng:
-    up = os.path.join(dest, name + '.uproject'); j = json.load(open(up)); j['EngineAssociation'] = os.path.basename(eng[-1]).replace('UE_', ''); json.dump(j, open(up, 'w'), indent=2)
+    up = os.path.join(dest, name + '.uproject')
+    with open(up) as f: j = json.load(f)
+    j['EngineAssociation'] = eng[-1][0]
+    with open(up, 'w') as f: json.dump(j, f, indent=2)
+    print('engine:', eng[-1][0], 'at', eng[-1][1])
 for fn in ['build_green.py', 'nunhead_green.glb']:
     src = os.path.join(here, fn)
     if os.path.exists(src): shutil.copy2(src, os.path.join(dest, fn)); print('copied', fn)
     else: print('MISSING', fn, '- pull the latest cam-shutup-game branch')
 
 editor = ''
-for e in reversed(eng):
+for _, e in reversed(eng):
     cand = os.path.join(e, 'Engine', 'Binaries', 'Win64', 'UnrealEditor.exe')
     if os.path.exists(cand): editor = cand; break
 with open(os.path.join(dest, 'OpenAndBuild.bat'), 'w') as f:
@@ -37,5 +59,5 @@ with open(os.path.join(dest, 'OpenAndBuild.bat'), 'w') as f:
     f.write('echo Opening the project and building the Nunhead Green level (first run compiles shaders: give it a few minutes)...\r\n')
     f.write('"%%EDITOR%%" "%s" -ExecutePythonScript="%s"\r\n' % (os.path.join(dest, name + '.uproject'), os.path.join(dest, 'build_green.py')))
 print('project written to', dest)
-print('editor:', editor or 'not found under C:\\Program Files\\Epic Games (edit EDITOR in OpenAndBuild.bat)')
+print('editor:', editor or 'no Unreal 5 install found (edit EDITOR in OpenAndBuild.bat)')
 print('next: double-click', os.path.join(dest, 'OpenAndBuild.bat'))

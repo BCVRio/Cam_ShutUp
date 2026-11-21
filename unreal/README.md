@@ -18,16 +18,23 @@ real bounced light, soft contact shadows and proper reflections on the puddles.
 - `nunhead_green.glb` — Nunhead Green exported from the browser game (626 objects, PBR textures).
 - `create_project.py` — Windows one-shot: copies the project, writes `OpenAndBuild.bat`.
 
-The C++ needs a compiler: on Windows install Visual Studio 2022 Community with the
-"Game development with C++" workload (free) before opening the project; the editor compiles the module
-on first open. On Linux the engine ships its own toolchain.
+The C++ needs a compiler: on Windows install Visual Studio 2022 or 2026 (Community, or the free Build Tools:
+`winget install Microsoft.VisualStudio.2022.BuildTools`) with the "Game development with C++" workload
+(Build Tools: "Desktop development with C++" plus a Windows 10/11 SDK) before opening the project; the editor
+compiles the module on first open. UE 5.8 wants MSVC 14.38 or newer and takes the VS 2026 toolset too.
+On Linux the engine ships its own toolchain.
 
 ## Quickest way (Windows)
 
     python unreal\create_project.py
 
 makes the project at `unreal\NunheadGTA` inside this repo (pass another path to put it elsewhere), copies the level script and the GLB in,
-and writes `OpenAndBuild.bat`. Double-click that: the editor opens the project and builds the level itself.
+and writes `OpenAndBuild.bat`. It finds the newest UE 5 install through the Epic launcher's install list, so the engine can be on any drive.
+To compile without opening the editor (errors show up in the console):
+
+    "<engine>\Engine\Build\BatchFiles\Build.bat" NunheadGTAEditor Win64 Development -Project="<repo>\unreal\NunheadGTA\NunheadGTA.uproject" -WaitMutex
+
+Running the bat again rebuilds the level from scratch (it deletes the old `NunheadGreen` first). Double-click that: the editor opens the project and builds the level itself.
 First run compiles shaders, so give it a few minutes. Then open Content → Nunhead → NunheadGreen and press Play.
 
 ## Manual steps (Unreal 5.3 or newer)

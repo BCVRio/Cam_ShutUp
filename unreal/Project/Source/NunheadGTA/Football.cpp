@@ -14,7 +14,7 @@ AFootball::AFootball()
 	Mesh->SetWorldScale3D(FVector(0.22f));             // 22 cm ball from the 1 m sphere
 	Mesh->SetSimulatePhysics(true);
 	Mesh->SetEnableGravity(true);
-	Mesh->SetMassOverrideInKg(NAME_None, 0.43f, true);
+	Mesh->BodyInstance.SetMassOverride(0.43f, true);   // just the setting: the Kg call recomputes mass, which needs GEngine (not there yet in the CDO)
 	Mesh->SetLinearDamping(0.05f);
 	Mesh->SetAngularDamping(0.6f);
 	Mesh->SetCollisionProfileName(TEXT("Football"));

@@ -16,7 +16,7 @@ class NUNHEADGTA_API ABotPlayer : public ACharacter
 public:
 	ABotPlayer();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bot") ETeam Team = ETeam::Away;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bot") EBotRole Role = EBotRole::Outfield;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bot") EBotRole BotRole = EBotRole::Outfield;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bot") float Speed = 520.f;
 	UPROPERTY(Config) FString HomeMeshPath; UPROPERTY(Config) FString AwayMeshPath; UPROPERTY(Config) FString KeeperMeshPath;
 	UPROPERTY(BlueprintReadOnly, Category="Bot") FVector HomeSpot;

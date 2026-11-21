@@ -82,7 +82,7 @@ def lighting(evening):
     c.set_editor_property('atmosphere_sun_light', True); c.set_editor_property('light_source_angle', 0.6)
     sky = spawn(unreal.SkyLight, (0, 0, 2000), label='SkyLight'); sky.light_component.set_editor_property('real_time_capture', True)
     spawn(unreal.SkyAtmosphere, label='Atmosphere')
-    fog = spawn(unreal.ExponentialHeightFog, label='Fog'); fog.component.set_editor_property('fog_density', 0.03 if evening else 0.012); fog.component.set_editor_property('fog_height_falloff', 0.3); fog.component.set_editor_property('volumetric_fog', True)
+    fog = spawn(unreal.ExponentialHeightFog, label='Fog'); fog.component.set_editor_property('fog_density', 0.03 if evening else 0.012); fog.component.set_editor_property('fog_height_falloff', 0.3); fog.component.set_editor_property('enable_volumetric_fog', True)
     spawn(unreal.VolumetricCloud, label='Clouds')
     pp = spawn(unreal.PostProcessVolume, label='Look'); pp.set_editor_property('unbound', True)
     s = pp.settings
@@ -103,7 +103,7 @@ def gameplay():
     spawn(unreal.PlayerStart, (-400, 150, 120), (0, 0, 0), 'Start')
     def bot(x, y, team, role, label):
         b = spawn(Bot, (x, y, 100), (0, 180 if team == Team.AWAY else 0, 0), label)
-        b.set_editor_property('team', team); b.set_editor_property('role', role); b.set_folder_path('Nunhead/Players')
+        b.set_editor_property('team', team); b.set_editor_property('bot_role', role); b.set_folder_path('Nunhead/Players')
     bot(-L + 120, 0, Team.HOME, Role.KEEPER, 'Bosco_Keeper'); bot(-600, 500, Team.HOME, Role.OUTFIELD, 'Bosco_Mate1'); bot(-600, -500, Team.HOME, Role.OUTFIELD, 'Bosco_Mate2'); bot(-250, 0, Team.HOME, Role.OUTFIELD, 'Bosco_Mate3')
     bot(L - 120, 0, Team.AWAY, Role.KEEPER, 'Rovers_Keeper'); bot(400, 400, Team.AWAY, Role.OUTFIELD, 'Rovers_1'); bot(400, -400, Team.AWAY, Role.OUTFIELD, 'Rovers_2'); bot(900, 700, Team.AWAY, Role.OUTFIELD, 'Rovers_3'); bot(900, -700, Team.AWAY, Role.OUTFIELD, 'Rovers_4')
     try:
@@ -113,7 +113,12 @@ def gameplay():
 
 if __name__ == '__main__':
     les = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-    les.new_level(LEVEL)
+    if unreal.EditorAssetLibrary.does_asset_exist(LEVEL):
+        # re-run: reuse the level, emptied (deleting a map from Python leaves its file on disk, and new_level then refuses the path)
+        les.load_level(LEVEL)
+        actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+        n = sum(1 for a in actors.get_all_level_actors() if actors.destroy_actor(a)); log('cleared %d actors from %s' % (n, LEVEL))
+    else: les.new_level(LEVEL)
     street = import_file(GLB, '/Game/Nunhead/Green'); tune_static_meshes(street); place_scene(street)
     import_character(os.path.join(MODELS, 'cam.glb'), '/Game/Nunhead/Cam', 'cam')
     for n in ['npc_boy_home', 'npc_boy_away', 'npc_boy_keeper']: import_character(os.path.join(MODELS, n + '.glb'), '/Game/Nunhead/Players', n)

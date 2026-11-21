@@ -24,7 +24,7 @@ void ABotPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 	HomeSpot = GetActorLocation();
-	const FString& Path = Role == EBotRole::Keeper ? KeeperMeshPath : Team == ETeam::Home ? HomeMeshPath : AwayMeshPath;
+	const FString& Path = BotRole == EBotRole::Keeper ? KeeperMeshPath : Team == ETeam::Home ? HomeMeshPath : AwayMeshPath;
 	if (USkeletalMesh* SM = LoadObject<USkeletalMesh>(nullptr, *Path))
 	{
 		GetMesh()->SetSkeletalMesh(SM);
@@ -62,7 +62,7 @@ void ABotPlayer::Think(float Dt)
 	const FVector Me = GetActorLocation(), B = Ball->GetActorLocation();
 	const float DistToBall = FVector::Dist2D(Me, B);
 	const FVector AttackDir = TargetGoal ? (TargetGoal->GetActorLocation() - B).GetSafeNormal2D() : GetActorForwardVector();
-	if (Role == EBotRole::Keeper)
+	if (BotRole == EBotRole::Keeper)
 	{
 		// hold the line, slide across to the ball, dive at it when it comes close
 		const FVector Line = OwnGoal ? OwnGoal->GetActorLocation() + OwnGoal->GetActorForwardVector() * 60.f : HomeSpot;
@@ -77,7 +77,7 @@ void ABotPlayer::Think(float Dt)
 	}
 	// nearest outfield team-mate chases; the rest take up a supporting position ahead of the ball
 	ABotPlayer* Nearest = nullptr; float Best = 1e9f;
-	for (TActorIterator<ABotPlayer> It(GetWorld()); It; ++It) { if (It->Team != Team || It->Role == EBotRole::Keeper) continue; const float D = FVector::Dist2D(It->GetActorLocation(), B); if (D < Best) { Best = D; Nearest = *It; } }
+	for (TActorIterator<ABotPlayer> It(GetWorld()); It; ++It) { if (It->Team != Team || It->BotRole == EBotRole::Keeper) continue; const float D = FVector::Dist2D(It->GetActorLocation(), B); if (D < Best) { Best = D; Nearest = *It; } }
 	if (Nearest == this)
 	{
 		MoveToward(B, 1.0f);
