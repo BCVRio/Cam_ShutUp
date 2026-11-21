@@ -18,12 +18,13 @@ python -I (Join-Path $unreal 'create_project.py') | Select-String 'engine|MISSIN
 $editor = (Get-Content $bat | Select-String '^set EDITOR=(.*)$').Matches[0].Groups[1].Value
 $engine = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $editor)))
 if (-not $SkipBuild) {
-  & (Join-Path $engine 'Build\BatchFiles\Build.bat') NunheadGTAEditor Win64 Development -Project="$proj" -WaitMutex | Select-String 'error|Result:' | Where-Object { $_.Line -notmatch 'Attribute.h' }
+  & (Join-Path $engine 'Engine\Build\BatchFiles\Build.bat') NunheadGTAEditor Win64 Development -Project="$proj" -WaitMutex | Select-String 'error|Result:' | Where-Object { $_.Line -notmatch 'Attribute.h' }
   "BUILD EXIT CODE: $LASTEXITCODE"; if ($LASTEXITCODE -ne 0) { exit 3 }
+  if (-not (Test-Path (Join-Path $unreal 'NunheadGTA\Binaries\Win64\UnrealEditor-NunheadGTA.dll'))) { 'no game module DLL after the build'; exit 3 }
 }
 if (-not $SkipLevel) {
   $t0 = Get-Date; & $bat; "LEVEL BUILD EXIT CODE: $LASTEXITCODE  elapsed $((Get-Date) - $t0)"
-  Select-String -Path $L -Pattern 'LogPython: (Error|placed|cleared|blend|grass|pitch|game mode|Nunhead Green built)|LogEditorPythonExecuter|GrassField|Failed to compile Material' | ForEach-Object { $_.Line.Substring(0, [Math]::Min(200, $_.Line.Length)) }
+  Select-String -Path $L -Pattern 'LogPython: (Error|placed|cleared|blend|grass|pitch|game mode|street|texture|Nunhead Green built)|LogEditorPythonExecuter|GrassField|Failed to compile Material' | ForEach-Object { $_.Line.Substring(0, [Math]::Min(200, $_.Line.Length)) }
 }
 "--- standalone game for $PlaySeconds s:"
 if (Test-Path $shot) { Remove-Item $shot -Force }

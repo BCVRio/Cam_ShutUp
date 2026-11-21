@@ -22,6 +22,8 @@ real bounced light, soft contact shadows and proper reflections on the puddles.
 - `find_pitch.py` / `pitch.json` — where the Green is in the export (its largest grass patch), so the pitch lands on it.
 - `fix_winding.py` — flips any triangle wound against its normal, in place. The browser export had the terrace
   facades inside-out (mirrored geometry), which a dynamic sun lights as black walls. Run it on any new export.
+- `make_detail.py` / `detail_normal.png` — a tileable micro-surface normal map that the street materials layer over
+  their textures at a fine tiling, so brick, slate and tarmac keep grain up close.
 - `create_project.py` — Windows one-shot: copies the project, writes `OpenAndBuild.bat`.
 
 The C++ needs a compiler: on Windows install Visual Studio 2022 or 2026 (Community, or the free Build Tools:
@@ -91,6 +93,18 @@ scalability groups to Epic when it starts (`bForceEpicScalability` in `DefaultGa
 Lumen scene detail, final gather and reflection quality to 2, adds light shafts, bloom, a touch of lens flare and
 chromatic fringe, no motion blur, and grows roughly 0.6 grass clumps per square metre on the Green
 (`GRASS=0` skips it; `Density` on the Grass actor changes it, then Scatter again from the Details panel).
+
+**Textures.** The export carries one downsized copy of its texture per object (most at 256 or 512 pixels, none
+above 1024). `build_green.py` therefore rebuilds the street materials from the full-size sources in
+`public/textures` (the facades at 2048, each with its normal and roughness map): one `M_Street` master under
+`/Game/Nunhead/Materials`, one `MI_<family>` instance per family (brick, stone, slate, pavement, tarmac, concrete,
+grass, bark and the five facades), assigned to every slot whose import material carries that name. `MATERIALS=0`
+keeps the export's own materials. Trees keep theirs either way (their leaves are alpha-masked).
+
+**Ray tracing.** Lumen runs on hardware ray tracing with hit lighting for reflections (two bounces, glass gets
+front-layer reflections), the sun casts ray-traced shadows and cloud shadows, and TSR accumulates at twice the
+output resolution with a little tonemapper sharpening. All of it is in `DefaultEngine.ini` and the Look
+post-process volume; an RTX 3070 holds 1080p at Epic.
 
 ## Cam
 

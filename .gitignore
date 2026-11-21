@@ -1,3 +1,6 @@
 
 # Unreal project made by unreal/create_project.py (binaries, intermediates, saved)
 unreal/NunheadGTA/
+
+# Python bytecode
+__pycache__/
