@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Cam's Shut Up — world export</title>
+  <style>
+    body { margin: 0; font: 14px/1.4 system-ui, sans-serif; background: #0d1330; color: #e8ecf8; display: grid; grid-template-rows: auto auto 1fr; height: 100vh; }
+    header { padding: 10px 16px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; border-bottom: 1px solid #2a3360; }
+    h1 { font-size: 16px; margin: 0 12px 0 0; color: #f2c233; }
+    input { font: inherit; padding: 4px 8px; border-radius: 6px; border: 1px solid #3a4580; background: #141b45; color: #fff; width: 300px; }
+    button { font: inherit; font-weight: 700; padding: 6px 16px; border-radius: 6px; border: 0; background: #f2c233; color: #14275e; cursor: pointer; }
+    button:disabled { opacity: 0.5; cursor: wait; }
+    #files a { color: #8fd0ff; margin-right: 12px; }
+    #log { margin: 0; padding: 10px 16px; overflow: auto; white-space: pre-wrap; font: 12px/1.5 ui-monospace, Consolas, monospace; background: #080c22; }
+    #summary { padding: 6px 16px; color: #cfd6ff; }
+    iframe { width: 1280px; height: 720px; border: 0; display: block; margin: 0 16px 16px; background: #000; }
+    main { overflow: auto; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>World export</h1>
+    <label>Areas <input id="areas" value="nunhead,stadium,cage,park,streets" /></label>
+    <button id="start" type="button" disabled>Export</button>
+    <span id="state">loading the game…</span>
+    <span id="files"></span>
+  </header>
+  <pre id="log"></pre>
+  <main>
+    <div id="summary"></div>
+    <iframe id="game" src="../index.html?q=ultra&export=1"></iframe>
+  </main>
+  <script>
+    // The game runs in the iframe exactly as index.html serves it. When it has loaded, tools/export_world.js is injected
+    // into that page so it shares the game's Three.js, scene and data, and it posts progress back here.
+    const $ = (id) => document.getElementById(id);
+    const q = new URLSearchParams(location.search);
+    const frame = $('game'), logEl = $('log'), startBtn = $('start');
+    if (q.get('areas')) $('areas').value = q.get('areas');
+    const log = (m) => { logEl.textContent += new Date().toLocaleTimeString() + '  ' + m + '\n'; logEl.scrollTop = logEl.scrollHeight; };
+    let started = false;
+    function start() {
+      if (started) return; started = true; startBtn.disabled = true; $('state').textContent = 'exporting…';
+      const win = frame.contentWindow;
+      const areas = $('areas').value.split(',').map((s) => s.trim()).filter(Boolean);
+      win.__exportOptions = { areas, upload: q.get('upload') !== '0', uploadUrl: new URL('/__export/', location.href).href, grid: Number(q.get('grid')) || 150 };
+      const s = win.document.createElement('script'); s.type = 'module'; s.src = new URL('./export_world.js', location.href).href;
+      win.document.body.appendChild(s);
+    }
+    frame.addEventListener('load', () => { $('state').textContent = 'game loading in the frame; export when ready'; startBtn.disabled = false; if (q.has('auto')) start(); });
+    startBtn.addEventListener('click', start);
+    window.addEventListener('message', (ev) => {
+      const d = ev.data || {};
+      if (d.type === 'export-log') log(d.msg);
+      else if (d.type === 'export-file') { const a = document.createElement('a'); a.href = URL.createObjectURL(d.blob); a.download = d.name; a.textContent = 'download ' + d.name; $('files').appendChild(a); }
+      else if (d.type === 'export-done') { $('state').textContent = 'done'; $('summary').textContent = JSON.stringify(d.summary, null, 1); startBtn.disabled = false; started = false; }
+      else if (d.type === 'export-failed') { $('state').textContent = 'failed: ' + d.error; startBtn.disabled = false; started = false; }
+    });
+  </script>
+</body>
+</html>

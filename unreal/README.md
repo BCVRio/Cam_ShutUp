@@ -126,3 +126,31 @@ in at real-world scale. The export keeps the browser game's world origin, so Nun
 its grass sheet is centred about (-294, 412) m in the export's X/Z with the ground some 17 m up. `find_pitch.py`
 measures that from the GLB into `pitch.json`, and `build_green.py` puts the pitch there, snapping the goals, ball
 and players onto the traced ground; the game mode takes the pitch frame from the two goals, so nothing assumes the origin.
+
+## Exporting the whole world
+
+`tools/export.html` exports the live browser game (every street, building row, prop, tree, lamp, arena) to one GLB
+per area in `unreal/exports/`: `nunhead.glb`, `stadium.glb`, `cage.glb`, `park.glb` and `streets.glb` (everything
+outside the four areas), plus `unreal/exports/world.json` with the area centres and radii, the road centrelines with
+widths, the pavement and kerb polylines, the zebra crossings with their belisha beacons, the lamp posts, the shop
+doors and the pitch rectangles and goals, all in the game's own frame (metres, Y up, x east, z south; the JSON says so).
+Two commands, from the repo root:
+
+    python tools/export_server.py
+    python tools/check_glb.py unreal/exports
+
+The first serves the repo on port 8000 and takes the exporter's uploads. Open http://localhost:8000/tools/export.html
+and press Export (or open `tools/export.html?auto=1`); the page loads the game in a frame, waits for the props and
+textures, walks the player over the map so every house module and modelled tree is placed, and writes the five GLBs
+and the JSON (about 45 seconds, 240 MB in all). The second prints node, mesh, material and texture counts, the
+largest texture and the bounds of every file and checks the buffers line up. The GLBs are ignored by git; `world.json`
+and the tools are committed.
+
+What the GLBs hold: textures at their source size (facades 2048, the rest 1024; colour and normal maps as JPEG, the
+merged roughness/metalness map as PNG), base colour, normal and roughness/metalness maps on every street material,
+materials named by texture family (`brick`, `tarmac`, `facade_victorian`...) so `build_green.py`'s material pass
+can match them, and every node tagged `extras.area`. Merged meshes that span areas (terrain, roads, pavements,
+terraces) are cut by triangle so each file holds only its area. Instanced props (house modules, garden walls, trees,
+parked cars, benches, lamps, beacons) come out as one node per instance (`inst_<prop>_<n>`) sharing one mesh, so
+Unreal can instance them again. Left out: the player, pedestrians, cars that drive, cats, birds, shopkeepers, the
+footballs, the crowd strips, shop beacons and doorway markers, the sky, the grass carpet and the shop interior room.

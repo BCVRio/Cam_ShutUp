@@ -4,3 +4,6 @@ unreal/NunheadGTA/
 
 # Python bytecode
 __pycache__/
+
+# World export from the browser game (tools/export.html); large, regenerate with tools/export_server.py
+unreal/exports/*.glb
