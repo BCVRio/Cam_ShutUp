@@ -2,9 +2,9 @@
     python create_project.py            (makes unreal\\NunheadGTA inside this repo)
     python create_project.py F:\\NunheadGTA   (or anywhere else)
 Makes the .uproject (Third Person-style blank project with the Python plugin on, Lumen defaults), copies the
-level build script and the Nunhead Green GLB next to it, and writes OpenAndBuild.bat which launches the editor
-and builds the level in one go. Then double-click OpenAndBuild.bat (or open the .uproject and run build_green.py
-from the Output Log with Cmd set to Python)."""
+level build script, the Nunhead Green GLB and the grass clump next to it, and writes OpenAndBuild.bat which launches
+the editor and builds the level in one go. Then double-click OpenAndBuild.bat (or open the .uproject and run
+build_green.py from the Output Log with Cmd set to Python). Safe to re-run: it refreshes the copies."""
 import json, os, shutil, sys, glob
 
 here0 = os.path.dirname(os.path.abspath(__file__))
@@ -44,10 +44,10 @@ if eng:
     j['EngineAssociation'] = eng[-1][0]
     with open(up, 'w') as f: json.dump(j, f, indent=2)
     print('engine:', eng[-1][0], 'at', eng[-1][1])
-for fn in ['build_green.py', 'nunhead_green.glb']:
+for fn in ['build_green.py', 'nunhead_green.glb', 'grass_card.glb', 'pitch.json']:
     src = os.path.join(here, fn)
     if os.path.exists(src): shutil.copy2(src, os.path.join(dest, fn)); print('copied', fn)
-    else: print('MISSING', fn, '- pull the latest cam-shutup-game branch')
+    else: print('MISSING', fn, '- pull the latest cam-shutup-game branch' + (' and run make_grass.py' if fn.startswith('grass') else ''))
 
 editor = ''
 for _, e in reversed(eng):

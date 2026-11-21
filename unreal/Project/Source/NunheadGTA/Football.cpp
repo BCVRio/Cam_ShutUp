@@ -3,6 +3,7 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/World.h"
 #include "CollisionQueryParams.h"
+#include "GameFramework/Character.h"
 
 AFootball::AFootball()
 {
@@ -21,6 +22,18 @@ AFootball::AFootball()
 	Mesh->SetNotifyRigidBodyCollision(true);
 	Mesh->SetUseCCD(true);
 	Mesh->SetCastShadow(true);
+	// a capsule overlapping the ball must not shove it away at speed (that was launching it off the pitch at kick-off)
+	Mesh->BodyInstance.SetMaxDepenetrationVelocity(250.f);
+}
+
+void AFootball::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	if (Other && Other->IsA<ACharacter>())
+	{
+		const FVector V = Mesh->GetPhysicsLinearVelocity(); const float S = V.Size();
+		if (S > TouchSpeedCap) Mesh->SetPhysicsLinearVelocity(V * (TouchSpeedCap / S));
+	}
 }
 
 void AFootball::BeginPlay()
@@ -47,6 +60,7 @@ void AFootball::Tick(float Dt)
 	const FVector W = Mesh->GetPhysicsAngularVelocityInRadians();
 	const float Speed = V.Size();
 	if (Speed < 1.f) return;
+	if (Speed > MaxSpeed) { Mesh->SetPhysicsLinearVelocity(V * (MaxSpeed / Speed)); }
 	// Magnus: the spin bends the flight (and the roll)
 	FVector F = FVector::CrossProduct(W, V) * MagnusCoefficient * Mass;
 	// air drag, quadratic
@@ -70,10 +84,12 @@ void AFootball::Kick(const FVector& Dir, float Power, float Curl, float Loft, FN
 	LastKicker = Kicker;
 }
 
-void AFootball::ResetToSpawn()
+void AFootball::ResetToSpawn() { PlaceAt(SpawnPoint + FVector(0, 0, 30.f)); }
+
+void AFootball::PlaceAt(const FVector& Location)
 {
 	Mesh->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	Mesh->SetPhysicsAngularVelocityInRadians(FVector::ZeroVector);
-	SetActorLocation(SpawnPoint + FVector(0, 0, 30.f), false, nullptr, ETeleportType::TeleportPhysics);
+	SetActorLocation(Location, false, nullptr, ETeleportType::TeleportPhysics);
 	LastKicker = NAME_None;
 }

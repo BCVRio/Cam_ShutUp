@@ -16,6 +16,12 @@ real bounced light, soft contact shadows and proper reflections on the puddles.
 - `build_green.py` — builds the level in the editor: imports the street export and the player model, lights it,
   places the goals, ball, Bosco team-mates and Rovers, sets the game mode, saves.
 - `nunhead_green.glb` — Nunhead Green exported from the browser game (626 objects, PBR textures).
+- `make_grass.py` / `grass_card.glb` — a grass clump (three crossed cards with a drawn blade texture) that the
+  `GrassField` actor scatters over the Green by line trace, with a masked two-sided material and a wind sway.
+- `audio/` — WAVs for the whistle, crowd loop / roar / groan and the voices (converted from `public/audio` with ffmpeg).
+- `find_pitch.py` / `pitch.json` — where the Green is in the export (its largest grass patch), so the pitch lands on it.
+- `fix_winding.py` — flips any triangle wound against its normal, in place. The browser export had the terrace
+  facades inside-out (mirrored geometry), which a dynamic sun lights as black walls. Run it on any new export.
 - `create_project.py` — Windows one-shot: copies the project, writes `OpenAndBuild.bat`.
 
 The C++ needs a compiler: on Windows install Visual Studio 2022 or 2026 (Community, or the free Build Tools:
@@ -34,7 +40,13 @@ To compile without opening the editor (errors show up in the console):
 
     "<engine>\Engine\Build\BatchFiles\Build.bat" NunheadGTAEditor Win64 Development -Project="<repo>\unreal\NunheadGTA\NunheadGTA.uproject" -WaitMutex
 
-Running the bat again rebuilds the level from scratch (it deletes the old `NunheadGreen` first). Double-click that: the editor opens the project and builds the level itself.
+Running the bat again rebuilds the level in place (it empties `NunheadGreen` and fills it again).
+To test a change end to end without touching the editor:
+
+    powershell -File unreal\test_cycle.ps1
+
+closes the editor, refreshes the project, compiles, rebuilds the level, runs the game standalone for 45 seconds
+(the bots play on their own) and saves `NunheadGTA\Saved\Screenshots\WindowsEditor\nunhead_auto.png`; `-SkipLevel` keeps the saved level. Double-click that: the editor opens the project and builds the level itself.
 First run compiles shaders, so give it a few minutes. Then open Content → Nunhead → NunheadGreen and press Play.
 
 ## Manual steps (Unreal 5.3 or newer)
@@ -53,6 +65,33 @@ First run compiles shaders, so give it a few minutes. Then open Content → Nunh
 5. For the golden-hour version run it again with an environment variable `EVENING=1` set before launching the
    editor, or just rotate the Sun actor down to about -9° pitch and tint it orange.
 
+## Playing
+
+| Control | Action |
+| --- | --- |
+| `W A S D` / left stick | move (camera relative) |
+| `Shift` / bumpers | sprint |
+| `Space` / A | jump; jump into the ball at head height to head it where the camera looks |
+| hold `F` / mouse / X / RT, release | charge a shot; `A`/`D` or the stick while charging curls it |
+| tap `F` / X | pass to the team-mate most in front of the camera (within about 60 degrees, up to 30 m) |
+| `B` / B | call the ball to your feet |
+| run into the ball | dribble |
+
+The match (Bosco FC v Nunhead Rovers, 3 minutes) starts on the first real kick; the referee's whistle marks
+kick-off, goals, restarts and full time. The crowd loop runs under everything, roars at a Bosco goal, groans at a
+Rovers goal or a Cam shot that misses by a little; a ball behind the line or over the sides is a goal kick / throw in
+and play resets. Keepers hold their line and dive at a shot they cannot reach on their feet. The camera backs off as
+the ball gets further away. Idle and run blend by speed through a 1D blend space `build_green.py` makes for each
+character (`cam_BS`, `npc_boy_home_BS`...); with no blend space the clips switch.
+
+## The look
+
+`DefaultEngine.ini` turns on hardware ray tracing for Lumen, virtual shadow maps and DX12; the game mode pushes the
+scalability groups to Epic when it starts (`bForceEpicScalability` in `DefaultGame.ini`). `build_green.py` sets
+Lumen scene detail, final gather and reflection quality to 2, adds light shafts, bloom, a touch of lens flare and
+chromatic fringe, no motion blur, and grows roughly 0.6 grass clumps per square metre on the Green
+(`GRASS=0` skips it; `Density` on the Grass actor changes it, then Scatter again from the Details panel).
+
 ## Cam
 
 Cam's rigged, animated model is `public/models/cam.glb` (idle, run, jump and dance clips in one file); the
@@ -69,4 +108,7 @@ Blueprints. Treat this level as the look test the browser version is measured ag
 ## Scale and axes
 
 The GLB is in metres, Y up. Interchange converts to Unreal's centimetres and Z up on import, so the level comes
-in at real-world scale with the export origin (the centre of Nunhead Green) at 0,0,0.
+in at real-world scale. The export keeps the browser game's world origin, so Nunhead Green is **not** at 0,0,0:
+its grass sheet is centred about (-294, 412) m in the export's X/Z with the ground some 17 m up. `find_pitch.py`
+measures that from the GLB into `pitch.json`, and `build_green.py` puts the pitch there, snapping the goals, ball
+and players onto the traced ground; the game mode takes the pitch frame from the two goals, so nothing assumes the origin.

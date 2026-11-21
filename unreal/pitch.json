@@ -1,0 +1,28 @@
+{
+  "up_axis": "Y",
+  "units": "m",
+  "source": "nunhead_green.glb node map_mesh_0, largest connected patch",
+  "centre_gltf": [
+    -294.0,
+    17.27,
+    412.0
+  ],
+  "long_axis_gltf_xz": [
+    0.8833,
+    -0.4688
+  ],
+  "half_length_m": 149.7,
+  "half_width_m": 149.6,
+  "area_m2": 70736.0,
+  "patches": 1,
+  "mesh_min_gltf": [
+    -444.0,
+    13.4,
+    260.0
+  ],
+  "mesh_max_gltf": [
+    -144.0,
+    20.79,
+    564.0
+  ]
+}
