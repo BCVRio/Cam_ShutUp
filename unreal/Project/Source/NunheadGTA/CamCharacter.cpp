@@ -46,7 +46,8 @@ void ACamCharacter::BeginPlay()
 	if (USkeletalMesh* SM = LoadObject<USkeletalMesh>(nullptr, *CamMeshPath))
 	{
 		GetMesh()->SetSkeletalMesh(SM);
-		const float MeshH = SM->GetBounds().BoxExtent.Z * 2.f; if (MeshH > 10.f) GetMesh()->SetRelativeScale3D(FVector(144.f / MeshH));   // Cam is 1.44 m
+		const float MeshH = SM->GetBounds().BoxExtent.Z * 2.f; if (MeshH > 0.01f) GetMesh()->SetRelativeScale3D(FVector(144.f / MeshH));   // Cam is 1.44 m; the glTF skeletal import lands at 1/100 scale
+		UE_LOG(LogNunhead, Log, TEXT("Cam mesh %s: imported height %.2f, scale %.1f"), *SM->GetName(), MeshH, MeshH > 0.01f ? 144.f / MeshH : 1.f);
 		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 		IdleAnim = LoadObject<UAnimSequence>(nullptr, *IdleAnimPath); RunAnim = LoadObject<UAnimSequence>(nullptr, *RunAnimPath); JumpAnim = LoadObject<UAnimSequence>(nullptr, *JumpAnimPath);
 		MoveBlend = LoadObject<UBlendSpace>(nullptr, *MoveBlendPath);

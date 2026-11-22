@@ -30,7 +30,7 @@ void ABotPlayer::BeginPlay()
 	if (USkeletalMesh* SM = LoadObject<USkeletalMesh>(nullptr, *Path))
 	{
 		GetMesh()->SetSkeletalMesh(SM);
-		const float MeshH = SM->GetBounds().BoxExtent.Z * 2.f; if (MeshH > 10.f) GetMesh()->SetRelativeScale3D(FVector(140.f / MeshH));
+		const float MeshH = SM->GetBounds().BoxExtent.Z * 2.f; if (MeshH > 0.01f) GetMesh()->SetRelativeScale3D(FVector(140.f / MeshH));   // the glTF skeletal import lands at 1/100 scale
 		GetMesh()->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 		// clips imported next to the mesh: <name>_Anim_idle / _Anim_run, and <name>_BS when the import made a blend space
 		IdleAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_idle"))); RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_run")));

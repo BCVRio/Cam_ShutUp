@@ -74,7 +74,7 @@ void AStreetWalker::Dress(const FString& MeshPath, float HeightCm)
 	USkeletalMesh* SM = LoadObject<USkeletalMesh>(nullptr, *MeshPath);
 	if (!SM) { UE_LOG(LogNunhead, Warning, TEXT("Walker mesh not found at %s"), *MeshPath); return; }
 	Mesh->SetSkeletalMesh(SM);
-	const float H = SM->GetBounds().BoxExtent.Z * 2.f; if (H > 10.f) Mesh->SetRelativeScale3D(FVector(HeightCm / H));
+	const float H = SM->GetBounds().BoxExtent.Z * 2.f; if (H > 0.01f) Mesh->SetRelativeScale3D(FVector(HeightCm / H));   // the glTF skeletal import lands at 1/100 scale
 	Mesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
 	Blend = LoadObject<UBlendSpace>(nullptr, *(MeshPath + TEXT("_BS")));
 	if (Blend) { Mesh->SetAnimation(Blend); Mesh->Play(true); }
@@ -425,6 +425,20 @@ void AStreetLife::Tick(float Dt)
 	APawn* Pawn = UGameplayStatics::GetPlayerPawn(this, 0); if (!Pawn) return;
 	const FVector P = Pawn->GetActorLocation(); Clock += Dt;
 	if (!bSpawned) { SpawnAll(P); bSpawned = true; }
+	if (PhotoSeconds > 0.f && !bPhotoDone && Clock >= PhotoSeconds && Walkerz.Num())
+	{
+		bPhotoDone = true;
+		AStreetWalker* Pick = Walkerz[0]; float Best = 1e9f;
+		for (AStreetWalker* Wk : Walkerz) for (AStreetCar* C : Carz) { const float D = Dist2D(Wk->GetActorLocation(), C->GetActorLocation()); if (D < Best) { Best = D; Pick = Wk; } }
+		// stand 1.5 m in front of them, face to face: the walker stops and turns to Cam, the camera settles behind him
+		const FVector Look = Pick->GetActorLocation() + FVector(0, 0, 100.f);
+		const FVector From = Pick->GetActorLocation() + Pick->GetActorForwardVector() * 150.f + FVector(0, 0, 40.f);
+		const FRotator Face(0, (Pick->GetActorLocation() - From).Rotation().Yaw, 0);
+		Pawn->SetActorLocationAndRotation(From, Face, false, nullptr, ETeleportType::TeleportPhysics);
+		if (AController* Ctl = Pawn->GetController()) Ctl->SetControlRotation(Face);
+		UE_LOG(LogNunhead, Log, TEXT("StreetLife photo: Cam moved to (%.0f, %.0f, %.0f) by a walker at (%.0f, %.0f, %.0f) (mesh %s, hidden %d, speed %.0f), nearest car %.0f cm away"),
+			From.X, From.Y, From.Z, Look.X, Look.Y, Look.Z, Pick->Mesh->GetSkeletalMeshAsset() ? *Pick->Mesh->GetSkeletalMeshAsset()->GetName() : TEXT("none"), Pick->IsHidden() ? 1 : 0, Pick->Speed, Best);
+	}
 	RecycleT -= Dt;
 	if (RecycleT <= 0.f)
 	{

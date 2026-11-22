@@ -148,7 +148,9 @@ joined pavement at the end, who stop and face Cam when he walks up to them; 6 ca
 driving on the left at 6 to 9 m/s that brake for Cam, pedestrians, cats and each other in the road ahead and whoosh
 past; 4 cats sitting by the kerb that wander and miaow at Cam; flocks circling over the greens and pigeons on the
 Green and the park that scatter when he runs at them. Everything recycles to near Cam when it drifts far away.
-Counts and the mesh / sound paths are on the actor and in `DefaultGame.ini`.
+Counts and the mesh / sound paths are on the actor and in `DefaultGame.ini`. For a street photo without a human at
+the controls, `-ini:Game:[/Script/NunheadGTA.StreetLife]:PhotoSeconds=24` moves Cam face to face with the pedestrian
+nearest a car at that second, so the game mode's `AutoScreenshotSeconds` shot a few seconds later shows the street.
 
 ## Exporting the whole world
 

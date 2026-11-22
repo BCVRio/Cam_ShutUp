@@ -90,6 +90,9 @@ public:
 	UPROPERTY(Config) FString CatMeshPath; UPROPERTY(Config) FString BirdFolder;
 	UPROPERTY(Config) FString CarPassSoundPath; UPROPERTY(Config) FString MeowSoundPath; UPROPERTY(Config) FString PigeonsSoundPath;
 	UPROPERTY(Config) float CarYawFix = 180.f;
+	// testing aid: seconds after start to move Cam beside the pedestrian nearest a car, so the game mode's auto screenshot
+	// shows the street (0 = never); -ini:Game:[/Script/NunheadGTA.StreetLife]:PhotoSeconds=22
+	UPROPERTY(Config) float PhotoSeconds = 0.f;
 	UPROPERTY(BlueprintReadOnly, Category="Street") int32 RoadCount = 0;
 	UPROPERTY(BlueprintReadOnly, Category="Street") int32 PavementCount = 0;
 protected:
@@ -109,6 +112,6 @@ private:
 	UPROPERTY() TArray<AStreetWalker*> Walkerz; UPROPERTY() TArray<AStreetCar*> Carz; UPROPERTY() TArray<AStreetCat*> Catz; UPROPERTY() TArray<ABirdFlock*> Birdz;
 	UPROPERTY() USoundBase* CarPass = nullptr; UPROPERTY() USoundBase* Meow = nullptr; UPROPERTY() USoundBase* Pigeons = nullptr;
 	UPROPERTY() UStaticMesh* BirdBodyDark = nullptr; UPROPERTY() UStaticMesh* BirdWingDark = nullptr; UPROPERTY() UStaticMesh* BirdBodyGrey = nullptr; UPROPERTY() UStaticMesh* BirdWingGrey = nullptr;
-	bool bLoaded = false; bool bSpawned = false; float RecycleT = 0.f; float Clock = 0.f;
+	bool bLoaded = false; bool bSpawned = false; bool bPhotoDone = false; float RecycleT = 0.f; float Clock = 0.f;
 	FRandomStream Rnd;
 };
