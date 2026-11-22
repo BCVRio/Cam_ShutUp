@@ -21,6 +21,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bot") float Speed = 520.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Bot") float DiveSpeed = 950.f;
 	UPROPERTY(Config) FString HomeMeshPath; UPROPERTY(Config) FString AwayMeshPath; UPROPERTY(Config) FString KeeperMeshPath;
+	UPROPERTY(Config) bool bUseBlendSpace = false;   // the scripted blend spaces do not advance in the single-node player; clips switch instead
 	UPROPERTY(BlueprintReadOnly, Category="Bot") FVector HomeSpot;
 	UPROPERTY(BlueprintReadOnly, Category="Bot") bool bDiving = false;
 	void ReturnHome();

@@ -7,9 +7,10 @@ Set EVENING=1 in the environment for the golden-hour version, NANITE=0 to leave 
 MATERIALS=0 to keep the export's own (downsized) textures instead of the shared full-size street materials.
 WORLD=1 builds /Game/Nunhead/NunheadWorld instead: the whole map from unreal/exports (WORLD_AREAS picks the files)
 with the match still on the Green and the streets alive (pedestrians, cars, cats, birds)."""
-import unreal, os, json
+import unreal, os, json, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+if HERE not in sys.path: sys.path.insert(0, HERE)   # fix_rig.py sits next to this script
 def find_repo(start):   # the script may be copied next to the project; walk up to the repo (has public/models)
     d = start
     for _ in range(5):
@@ -61,6 +62,15 @@ def make_blendspace(dest, base, mesh, top=RUN_SPEED):
 
 def import_character(path, dest, base, top=RUN_SPEED):
     # deterministic names: <base> for the skeletal mesh, <base>_Anim_<idle|run|walk|jump|dance> for the clips, <base>_BS the blend space
+    # the browser rigs keep the armature at scale 0.01 with the mesh in metres: bake that away first or the mesh imports
+    # at a hundredth of the animations' size (fix_rig.py); a fresh import, since a reimport keeps the old skeleton's pose
+    try:
+        import fix_rig
+        fixed = os.path.join(HERE, 'characters', os.path.basename(path)); log('rig %s: %s' % (base, '; '.join(fix_rig.fix(path, fixed)))); path = fixed
+    except Exception as e: log('rig %s: %s (importing the original)' % (base, e))
+    for old in unreal.EditorAssetLibrary.list_assets(dest, recursive=False):
+        if old.split('/')[-1].split('.')[0].startswith(base): unreal.EditorAssetLibrary.delete_asset(old)
+    if unreal.EditorAssetLibrary.does_directory_exist('%s/%s' % (dest, base)): unreal.EditorAssetLibrary.delete_directory('%s/%s' % (dest, base))
     paths = import_file(path, dest); out = []; mesh = None
     for p in paths:
         a = unreal.load_asset(p)

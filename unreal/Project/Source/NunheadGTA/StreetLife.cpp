@@ -69,20 +69,24 @@ AStreetWalker::AStreetWalker()
 	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Mesh->SetRelativeRotation(FRotator(0, -90.f, 0));
 }
-void AStreetWalker::Dress(const FString& MeshPath, float HeightCm)
+void AStreetWalker::Dress(const FString& MeshPath, float HeightCm, bool bUseBlendSpace)
 {
 	USkeletalMesh* SM = LoadObject<USkeletalMesh>(nullptr, *MeshPath);
 	if (!SM) { UE_LOG(LogNunhead, Warning, TEXT("Walker mesh not found at %s"), *MeshPath); return; }
 	Mesh->SetSkeletalMesh(SM);
 	const float H = SM->GetBounds().BoxExtent.Z * 2.f; if (H > 0.01f) Mesh->SetRelativeScale3D(FVector(HeightCm / H));   // the glTF skeletal import lands at 1/100 scale
 	Mesh->SetAnimationMode(EAnimationMode::AnimationSingleNode);
-	Blend = LoadObject<UBlendSpace>(nullptr, *(MeshPath + TEXT("_BS")));
+	IdleClip = LoadObject<UAnimSequence>(nullptr, *(MeshPath + TEXT("_Anim_idle"))); WalkClip = LoadObject<UAnimSequence>(nullptr, *(MeshPath + TEXT("_Anim_walk")));
+	if (!WalkClip) WalkClip = LoadObject<UAnimSequence>(nullptr, *(MeshPath + TEXT("_Anim_run")));
+	Blend = bUseBlendSpace ? LoadObject<UBlendSpace>(nullptr, *(MeshPath + TEXT("_BS"))) : nullptr;
 	if (Blend) { Mesh->SetAnimation(Blend); Mesh->Play(true); }
-	else if (UAnimSequence* Walk = LoadObject<UAnimSequence>(nullptr, *(MeshPath + TEXT("_Anim_walk")))) Mesh->PlayAnimation(Walk, true);
+	else SetSpeed(Speed);
 }
 void AStreetWalker::SetSpeed(float V)
 {
-	if (Blend) if (UAnimSingleNodeInstance* N = Mesh->GetSingleNodeInstance()) N->SetBlendSpacePosition(FVector(V, 0, 0));
+	if (Blend) { if (UAnimSingleNodeInstance* N = Mesh->GetSingleNodeInstance()) N->SetBlendSpacePosition(FVector(V, 0, 0)); return; }
+	UAnimSequence* Want = V > 10.f ? WalkClip : IdleClip; if (!Want) Want = WalkClip ? WalkClip : IdleClip;
+	if (Want && Want != Current) { Current = Want; Mesh->PlayAnimation(Want, true); }
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -311,7 +315,7 @@ void AStreetLife::SpawnAll(const FVector& Near)
 	{
 		const int32 P = PickPath(Pavements, Near, 14000.f, 0.f, 1e9f); if (P < 0) break;
 		AStreetWalker* A = W->SpawnActor<AStreetWalker>(AStreetWalker::StaticClass(), FTransform::Identity, SP); if (!A) break;
-		A->Dress(Rnd.FRand() < 0.5f ? ManMeshPath : WomanMeshPath, 175.f);
+		A->Dress(Rnd.FRand() < 0.5f ? ManMeshPath : WomanMeshPath, 175.f, bUseBlendSpace);
 		A->Path = P; A->Dir = Rnd.FRand() < 0.5f ? 1 : -1; A->S = Rnd.FRand() * Pavements[P].Len; A->Speed = 115.f + Rnd.FRand() * 50.f;
 		FVector2D Dd; const FVector L = Pavements[P].At(A->S, A->Dir, &Dd); A->SetActorLocationAndRotation(L, FRotator(0, YawOf(Dd), 0));
 		Walkerz.Add(A);

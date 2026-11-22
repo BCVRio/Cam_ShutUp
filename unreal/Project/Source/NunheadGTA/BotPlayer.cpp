@@ -35,7 +35,7 @@ void ABotPlayer::BeginPlay()
 		// clips imported next to the mesh: <name>_Anim_idle / _Anim_run, and <name>_BS when the import made a blend space
 		IdleAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_idle"))); RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_run")));
 		if (!RunAnim) RunAnim = LoadObject<UAnimSequence>(nullptr, *(Path + TEXT("_Anim_walk")));
-		MoveBlend = LoadObject<UBlendSpace>(nullptr, *(Path + TEXT("_BS")));
+		MoveBlend = bUseBlendSpace ? LoadObject<UBlendSpace>(nullptr, *(Path + TEXT("_BS"))) : nullptr;
 		if (MoveBlend) { GetMesh()->SetAnimation(MoveBlend); GetMesh()->Play(true); } else PlayClip(IdleAnim);
 	}
 	else UE_LOG(LogNunhead, Warning, TEXT("Bot mesh not found at %s"), *Path);

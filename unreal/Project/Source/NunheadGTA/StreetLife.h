@@ -3,7 +3,7 @@
 #include "GameFramework/Actor.h"
 #include "StreetLife.generated.h"
 
-class USkeletalMeshComponent; class UStaticMeshComponent; class UBlendSpace; class USoundBase; class UStaticMesh; class USceneComponent;
+class USkeletalMeshComponent; class UStaticMeshComponent; class UBlendSpace; class UAnimSequence; class USoundBase; class UStaticMesh; class USceneComponent;
 
 // A polyline from world.json (a road centreline or a pavement edge), in level centimetres, with cumulative lengths.
 USTRUCT()
@@ -22,11 +22,11 @@ class NUNHEADGTA_API AStreetWalker : public AActor
 public:
 	AStreetWalker();
 	UPROPERTY(VisibleAnywhere) USkeletalMeshComponent* Mesh;
-	void Dress(const FString& MeshPath, float HeightCm);
+	void Dress(const FString& MeshPath, float HeightCm, bool bUseBlendSpace);
 	void SetSpeed(float CmPerSec);
 	int32 Path = -1; int32 Dir = 1; float S = 0.f; float Speed = 130.f; bool bWalking = true;
 private:
-	UPROPERTY() UBlendSpace* Blend = nullptr;
+	UPROPERTY() UBlendSpace* Blend = nullptr; UPROPERTY() UAnimSequence* IdleClip = nullptr; UPROPERTY() UAnimSequence* WalkClip = nullptr; UPROPERTY() UAnimSequence* Current = nullptr;
 };
 
 // A car that drives on the left and brakes for anyone in the road ahead. Its body is every static mesh under a folder
@@ -90,6 +90,7 @@ public:
 	UPROPERTY(Config) FString CatMeshPath; UPROPERTY(Config) FString BirdFolder;
 	UPROPERTY(Config) FString CarPassSoundPath; UPROPERTY(Config) FString MeowSoundPath; UPROPERTY(Config) FString PigeonsSoundPath;
 	UPROPERTY(Config) float CarYawFix = 180.f;
+	UPROPERTY(Config) bool bUseBlendSpace = false;   // see BotPlayer: clips switch instead
 	// testing aid: seconds after start to move Cam beside the pedestrian nearest a car, so the game mode's auto screenshot
 	// shows the street (0 = never); -ini:Game:[/Script/NunheadGTA.StreetLife]:PhotoSeconds=22
 	UPROPERTY(Config) float PhotoSeconds = 0.f;
