@@ -4,7 +4,9 @@ or headless:  UnrealEditor-Cmd <project> -run=pythonscript -script="<repo>/unrea
 Imports unreal/nunhead_green.glb (the street scene exported from the browser game) and Cam's models, lights it,
 grows grass on the Green, drops the ball, goals, team-mates and Rovers onto it and saves /Game/Nunhead/NunheadGreen.
 Set EVENING=1 in the environment for the golden-hour version, NANITE=0 to leave Nanite off, GRASS=0 for no grass,
-MATERIALS=0 to keep the export's own (downsized) textures instead of the shared full-size street materials."""
+MATERIALS=0 to keep the export's own (downsized) textures instead of the shared full-size street materials.
+WORLD=1 builds /Game/Nunhead/NunheadWorld instead: the whole map from unreal/exports (WORLD_AREAS picks the files)
+with the match still on the Green and the streets alive (pedestrians, cars, cats, birds)."""
 import unreal, os, json
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +34,7 @@ def import_file(path, dest):
     if not paths: paths = [p for p in unreal.EditorAssetLibrary.list_assets(dest, recursive=True)]   # some Interchange versions report nothing
     log('imported %d from %s: %s' % (len(paths), os.path.basename(path), ', '.join(p.split('/')[-1] for p in paths[:12]))); return paths
 
-def make_blendspace(dest, base, mesh):
+def make_blendspace(dest, base, mesh, top=RUN_SPEED):
     """<base>_BS: a 1D blend space on the mesh's skeleton, idle at 0 and run at RUN_SPEED, so the characters blend
     between the two by speed instead of switching clips. Any failure just means the C++ falls back to switching."""
     path = '%s/%s_BS' % (dest, base)
@@ -45,19 +47,19 @@ def make_blendspace(dest, base, mesh):
             f = unreal.BlendSpaceFactory1D(); f.set_editor_property('target_skeleton', skel)
             bs = tools.create_asset(base + '_BS', dest, unreal.BlendSpace1D, f)
         if bs is None: log('blend space %s: create_asset failed' % base); return None
-        p = unreal.BlendParameter(); p.set_editor_property('display_name', 'Speed'); p.set_editor_property('min', 0.0); p.set_editor_property('max', RUN_SPEED * 1.4); p.set_editor_property('grid_num', 4)
+        p = unreal.BlendParameter(); p.set_editor_property('display_name', 'Speed'); p.set_editor_property('min', 0.0); p.set_editor_property('max', top * 1.4); p.set_editor_property('grid_num', 4)
         try: bs.set_editor_property('blend_parameters', [p, unreal.BlendParameter(), unreal.BlendParameter()])
         except Exception as e:
             params = bs.get_editor_property('blend_parameters'); params[0] = p; bs.set_editor_property('blend_parameters', params); log('blend parameters set via fixed array (%s)' % e)
         def sample(anim, x):
             s = unreal.BlendSample(); s.set_editor_property('animation', anim); s.set_editor_property('sample_value', unreal.Vector(x, 0, 0)); s.set_editor_property('rate_scale', 1.0); return s
-        bs.set_editor_property('sample_data', [sample(idle, 0.0), sample(run, RUN_SPEED)])
+        bs.set_editor_property('sample_data', [sample(idle, 0.0), sample(run, top)])
         unreal.EditorAssetLibrary.save_loaded_asset(bs)
         log('blend space %s: %d samples' % (path, len(bs.get_editor_property('sample_data')))); return bs
     except Exception as e:
         log('blend space %s failed: %s' % (base, e)); return None
 
-def import_character(path, dest, base):
+def import_character(path, dest, base, top=RUN_SPEED):
     # deterministic names: <base> for the skeletal mesh, <base>_Anim_<idle|run|walk|jump|dance> for the clips, <base>_BS the blend space
     paths = import_file(path, dest); out = []; mesh = None
     for p in paths:
@@ -72,7 +74,7 @@ def import_character(path, dest, base):
             try: unreal.EditorAssetLibrary.rename_asset(p, newp); out.append(newp)
             except Exception as e: log('rename %s: %s' % (p, e))
     log('character %s: %s' % (base, out))
-    make_blendspace(dest, base, mesh or unreal.load_asset('%s/%s' % (dest, base)))
+    make_blendspace(dest, base, mesh or unreal.load_asset('%s/%s' % (dest, base)), top)
     return paths
 
 def tune_static_meshes(paths):
@@ -86,7 +88,7 @@ def tune_static_meshes(paths):
             if bs: bs.set_editor_property('collision_trace_flag', unreal.CollisionTraceFlag.CTF_USE_COMPLEX_AS_SIMPLE)
         except Exception as e: log('collision: %s' % e)
         try:
-            if sms and os.environ.get('NANITE', '1') == '1':
+            if sms and os.environ.get('NANITE', '1') == '1' and not a.get_editor_property('nanite_settings').enabled:
                 s = unreal.MeshNaniteSettings(); s.enabled = True; sms.set_nanite_settings(a, s, True)
         except Exception as e: log('nanite: %s' % e)
         n += 1
@@ -223,6 +225,101 @@ def materials(paths):
         if hit: meshes += 1
     log('street materials: %d instances from full-size textures on %d slots of %d meshes' % (len(instances), slots, meshes))
 
+# ---------------------------------------------------------------------------------------------------------------------
+# The whole world (WORLD=1): the five area GLBs from tools/export.html, scene-imported so every node keeps its
+# transform, repeated props folded into PropCluster actors, the street-life manager fed with world.json.
+EXPORTS = os.path.join(REPO, 'unreal', 'exports')
+WORLD_LEVEL = '/Game/Nunhead/NunheadWorld'
+WORLD_DIR = '/Game/Nunhead/World'
+PROPS_DIR = '/Game/Nunhead/Props'
+PEOPLE_DIR = '/Game/Nunhead/People'
+WORLD_AREAS = [a for a in os.environ.get('WORLD_AREAS', 'nunhead,stadium,cage,park,streets').split(',') if a]
+WALK_SPEED = 150.0     # cm/s at which the pedestrians' walk clip plays at full weight
+
+def import_area(name):
+    """Scene-import unreal/exports/<name>.glb into the open level: one actor per node with the export's transforms
+    (Interchange converts metres / Y-up to centimetres / Z-up), the assets under /Game/Nunhead/World/<name>.
+    The folder is wiped first so a re-run is a fresh import, not a reimport that keeps deleted actors deleted."""
+    import time
+    path = os.path.join(EXPORTS, name + '.glb')
+    if not os.path.exists(path): log('area %s: missing %s' % (name, path)); return []
+    folder = '%s/%s' % (WORLD_DIR, name)
+    if unreal.EditorAssetLibrary.does_directory_exist(folder): unreal.EditorAssetLibrary.delete_directory(folder)
+    mgr = unreal.InterchangeManager.get_interchange_manager_scripted()
+    sd = unreal.InterchangeManager.create_source_data(path)
+    params = unreal.ImportAssetParameters(); params.is_automated = True; params.replace_existing = True
+    params.override_pipelines = [unreal.SoftObjectPath(p) for p in (
+        '/Interchange/Pipelines/DefaultGLTFSceneAssetsPipeline.DefaultGLTFSceneAssetsPipeline',
+        '/Interchange/Pipelines/DefaultGLTFPipeline.DefaultGLTFPipeline',
+        '/Interchange/Pipelines/DefaultSceneLevelPipeline.DefaultSceneLevelPipeline')]
+    try: params.import_level = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).get_current_level()
+    except Exception as e: log('area %s: import level: %s' % (name, e))
+    t0 = time.time(); ok = mgr.import_scene(WORLD_DIR, sd, params)
+    paths = list(unreal.EditorAssetLibrary.list_assets(folder, recursive=True))
+    log('area %s: import_scene %s in %.0f s, %d assets' % (name, ok, time.time() - t0, len(paths)))
+    return paths
+
+def cluster_props(min_count=8):
+    """Fold the StaticMeshActors that share a mesh (house modules, garden walls, trees, lamps, parked cars, bins) into
+    one PropCluster (a hierarchical instanced static mesh) each: a few dozen actors instead of twenty thousand."""
+    sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    groups = {}
+    for a in sub.get_all_level_actors():
+        if not isinstance(a, unreal.StaticMeshActor): continue
+        c = a.static_mesh_component; m = c.static_mesh if c else None
+        if m is None: continue
+        groups.setdefault(m.get_path_name(), []).append(a)
+    Cluster = unreal.load_class(None, '/Script/NunheadGTA.PropCluster')
+    n_act = n_inst = 0; doomed = []
+    for mp, acts in groups.items():
+        if len(acts) < min_count: continue
+        mesh = acts[0].static_mesh_component.static_mesh
+        xf = [a.get_actor_transform() for a in acts]
+        cl = spawn(Cluster, (0, 0, 0), label='Cluster_%s_x%d' % (mesh.get_name(), len(acts))); cl.set_folder_path('Nunhead/Props')
+        k = cl.fill(mesh, xf, True)
+        doomed += acts; n_act += 1; n_inst += k
+        log('cluster %s: %d instances' % (mesh.get_name(), k))
+    destroy_actors(doomed)
+    log('clustered %d instances into %d PropCluster actors' % (n_inst, n_act))
+
+def destroy_actors(actors):
+    """One bulk delete: destroying twenty thousand actors one by one keeps the editor busy for hours."""
+    if not actors: return 0
+    sub = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
+    try: sub.destroy_actors(list(actors)); return len(actors)
+    except Exception as e:
+        log('destroy_actors: %s (one by one)' % e); return sum(1 for a in actors if sub.destroy_actor(a))
+
+def import_props():
+    """The street life's bodies: the browser's car and cat props as static meshes, the birds from make_bird.py, and the
+    man and woman walkers as skeletal meshes with an idle / walk blend space."""
+    for n, dest in (('prop_car_hatchback', PROPS_DIR + '/hatchback'), ('prop_car_van', PROPS_DIR + '/van'), ('acc_cat', PROPS_DIR + '/cat')):
+        tune_static_meshes(import_file(os.path.join(MODELS, n + '.glb'), dest))
+    import_file(os.path.join(HERE, 'bird.glb'), PROPS_DIR + '/bird')
+    for n in ('npc_man', 'npc_woman'): import_character(os.path.join(MODELS, n + '.glb'), PEOPLE_DIR, n, top=WALK_SPEED)
+
+def street_life():
+    a = spawn(unreal.load_class(None, '/Script/NunheadGTA.StreetLife'), (0, 0, 0), label='StreetLife')
+    a.set_editor_property('world_json', os.path.join(EXPORTS, 'world.json')); a.set_folder_path('Nunhead/Street')
+    log('street life: %s' % os.path.join(EXPORTS, 'world.json'))
+
+def grass_surface(placed):
+    """The Green's grass sheet: map_mesh_0 in the Green export, or in a world import the mesh_grass_* actor whose
+    bounds hold the pitch centre (the smallest such, so the streets file's grass does not win)."""
+    s = placed.get('map_mesh_0') or next((a for n, a in placed.items() if n.startswith('map_mesh_0')), None)
+    if s: return s
+    cx, cy, cz = -294.0, 17.3, 412.0
+    pj = os.path.join(HERE, 'pitch.json')
+    if os.path.exists(pj):
+        with open(pj) as f: cx, cy, cz = json.load(f)['centre_gltf']
+    best = None
+    for n, a in placed.items():
+        if not (n.startswith('mesh_grass') and isinstance(a, unreal.StaticMeshActor)): continue
+        o, e = a.get_actor_bounds(False)
+        if abs(o.x - cx * 100) < e.x and (abs(o.y - cz * 100) < e.y or abs(o.y + cz * 100) < e.y):
+            if best is None or e.x * e.y < best[0]: best = (e.x * e.y, a)
+    return best[1] if best else None
+
 def spawn(cls, loc=(0, 0, 0), rot=(0, 0, 0), label=None):   # rot is (pitch, yaw, roll)
     a = unreal.EditorLevelLibrary.spawn_actor_from_class(cls, unreal.Vector(*loc), unreal.Rotator(roll=rot[2], pitch=rot[0], yaw=rot[1]))
     if label and a: a.set_actor_label(label)
@@ -241,8 +338,8 @@ def grass(placed):
     """A GrassField over the Green's grass surface (the export's map_mesh_0, material 'grass'): the clump mesh from
     grass_card.glb with a masked, two-sided material built here, scattered by the C++ actor with line traces."""
     if os.environ.get('GRASS', '1') != '1': return
-    surface = placed.get('map_mesh_0') or next((a for n, a in placed.items() if n.startswith('map_mesh_0')), None)
-    if surface is None: log('grass: no map_mesh_0 surface in the export'); return
+    surface = grass_surface(placed)
+    if surface is None: log('grass: no grass surface found'); return
     paths = import_file(GRASS_GLB, '/Game/Nunhead/Foliage')
     mesh = tex = None
     for p in paths:
@@ -283,7 +380,7 @@ def grass(placed):
     except Exception as e: log('grass material: %s (the import\'s own material stays)' % e)
     field = spawn(unreal.load_class(None, '/Script/NunheadGTA.GrassField'), (0, 0, 0), label='Grass')
     field.set_folder_path('Nunhead/Foliage')
-    cx, cy = pitch_centre(placed)   # the pitch itself stays mown
+    cx, cy = pitch_centre(surface)   # the pitch itself stays mown
     field.set_editor_property('clear_centre', unreal.Vector(cx, cy, 0)); field.set_editor_property('clear_half_extent', unreal.Vector2D(2700, 2300))
     n = field.scatter(surface, mesh)
     log('grass: %d clumps' % n)
@@ -336,7 +433,7 @@ def ground_z(x, y, default=0.0):
         return float(parts[4].z)
     except Exception as e: log('ground_z(%s, %s): %s' % (x, y, e)); return default
 
-def pitch_centre(placed):
+def pitch_centre(surface):
     """The middle of Nunhead Green in level coordinates. find_pitch.py measured it in the export's metres / Y-up frame
     (pitch.json); the placed grass actor's bounds tell which way Interchange turned the glTF Z axis."""
     cx, cy, cz = -294.0, 17.3, 412.0
@@ -344,7 +441,6 @@ def pitch_centre(placed):
     if os.path.exists(pj):
         with open(pj) as f: cx, cy, cz = json.load(f)['centre_gltf']
     sign = -1.0
-    surface = placed.get('map_mesh_0')
     if surface:
         o, e = surface.get_actor_bounds(False)
         sign = 1.0 if abs(o.y - cz * 100) < abs(o.y + cz * 100) else -1.0
@@ -356,7 +452,7 @@ def gameplay(placed):
     cls = lambda n: unreal.load_class(None, '/Script/NunheadGTA.' + n)
     Goal, Ball, Bot, Team, Role = cls('Goal'), cls('Football'), cls('BotPlayer'), unreal.Team, unreal.BotRole   # Python drops the E prefix of UENUMs
     L = 2000.0
-    CX, CY = pitch_centre(placed)
+    CX, CY = pitch_centre(grass_surface(placed))
     def at(x, y, up=0.0): return (CX + x, CY + y, ground_z(CX + x, CY + y, default=1730.0) + up)
     log('pitch centre (%.0f, %.0f): ground Z = %.0f, goal lines: %.0f / %.0f' % (CX, CY, at(0, 0)[2], at(L, 0)[2], at(-L, 0)[2]))
     g1 = spawn(Goal, at(L, 0), (0, 180, 0), 'Goal_RoversDefend'); g1.set_editor_property('defending_team', Team.AWAY)
@@ -374,7 +470,7 @@ def gameplay(placed):
     except Exception as e: log('game mode: %s' % e)
 
 def audio():
-    for n in ['shutup_1', 'shutup_2', 'shutup_3', 'yay', 'ooh', 'ohyeah', 'ohno', 'woohoo', 'ref_whistle', 'crowd_stadium_loop', 'crowd_stadium_goal', 'crowd_stadium_groan', 'crowd_kids_cheer']:
+    for n in ['shutup_1', 'shutup_2', 'shutup_3', 'yay', 'ooh', 'ohyeah', 'ohno', 'woohoo', 'ref_whistle', 'crowd_stadium_loop', 'crowd_stadium_goal', 'crowd_stadium_groan', 'crowd_kids_cheer', 'car_pass', 'cat_meow', 'pigeons']:
         import_file(os.path.join(AUDIO, n + '.wav'), '/Game/Nunhead/Audio')
     loop = unreal.load_asset('/Game/Nunhead/Audio/crowd_stadium_loop')
     if loop:
@@ -382,19 +478,32 @@ def audio():
         except Exception as e: log('crowd loop: %s' % e)
 
 if __name__ == '__main__':
+    WORLD = os.environ.get('WORLD') == '1'
+    level = WORLD_LEVEL if WORLD else LEVEL
     les = unreal.get_editor_subsystem(unreal.LevelEditorSubsystem)
-    if unreal.EditorAssetLibrary.does_asset_exist(LEVEL):
+    if unreal.EditorAssetLibrary.does_asset_exist(level):
         # re-run: reuse the level, emptied (deleting a map from Python leaves its file on disk, and new_level then refuses the path)
-        les.load_level(LEVEL)
-        actors = unreal.get_editor_subsystem(unreal.EditorActorSubsystem)
-        n = sum(1 for a in actors.get_all_level_actors() if actors.destroy_actor(a)); log('cleared %d actors from %s' % (n, LEVEL))
-    else: les.new_level(LEVEL)
-    street = import_file(GLB, '/Game/Nunhead/Green'); tune_static_meshes(street); materials(street); placed = place_scene(street)
+        les.load_level(level)
+        n = destroy_actors(unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors()); log('cleared %d actors from %s' % (n, level))
+    else: les.new_level(level)
+    if WORLD:
+        street = []
+        for area in WORLD_AREAS: street += import_area(area)
+        tune_static_meshes(street); materials(street); cluster_props()
+        placed = {}
+        for a in unreal.get_editor_subsystem(unreal.EditorActorSubsystem).get_all_level_actors():   # labels repeat across the area files
+            k = a.get_actor_label(); i = 1
+            while k in placed: i += 1; k = '%s_%d' % (a.get_actor_label(), i)
+            placed[k] = a
+        import_props()
+    else:
+        street = import_file(GLB, '/Game/Nunhead/Green'); tune_static_meshes(street); materials(street); placed = place_scene(street)
     import_character(os.path.join(MODELS, 'cam.glb'), '/Game/Nunhead/Cam', 'cam')
     for n in ['npc_boy_home', 'npc_boy_away', 'npc_boy_keeper']: import_character(os.path.join(MODELS, n + '.glb'), '/Game/Nunhead/Players', n)
     audio()
     lighting(os.environ.get('EVENING') == '1')
     gameplay(placed)
     grass(placed)
+    if WORLD: street_life()
     les.save_current_level(); unreal.EditorAssetLibrary.save_directory('/Game/Nunhead', recursive=True)
-    log('Nunhead Green built and saved: ' + LEVEL)
+    log('Nunhead Green built and saved: ' + level)

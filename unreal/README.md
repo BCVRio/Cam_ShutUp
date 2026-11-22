@@ -24,6 +24,8 @@ real bounced light, soft contact shadows and proper reflections on the puddles.
   facades inside-out (mirrored geometry), which a dynamic sun lights as black walls. Run it on any new export.
 - `make_detail.py` / `detail_normal.png` — a tileable micro-surface normal map that the street materials layer over
   their textures at a fine tiling, so brick, slate and tarmac keep grain up close.
+- `make_bird.py` / `bird.glb` — the street birds (a body and a wing, dark and grey) that `StreetLife` flaps.
+- `exports/` — the whole-map GLBs from `tools/export.html` (ignored by git, see the end) and `world.json`.
 - `create_project.py` — Windows one-shot: copies the project, writes `OpenAndBuild.bat`.
 
 The C++ needs a compiler: on Windows install Visual Studio 2022 or 2026 (Community, or the free Build Tools:
@@ -126,6 +128,27 @@ in at real-world scale. The export keeps the browser game's world origin, so Nun
 its grass sheet is centred about (-294, 412) m in the export's X/Z with the ground some 17 m up. `find_pitch.py`
 measures that from the GLB into `pitch.json`, and `build_green.py` puts the pitch there, snapping the goals, ball
 and players onto the traced ground; the game mode takes the pitch frame from the two goals, so nothing assumes the origin.
+
+## The whole world in Unreal
+
+    powershell -File unreal\test_cycle.ps1 -World
+
+builds `/Game/Nunhead/NunheadWorld` (`WORLD=1` for `build_green.py`) from the five GLBs in `unreal/exports/`: each
+file is scene-imported through Interchange, so every node keeps the export's transform (metres and Y-up become
+centimetres and Z-up on the way in), then the repeated props (house modules, garden walls, trees, lamps, parked
+cars, bins) are folded into `PropCluster` actors, one hierarchical instanced static mesh per shared mesh, which
+takes the streets file from twenty thousand actors to a few dozen clusters plus the unique terrain, road and
+terrace meshes. The same material pass, lighting, match on the Green and grass apply; `WORLD_AREAS=nunhead,park`
+limits the files for a quick build. The Green-only level stays the default map.
+
+**Streets alive.** A `StreetLife` actor reads `unreal/exports/world.json` (the path is set on the actor; the project
+folder is searched otherwise) and keeps the browser game's street life going around Cam: 18 pedestrians (the
+`npc_man` / `npc_woman` meshes with an idle-to-walk blend space) walking the pavement polylines and turning onto a
+joined pavement at the end, who stop and face Cam when he walks up to them; 6 cars (the hatchback and van props)
+driving on the left at 6 to 9 m/s that brake for Cam, pedestrians, cats and each other in the road ahead and whoosh
+past; 4 cats sitting by the kerb that wander and miaow at Cam; flocks circling over the greens and pigeons on the
+Green and the park that scatter when he runs at them. Everything recycles to near Cam when it drifts far away.
+Counts and the mesh / sound paths are on the actor and in `DefaultGame.ini`.
 
 ## Exporting the whole world
 

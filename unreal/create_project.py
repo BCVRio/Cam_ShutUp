@@ -44,7 +44,7 @@ if eng:
     j['EngineAssociation'] = eng[-1][0]
     with open(up, 'w') as f: json.dump(j, f, indent=2)
     print('engine:', eng[-1][0], 'at', eng[-1][1])
-for fn in ['build_green.py', 'nunhead_green.glb', 'grass_card.glb', 'pitch.json', 'detail_normal.png']:
+for fn in ['build_green.py', 'nunhead_green.glb', 'grass_card.glb', 'pitch.json', 'detail_normal.png', 'bird.glb']:
     src = os.path.join(here, fn)
     if os.path.exists(src): shutil.copy2(src, os.path.join(dest, fn)); print('copied', fn)
     else: print('MISSING', fn, '- pull the latest cam-shutup-game branch' + (' and run make_grass.py' if fn.startswith('grass') else ''))
