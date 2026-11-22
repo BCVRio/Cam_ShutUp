@@ -174,7 +174,10 @@ and the tools are committed.
 What the GLBs hold: textures at their source size (facades 2048, the rest 1024; colour and normal maps as JPEG, the
 merged roughness/metalness map as PNG), base colour, normal and roughness/metalness maps on every street material,
 materials named by texture family (`brick`, `tarmac`, `facade_victorian`...) so `build_green.py`'s material pass
-can match them, and every node tagged `extras.area`. Merged meshes that span areas (terrain, roads, pavements,
+can match them, and every node tagged `extras.area`. UVs follow the glTF and Unreal convention (v = 0 at the top of
+the image) and the images are not flipped, so the source textures in `public/textures` sit the right way up on these
+meshes without any V flip in the material. Every triangle is wound to agree with its normal and the terrace walls are
+turned to face the street and un-mirrored, so `fix_winding.py` is not needed on these files. Merged meshes that span areas (terrain, roads, pavements,
 terraces) are cut by triangle so each file holds only its area. Instanced props (house modules, garden walls, trees,
 parked cars, benches, lamps, beacons) come out as one node per instance (`inst_<prop>_<n>`) sharing one mesh, so
 Unreal can instance them again. Left out: the player, pedestrians, cars that drive, cats, birds, shopkeepers, the

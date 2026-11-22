@@ -14,7 +14,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/+esm';
 import { GLTFExporter } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/exporters/GLTFExporter.js/+esm';
 import { CFG, MAT, scene, player } from '../src/core.js';
-import { world, terrainHeight, groundAt, inStadium } from '../src/map.js';
+import { world, terrainHeight, groundAt, inStadium, polys } from '../src/map.js';
 import { ROAD_LIFT, PAVE_LIFT } from '../src/streets.js';
 import { updateScenery } from '../src/scenery.js';
 import { PROPS, propInfo, loadProp } from '../src/props.js';
@@ -29,6 +29,8 @@ const AREA_IDS = [...AREAS.map((a) => a.id), 'streets'];
 // MAT key -> texture family name, so Unreal's build script can match materials to public/textures by name
 const FAMILY = { ground: 'grass', terrace: 'facade_terrace', terraceB: 'facade_victorian', terraceC: 'facade_edwardian', shopfront: 'facade_shop', flats: 'facade_flats', terraceFar: 'facade_victorian', slateFar: 'slate' };
 const TEX_KEYS = ['map', 'normalMap', 'roughnessMap', 'metalnessMap', 'emissiveMap', 'alphaMap', 'aoMap', 'bumpMap'];
+// building walls: their quads are made outward-facing and un-mirrored against the footprint they stand on
+const WALL_FAMILIES = new Set(['facade_terrace', 'facade_victorian', 'facade_edwardian', 'facade_shop', 'facade_flats', 'brick', 'concrete', 'stone']);
 
 const post = (type, data) => { try { window.parent.postMessage({ type, ...data }, '*'); } catch (_) {} };
 const log = (msg) => { console.log('[export] ' + msg); post('export-log', { msg }); };
@@ -101,6 +103,72 @@ function skipReason(o, roots) {
 }
 
 // ---------------------------------------------------------------------------
+// Geometry conventions for Unreal
+//  - UVs: Three.js textures are flipped on upload (v = 0 at the bottom of the image); glTF and Unreal read v = 0 at the
+//    top. The exporter would flip the embedded images to compensate, but then the full-size source textures in
+//    public/textures land upside down when Unreal's material pass puts them on the same meshes. So the geometry's v is
+//    flipped instead (v -> 1 - v) and the images go out as they are: embedded and source textures agree.
+//  - Winding: Unreal culls by winding and shades by the stored normal, so every triangle is wound to agree with its normal.
+//  - Building walls: map.js winds the facade quads against their normals and points the normals inward on clockwise
+//    footprints (the browser hides it with double-sided materials). Each wall quad is tested against its footprint and
+//    turned outward, with its u run left-to-right for a viewer on the street.
+// ---------------------------------------------------------------------------
+const usesFlipY = (mats) => mats.some((m) => TEX_KEYS.some((k) => m[k] && m[k].isTexture && m[k].flipY));
+function flipV(g) { const uv = g.attributes.uv; if (!uv) return; for (let i = 0; i < uv.count; i++) uv.setY(i, 1 - uv.getY(i)); }
+function ensureIndex(g) { if (!g.index) { const n = g.attributes.position.count; g.setIndex(new THREE.BufferAttribute(n > 65535 ? new Uint32Array(n).map((_, i) => i) : new Uint16Array(n).map((_, i) => i), 1)); } return g.index; }
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _n = new THREE.Vector3(), _e1 = new THREE.Vector3(), _e2 = new THREE.Vector3();
+function alignWinding(g) {
+  const pos = g.attributes.position, nor = g.attributes.normal; if (!nor) return 0;
+  const idx = ensureIndex(g); let flipped = 0;
+  for (let t = 0; t < idx.count - 2; t += 3) {
+    const ia = idx.getX(t), ib = idx.getX(t + 1), ic = idx.getX(t + 2);
+    _a.fromBufferAttribute(pos, ia); _e1.fromBufferAttribute(pos, ib).sub(_a); _e2.fromBufferAttribute(pos, ic).sub(_a); _n.fromBufferAttribute(nor, ia);
+    if (_e1.cross(_e2).dot(_n) < 0) { idx.setX(t + 1, ic); idx.setX(t + 2, ib); flipped++; }
+  }
+  return flipped;
+}
+function pointInPoly(x, z, p) { let inside = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) { const xi = p[i][0], zi = p[i][1], xj = p[j][0], zj = p[j][1]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) inside = !inside; } return inside; }
+let polyGrid = null; const PCELL = 24;
+function polyAt(x, z, tol = 0.03) {   // the building footprint with an edge under (x, z)
+  if (!polyGrid) { polyGrid = new Map(); for (const poly of polys) for (let cx = Math.floor((poly.minx - 1) / PCELL); cx <= Math.floor((poly.maxx + 1) / PCELL); cx++) for (let cz = Math.floor((poly.minz - 1) / PCELL); cz <= Math.floor((poly.maxz + 1) / PCELL); cz++) { const k = cx * 100000 + cz; if (!polyGrid.has(k)) polyGrid.set(k, []); polyGrid.get(k).push(poly); } }
+  const list = polyGrid.get(Math.floor(x / PCELL) * 100000 + Math.floor(z / PCELL)); if (!list) return null;
+  for (const poly of list) {
+    if (x < poly.minx - tol || x > poly.maxx + tol || z < poly.minz - tol || z > poly.maxz + tol) continue;
+    const p = poly.p;
+    for (let i = 0; i < p.length; i++) { const [ax, az] = p[i], [bx, bz] = p[(i + 1) % p.length]; const dx = bx - ax, dz = bz - az, l2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / l2)); if (Math.hypot(x - ax - dx * t, z - az - dz * t) < tol) return poly; }
+  }
+  return null;
+}
+function fixFacades(g, M) {
+  const pos = g.attributes.position, nor = g.attributes.normal, uv = g.attributes.uv; if (!nor || !uv) return 0;
+  const idx = ensureIndex(g); const nm = new THREE.Matrix3().getNormalMatrix(M); const negU = new Set(); let turned = 0;
+  for (let t = 0; t < idx.count - 2; t += 3) {
+    const ia = idx.getX(t), ib = idx.getX(t + 1), ic = idx.getX(t + 2);
+    _n.fromBufferAttribute(nor, ia).applyMatrix3(nm).normalize(); if (Math.abs(_n.y) > 0.02) continue;   // walls only
+    _a.fromBufferAttribute(pos, ia).applyMatrix4(M); _b.fromBufferAttribute(pos, ib).applyMatrix4(M); _c.fromBufferAttribute(pos, ic).applyMatrix4(M);
+    const cx = (_a.x + _b.x + _c.x) / 3, cz = (_a.z + _b.z + _c.z) / 3;
+    const poly = polyAt(cx, cz); if (!poly) continue;   // chimneys, gables and other verticals are left as they are
+    const inward = pointInPoly(cx + _n.x * 0.3, cz + _n.z * 0.3, poly.p);
+    if (inward) { for (const i of [ia, ib, ic]) nor.setXYZ(i, -nor.getX(i), -nor.getY(i), -nor.getZ(i)); turned++; }
+    const ox = inward ? -_n.x : _n.x, oz = inward ? -_n.z : _n.z;
+    // u must grow to the right for a viewer facing the wall from outside; right = (oz, 0, -ox). Use the quad's level edge.
+    let p = null, q = null, pv = null, qv = null;
+    if (Math.abs(_a.y - _b.y) < 1e-4) { p = ia; q = ib; pv = _a; qv = _b; } else if (Math.abs(_a.y - _c.y) < 1e-4) { p = ia; q = ic; pv = _a; qv = _c; } else if (Math.abs(_b.y - _c.y) < 1e-4) { p = ib; q = ic; pv = _b; qv = _c; }
+    if (p !== null) { const du = uv.getX(q) - uv.getX(p); if (du * ((qv.x - pv.x) * oz - (qv.z - pv.z) * ox) < 0) { negU.add(ia); negU.add(ib); negU.add(ic); } }
+  }
+  for (const i of negU) uv.setX(i, -uv.getX(i));
+  return turned;
+}
+const conv = { turned: 0, wound: 0, flipped: 0 };
+function prepareGeometry(g, mats, M, fresh) {   // a copy of g with the conventions above applied
+  const out = fresh ? g : g.clone();
+  if (mats.some((m) => WALL_FAMILIES.has(m.name))) conv.turned += fixFacades(out, M);
+  conv.wound += alignWinding(out);
+  if (usesFlipY(mats)) { flipV(out); conv.flipped++; }
+  return out;
+}
+
+// ---------------------------------------------------------------------------
 // Static meshes, cut per area by triangle where they span more than one
 // ---------------------------------------------------------------------------
 const _v = new THREE.Vector3();
@@ -145,9 +213,10 @@ function collectStatics() {
     const why = skipReason(o, roots); if (why) { skipped[why] = (skipped[why] || 0) + 1; continue; }
     const matName = materialsOf(o)[0].name || 'mat'; const name = (o.name || 'mesh') + '_' + matName + '_' + String(n++).padStart(4, '0');
     const parts = materialsOf(o).length > 1 ? { [areaOf(_bb.getCenter(_v).x, _v.z)]: o.geometry } : partsByArea(o);
-    for (const [area, geometry] of Object.entries(parts)) out[area].push({ name, geometry, material: o.material, matrix: o.matrixWorld.clone() });
+    for (const [area, geometry] of Object.entries(parts)) out[area].push({ name, geometry: prepareGeometry(geometry, materialsOf(o), o.matrixWorld, geometry !== o.geometry), material: o.material, matrix: o.matrixWorld.clone() });
   }
   log(`static meshes: ${n} kept (${AREA_IDS.map((a) => a + ' ' + out[a].length).join(', ')}); skipped ${Object.entries(skipped).map(([k, v]) => v + ' ' + k).join(', ') || 'none'}`);
+  log(`conventions: ${conv.turned} wall triangles turned outward, ${conv.wound} triangles rewound to their normals, v flipped on ${conv.flipped} geometries`);
   return out;
 }
 
@@ -174,7 +243,7 @@ function scanInstanced() {
 const _m = new THREE.Matrix4();
 function harvest(reg, g, keep) {
   const ims = g.ims.filter(Boolean); if (!ims.length) return 0;
-  let r = reg.get(g.prop); if (!r) reg.set(g.prop, (r = { prop: g.prop, subs: ims.map((im) => ({ geometry: im.geometry, material: im.material })), items: [] }));
+  let r = reg.get(g.prop); if (!r) reg.set(g.prop, (r = { prop: g.prop, subs: ims.map((im) => ({ geometry: prepareGeometry(im.geometry, materialsOf(im), im.matrixWorld, false), material: im.material })), items: [] }));
   const n = ims[0].count; let k = 0;
   for (let i = 0; i < n; i++) {
     ims[0].getMatrixAt(i, _m); const e = _m.elements; if (e[0] === 0 && e[5] === 0 && e[10] === 0) continue;   // zero-scaled slot
@@ -238,8 +307,12 @@ function buildAreaScene(id, statics, reg) {
   return { root, stats: { nodes, triangles: tris, uniqueMeshes: meshes.size, min: box.isEmpty() ? null : P3(box.min.x, box.min.y, box.min.z), max: box.isEmpty() ? null : P3(box.max.x, box.max.y, box.max.z) } };
 }
 async function exportGlb(root) {
-  const exporter = new GLTFExporter();
-  return exporter.parseAsync(root, { binary: true, onlyVisible: false, maxTextureSize: Infinity, includeCustomExtensions: false });
+  // the geometry already carries glTF-convention v, so the images must not be flipped: tell the exporter flipY is off
+  const flipped = []; root.traverse((o) => materialsOf(o).forEach((m) => { for (const k of TEX_KEYS) { const t = m[k]; if (t && t.isTexture && t.flipY) { t.flipY = false; flipped.push(t); } } }));
+  try {
+    const exporter = new GLTFExporter();
+    return await exporter.parseAsync(root, { binary: true, onlyVisible: false, maxTextureSize: Infinity, includeCustomExtensions: false });
+  } finally { for (const t of flipped) t.flipY = true; }   // the GPU copy was never re-uploaded, so the game keeps rendering as before
 }
 async function deliver(name, data, type) {
   if (OPT.upload) {
