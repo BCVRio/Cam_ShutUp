@@ -182,3 +182,25 @@ terraces) are cut by triangle so each file holds only its area. Instanced props 
 parked cars, benches, lamps, beacons) come out as one node per instance (`inst_<prop>_<n>`) sharing one mesh, so
 Unreal can instance them again. Left out: the player, pedestrians, cars that drive, cats, birds, shopkeepers, the
 footballs, the crowd strips, shop beacons and doorway markers, the sky, the grass carpet and the shop interior room.
+
+## Photo facades
+
+Real shop fronts and pubs, cut from reference photos, sit on the buildings they belong to in both versions of the game.
+The pipeline, all from the repo root:
+
+    python tools\photo_index.py reference\nunhead_green       (originals in: HEIC or JPEG with their EXIF)
+    python tools\cut_facades.py reference\nunhead_green       (corners from reference\nunhead_green\facades.json)
+
+`photo_index.py` reads each photo's GPS, compass heading and lens, projects it into map metres and casts a ray along
+the heading at the building footprints to name the facade it looks at; it writes `index.json`, `map.png`, a contact
+sheet and the folder's README. Chat uploads lose that metadata, so the originals go straight into the folder (HEIC
+and MOV stay local, ignored by git). The phone compass drifts beside parked cars: `overrides.json` corrects a heading
+or position per file. `cut_facades.py` perspective-warps a hand-picked quad (pavement to parapet, in `facades.json`)
+into a flat texture at 80 px/m, works out where its left and right ends fall on the map (from the camera and lens, or
+pinned to named buildings' camera-facing edges, or given outright), and writes `public/textures/facades/<name>.jpg`
+and `public/maps/facades.json`. The browser game reads that manifest in `buildBuildings`: a wall edge whose midpoint
+lies within 2 m of a facade's line, within 45 degrees of it and overlapping its span, is emitted as its own quad in a
+`photo_<name>` material with u running along the line, and the building takes the facade's measured height. The
+exporter treats `photo_` walls like the other facades (outward, un-mirrored), so the GLBs carry them with their
+textures embedded, and `build_green.py`'s material pass leaves unknown names on their imported material, which is
+exactly the photo. Cars, railings and trees in front of a ground floor are baked in; a cleaner shot replaces them.
