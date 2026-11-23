@@ -1,0 +1,12 @@
+{
+ "_note": "Facade cut-outs for tools/cut_facades.py. quad = pixel corners on the 2400 px JPEG, top-left, top-right, bottom-right, bottom-left, as seen from the street: bottom edge on the pavement, top edge at the eaves or parapet (roofs are separate geometry). height = that wall's real height in metres, by storeys. The script works out where the left and right ends land on the map from the photo's position, heading and lens. Optional buildings: [map building ids] pins the ends to those buildings' camera-facing edges instead of the rays (use when GPS put the camera a few metres out). Or ends: [[x,z],[x,z]] places the left and right ends exactly (map metres, as seen from the street).",
+ "facades": [
+  {"name": "man_of_kent", "photo": "IMG_9493", "quad": [[500, 490], [1870, 480], [1870, 1330], [500, 1340]], "height": 7.5, "ends": [[-326.7, 479.2], [-328.5, 465.6]]},
+  {"name": "pyrotechnists_arms", "photo": "IMG_9505", "quad": [[330, 390], [1600, 370], [1600, 1560], [330, 1560]], "height": 7.8, "ends": [[-252.1, 332.8], [-243.0, 327.3]]},
+  {"name": "salvation_army", "photo": "IMG_9492", "quad": [[1220, 505], [1520, 455], [1540, 1070], [1225, 1080]], "height": 8.0, "ends": [[-295.5, 375.7], [-304.4, 362.4]]},
+  {"name": "parade_gather", "photo": "IMG_9489", "quad": [[160, 445], [2390, 410], [2390, 1310], [160, 1320]], "height": 10.5},
+  {"name": "parade_forty", "photo": "IMG_9499", "quad": [[325, 595], [1305, 620], [1305, 1270], [325, 1275]], "height": 10.5},
+  {"name": "pharmacy_terrace", "photo": "IMG_9503", "quad": [[100, 720], [1640, 745], [1640, 1140], [100, 1130]], "height": 10.5, "ends": [[-240.94, 382.64], [-269.7, 421.1]]},
+  {"name": "almshouses", "photo": "IMG_9490", "quad": [[20, 830], [2350, 860], [2350, 1180], [20, 1170]], "height": 5.5}
+ ]
+}

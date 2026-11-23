@@ -57,7 +57,7 @@ def read_meta(path):
     # diagonal; the phone's 4:3 frame is a touch narrower, close enough for a wedge on a map)
     if out['focal35']:
         diag = math.degrees(2 * math.atan(21.63 / float(out['focal35'])))
-        portrait = out['orientation'] in (5, 6, 7, 8)
+        portrait = im.height > im.width or out['orientation'] in (5, 6, 7, 8)
         out['hfov'] = round(diag * (0.6 if portrait else 0.8), 1)
     else: out['hfov'] = None
     return out

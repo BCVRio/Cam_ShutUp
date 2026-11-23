@@ -1,0 +1,181 @@
+{
+ "generator": "tools/cut_facades.py",
+ "axes": "x east, z south, metres; left/right as seen from the street",
+ "facades": [
+  {
+   "name": "man_of_kent",
+   "texture": "textures/facades/man_of_kent.jpg",
+   "left": [
+    -326.7,
+    479.2
+   ],
+   "right": [
+    -328.5,
+    465.6
+   ],
+   "width": 13.72,
+   "height": 7.5,
+   "buildings": [
+    1154
+   ],
+   "photo": "IMG_9493.HEIC",
+   "camera": [
+    -312.6,
+    454.9
+   ],
+   "heading": 223.32664489034065
+  },
+  {
+   "name": "pyrotechnists_arms",
+   "texture": "textures/facades/pyrotechnists_arms.jpg",
+   "left": [
+    -252.1,
+    332.8
+   ],
+   "right": [
+    -243.0,
+    327.3
+   ],
+   "width": 10.63,
+   "height": 7.8,
+   "buildings": [
+    579
+   ],
+   "photo": "IMG_9505.HEIC",
+   "camera": [
+    -246,
+    352
+   ],
+   "heading": 345
+  },
+  {
+   "name": "salvation_army",
+   "texture": "textures/facades/salvation_army.jpg",
+   "left": [
+    -295.5,
+    375.7
+   ],
+   "right": [
+    -304.4,
+    362.4
+   ],
+   "width": 16.0,
+   "height": 8.0,
+   "buildings": [
+    584,
+    781
+   ],
+   "photo": "IMG_9492.HEIC",
+   "camera": [
+    -267.4,
+    378.7
+   ],
+   "heading": 264.392455858748
+  },
+  {
+   "name": "parade_gather",
+   "texture": "textures/facades/parade_gather.jpg",
+   "left": [
+    -241.4,
+    382.3
+   ],
+   "right": [
+    -254.4,
+    399.9
+   ],
+   "width": 21.88,
+   "height": 10.5,
+   "buildings": [
+    1360,
+    1361,
+    1362
+   ],
+   "photo": "IMG_9489.HEIC",
+   "camera": [
+    -263.1,
+    374.4
+   ],
+   "heading": 132.64984126984126
+  },
+  {
+   "name": "parade_forty",
+   "texture": "textures/facades/parade_forty.jpg",
+   "left": [
+    -220.4,
+    363.0
+   ],
+   "right": [
+    -228.7,
+    369.9
+   ],
+   "width": 10.79,
+   "height": 10.5,
+   "buildings": [
+    998,
+    999
+   ],
+   "photo": "IMG_9499.HEIC",
+   "camera": [
+    -233.7,
+    348.6
+   ],
+   "heading": 150.83488466208013
+  },
+  {
+   "name": "pharmacy_terrace",
+   "texture": "textures/facades/pharmacy_terrace.jpg",
+   "left": [
+    -240.94,
+    382.64
+   ],
+   "right": [
+    -269.7,
+    421.1
+   ],
+   "width": 48.02,
+   "height": 10.5,
+   "buildings": [
+    1360,
+    1361,
+    1362,
+    1363,
+    1364,
+    1371
+   ],
+   "photo": "IMG_9503.HEIC",
+   "camera": [
+    -321.5,
+    407.3
+   ],
+   "heading": 100
+  },
+  {
+   "name": "almshouses",
+   "texture": "textures/facades/almshouses.jpg",
+   "left": [
+    -296.5,
+    364.3
+   ],
+   "right": [
+    -272.2,
+    347.0
+   ],
+   "width": 29.83,
+   "height": 5.5,
+   "buildings": [
+    782,
+    785,
+    790,
+    791,
+    792,
+    793
+   ],
+   "photo": "IMG_9490.HEIC",
+   "camera": [
+    -266.4,
+    378.7
+   ],
+   "heading": 323.595703125
+  }
+ ]
+}

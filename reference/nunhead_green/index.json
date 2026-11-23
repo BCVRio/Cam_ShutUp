@@ -2853,7 +2853,7 @@
    "heading": 229.6583403895004,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 60.3,
+   "hfov": 45.2,
    "label": "23",
    "source": "IMG_9496.HEIC",
    "jpeg": "IMG_9496.jpg",
@@ -2862,15 +2862,7 @@
    "z": 365.5,
    "overridden": [],
    "facade": null,
-   "in_view": [
-    {
-     "building": 1367,
-     "name": "",
-     "kind": "terrace",
-     "dist": 84.5,
-     "bearing_off": -23.7
-    }
-   ],
+   "in_view": [],
    "suspect": false
   },
   {
@@ -2887,7 +2879,7 @@
    "heading": 327.49322493224935,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 75.6,
+   "hfov": 56.7,
    "label": "24",
    "source": "IMG_9497.HEIC",
    "jpeg": "IMG_9497.jpg",
@@ -2970,55 +2962,6 @@
      "kind": "terrace",
      "dist": 88.8,
      "bearing_off": 27.9
-    },
-    {
-     "building": 787,
-     "name": "",
-     "kind": "terrace",
-     "dist": 32.1,
-     "bearing_off": -28.8
-    },
-    {
-     "building": 888,
-     "name": "",
-     "kind": "terrace",
-     "dist": 83.3,
-     "bearing_off": 29.0
-    },
-    {
-     "building": 821,
-     "name": "",
-     "kind": "terrace",
-     "dist": 77.9,
-     "bearing_off": -29.8
-    },
-    {
-     "building": 885,
-     "name": "",
-     "kind": "terrace",
-     "dist": 77.9,
-     "bearing_off": 30.3
-    },
-    {
-     "building": 879,
-     "name": "",
-     "kind": "terrace",
-     "dist": 70.2,
-     "bearing_off": 33.0
-    },
-    {
-     "building": 876,
-     "name": "",
-     "kind": "terrace",
-     "dist": 65.4,
-     "bearing_off": 35.8
-    },
-    {
-     "building": 786,
-     "name": "",
-     "kind": "terrace",
-     "dist": 34.7,
-     "bearing_off": -36.6
     }
    ],
    "suspect": false
@@ -3037,7 +2980,7 @@
    "heading": 186.3151397011046,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 75.6,
+   "hfov": 56.7,
    "label": "25",
    "source": "IMG_9498.HEIC",
    "jpeg": "IMG_9498.jpg",
@@ -3148,20 +3091,6 @@
      "kind": "terrace",
      "dist": 72.6,
      "bearing_off": -27.9
-    },
-    {
-     "building": 1330,
-     "name": "",
-     "kind": "terrace",
-     "dist": 88.9,
-     "bearing_off": -32.3
-    },
-    {
-     "building": 998,
-     "name": "The Beer Shop",
-     "kind": "terrace",
-     "dist": 30.5,
-     "bearing_off": -37.0
     }
    ],
    "suspect": false
@@ -3180,7 +3109,7 @@
    "heading": 150.83488466208013,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 75.6,
+   "hfov": 56.7,
    "label": "26",
    "source": "IMG_9499.HEIC",
    "jpeg": "IMG_9499.jpg",
@@ -3277,34 +3206,6 @@
      "kind": "terrace",
      "dist": 26.8,
      "bearing_off": -28.0
-    },
-    {
-     "building": 1333,
-     "name": "",
-     "kind": "terrace",
-     "dist": 75.2,
-     "bearing_off": 28.9
-    },
-    {
-     "building": 1366,
-     "name": "",
-     "kind": "terrace",
-     "dist": 36.9,
-     "bearing_off": 29.2
-    },
-    {
-     "building": 1354,
-     "name": "",
-     "kind": "terrace",
-     "dist": 32.0,
-     "bearing_off": -31.2
-    },
-    {
-     "building": 1365,
-     "name": "",
-     "kind": "terrace",
-     "dist": 65.2,
-     "bearing_off": 34.0
     }
    ],
    "suspect": false
@@ -3472,7 +3373,7 @@
    "heading": 275,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 60.3,
+   "hfov": 45.2,
    "label": "29",
    "source": "IMG_9502.HEIC",
    "jpeg": "IMG_9502.jpg",
@@ -3607,55 +3508,6 @@
      "kind": "flats",
      "dist": 74.2,
      "bearing_off": 19.2
-    },
-    {
-     "building": 756,
-     "name": "",
-     "kind": "flats",
-     "dist": 67.0,
-     "bearing_off": 23.2
-    },
-    {
-     "building": 746,
-     "name": "",
-     "kind": "terrace",
-     "dist": 82.2,
-     "bearing_off": -27.3
-    },
-    {
-     "building": 743,
-     "name": "",
-     "kind": "terrace",
-     "dist": 87.4,
-     "bearing_off": -27.3
-    },
-    {
-     "building": 1146,
-     "name": "",
-     "kind": "terrace",
-     "dist": 72.2,
-     "bearing_off": -27.6
-    },
-    {
-     "building": 748,
-     "name": "",
-     "kind": "terrace",
-     "dist": 77.7,
-     "bearing_off": -28.2
-    },
-    {
-     "building": 1147,
-     "name": "",
-     "kind": "terrace",
-     "dist": 67.9,
-     "bearing_off": -28.5
-    },
-    {
-     "building": 588,
-     "name": "The Old Nun's Head",
-     "kind": "terrace",
-     "dist": 34.0,
-     "bearing_off": -28.8
     }
    ],
    "suspect": false
@@ -3792,7 +3644,7 @@
    "heading": 357.22543352601156,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 60.3,
+   "hfov": 45.2,
    "label": "31",
    "source": "IMG_9504.HEIC",
    "jpeg": "IMG_9504.jpg",
@@ -3896,41 +3748,6 @@
      "kind": "flats",
      "dist": 89.1,
      "bearing_off": 21.1
-    },
-    {
-     "building": 823,
-     "name": "",
-     "kind": "terrace",
-     "dist": 85.9,
-     "bearing_off": -24.1
-    },
-    {
-     "building": 899,
-     "name": "",
-     "kind": "flats",
-     "dist": 86.7,
-     "bearing_off": 24.3
-    },
-    {
-     "building": 826,
-     "name": "",
-     "kind": "terrace",
-     "dist": 80.4,
-     "bearing_off": -24.5
-    },
-    {
-     "building": 959,
-     "name": "",
-     "kind": "terrace",
-     "dist": 38.0,
-     "bearing_off": 26.0
-    },
-    {
-     "building": 854,
-     "name": "",
-     "kind": "flats",
-     "dist": 78.6,
-     "bearing_off": 27.5
     }
    ],
    "suspect": false
@@ -4069,7 +3886,7 @@
    "heading": 355.15905743740797,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 60.3,
+   "hfov": 45.2,
    "label": "33",
    "source": "IMG_9506.HEIC",
    "jpeg": "IMG_9506.jpg",
@@ -4187,20 +4004,6 @@
      "kind": "terrace",
      "dist": 84.8,
      "bearing_off": 21.8
-    },
-    {
-     "building": 789,
-     "name": "",
-     "kind": "terrace",
-     "dist": 89.0,
-     "bearing_off": 23.9
-    },
-    {
-     "building": 581,
-     "name": "",
-     "kind": "terrace",
-     "dist": 76.0,
-     "bearing_off": -24.1
     }
    ],
    "suspect": false
@@ -4219,7 +4022,7 @@
    "heading": 244.52572628631432,
    "heading_ref": "T",
    "hdop": null,
-   "hfov": 60.3,
+   "hfov": 45.2,
    "label": "34",
    "source": "IMG_9507.HEIC",
    "jpeg": "IMG_9507.jpg",
@@ -4302,27 +4105,6 @@
      "kind": "terrace",
      "dist": 61.9,
      "bearing_off": -18.9
-    },
-    {
-     "building": 1152,
-     "name": "",
-     "kind": "terrace",
-     "dist": 63.6,
-     "bearing_off": -23.6
-    },
-    {
-     "building": 1154,
-     "name": "",
-     "kind": "terrace",
-     "dist": 66.1,
-     "bearing_off": -28.8
-    },
-    {
-     "building": 588,
-     "name": "The Old Nun's Head",
-     "kind": "terrace",
-     "dist": 50.9,
-     "bearing_off": 29.4
     }
    ],
    "suspect": false

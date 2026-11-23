@@ -188,11 +188,37 @@ function buildBuildings(d) {
   const shopPts = d.pois.filter((p) => p.n && (p.k.startsWith('shop:') || p.k === 'cafe' || p.k === 'restaurant' || p.k === 'pub' || p.k === 'fast_food')); let styleSeed = 0;
   const rnd = seededRandom(42);
   const tint = new THREE.Color();
+  // photo facades: each is a texture spanning a left-right line on the map, as seen from the street. A wall edge that
+  // lies along that line (midpoint within 2 m of it, direction within 45 degrees, overlapping its span by a metre) is
+  // textured by its position along it, and the building takes the facade's measured height instead of the map's guess.
+  const facades = (world.facades || []).map((f) => { const ex = f.right[0] - f.left[0], ez = f.right[1] - f.left[1]; const len = Math.hypot(ex, ez) || 1; return { ...f, ex: ex / len, ez: ez / len, len }; });
+  const photoLists = {}, photoMats = {};
+  const facadeFor = (ax, az, bx, bz) => {
+    const dl = Math.hypot(bx - ax, bz - az); if (dl < 0.3) return null;
+    for (const f of facades) {
+      if (Math.abs(((bx - ax) * f.ex + (bz - az) * f.ez) / dl) < 0.7) continue;
+      const mx = (ax + bx) / 2 - f.left[0], mz = (az + bz) / 2 - f.left[1];
+      if (Math.abs(mx * f.ez - mz * f.ex) > 2.0) continue;
+      const ua = (ax - f.left[0]) * f.ex + (az - f.left[1]) * f.ez, ub = (bx - f.left[0]) * f.ex + (bz - f.left[1]) * f.ez;
+      if (Math.max(ua, ub) < 1 || Math.min(ua, ub) > f.len - 1) continue;
+      return { f, ua: ua / f.len, ub: ub / f.len };
+    }
+    return null;
+  };
+  const photoMat = (f) => {
+    if (!photoMats[f.name]) {
+      const t = new THREE.TextureLoader().load('./public/' + f.texture); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+      photoMats[f.name] = new THREE.MeshStandardMaterial({ map: t, roughness: 0.92, name: 'photo_' + f.name }); photoLists[f.name] = [];
+    }
+    return photoMats[f.name];
+  };
   for (const b of d.buildings) {
     const p = b.p; if (p.length < 3) continue;
     if (anyIn(p, 6)) continue;
     let minY = 1e9; for (const [x, z] of p) minY = Math.min(minY, terrainHeight(x, z));
-    const base = minY - 2.5, top = minY + b.h;
+    const photo = facades.length ? p.map(([ax, az], i) => { const [bx, bz] = p[(i + 1) % p.length]; return facadeFor(ax, az, bx, bz); }) : null;
+    let photoH = 0; if (photo) for (const m of photo) if (m) photoH = Math.max(photoH, m.f.height);
+    const base = minY - 2.5, top = minY + (photoH || b.h);
     let matKey = b.k === 'flats' ? 'flats' : b.k === 'terrace' || b.k === 'commercial' ? 'terrace' : b.k === 'church' ? 'stone' : b.k === 'school' || b.k === 'civic' ? 'brick' : b.k === 'shed' ? 'concrete' : 'concrete';
     if (matKey === 'terrace') {
       // shops get a shopfront; the rest of the terraces alternate between three street styles so rows don't repeat
@@ -200,7 +226,7 @@ function buildBuildings(d) {
       const isShop = b.k === 'commercial' || shopPts.some((q) => Math.hypot(q.x - cx, q.z - cz) < Math.max(9, Math.sqrt(b.a || 60) * 0.7));
       matKey = isShop ? 'shopfront' : ['terrace', 'terraceB', 'terraceC'][(styleSeed++) % 3];
       // regular rows become modelled house modules up close (the textured box stays for the distance)
-      if (Q() && !isShop && b.k === 'terrace') {
+      if (Q() && !isShop && b.k === 'terrace' && !photoH) {
         const r = pitchRect(p); const ratio = polyArea(p) / (r.len * r.wid);
         if (ratio > 0.78 && r.wid >= 6 && r.wid <= 14 && r.len >= 4.5 && r.len <= 120) {
           const nd = nearestRoadInfo(d, r.x, r.z); const vx = -Math.sin(r.ang), vz = Math.cos(r.ang); const side = Math.sign((nd.px - r.x) * vx + (nd.pz - r.z) * vz) || 1;
@@ -216,6 +242,17 @@ function buildBuildings(d) {
       const [ax, az] = p[i], [bx, bz] = p[(i + 1) % p.length];
       const len = Math.hypot(bx - ax, bz - az); if (len < 0.3) continue;
       const nx = (bz - az) / len, nz = -(bx - ax) / len;   // outward for CCW in x/z with z south? we fix via doubleSide-free test below
+      const m = photo && photo[i];
+      if (m) {
+        // one quad of its own in the photo's material: u along the facade, v 0 at the ground and 1 at the facade's top
+        const vb = -2.5 / m.f.height, vt = (top - minY) / m.f.height;
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute([ax, base, az, bx, base, bz, bx, top, bz, ax, top, az], 3));
+        g.setAttribute('normal', new THREE.Float32BufferAttribute([nx, 0, nz, nx, 0, nz, nx, 0, nz, nx, 0, nz], 3));
+        g.setAttribute('uv', new THREE.Float32BufferAttribute([m.ua, vb, m.ub, vb, m.ub, vt, m.ua, vt], 2));
+        g.setIndex([0, 1, 2, 0, 2, 3]); photoMat(m.f); photoLists[m.f.name].push(g);
+        continue;
+      }
       const uw = len / 7.6, vh = (top - base) / 6.6, v0 = -2.5 / 6.6;
       positions.push(ax, base, az, bx, base, bz, bx, top, bz, ax, top, az);
       for (let k = 0; k < 4; k++) { normals.push(nx, 0, nz); colors.push(tint.r, tint.g, tint.b); }
@@ -243,6 +280,7 @@ function buildBuildings(d) {
   const mats = { terrace: MAT.terrace, flats: MAT.flats, brick: MAT.brick, concrete: MAT.concrete, stone: MAT.stone };
   mats.terraceB = MAT.terraceB; mats.terraceC = MAT.terraceC; mats.shopfront = MAT.shopfront; mats.terraceMod = MAT.terraceFar;
   for (const k in lists) { const m = addMerged(lists[k], mats[k], true, true); if (m) m.material.side = THREE.DoubleSide; }
+  for (const k in photoLists) { const m = addMerged(photoLists[k], photoMats[k], true, true); if (m) m.material.side = THREE.DoubleSide; }
   addMerged(roofsMod, MAT.slateFar, false, true);
   addMerged(roofs, MAT.slate, false, true);
 }
@@ -467,6 +505,8 @@ function buildLamps() {
 // ---------------------------------------------------------------------------
 export async function loadWorld() {
   const res = await fetch(CFG.mapUrl); const d = await res.json(); world.data = d;
+  // photo facades cut from reference shots (tools/cut_facades.py): walls along each one's left-right line get its texture
+  try { const fr = await fetch(CFG.mapUrl.replace(/[^/]+$/, 'facades.json')); world.facades = fr.ok ? (await fr.json()).facades : []; } catch (_) { world.facades = []; }
   E = d.elev; E.base = Math.min(...E.elev); E.x0 = d.elev.x0; E.z0 = d.elev.z0; E.x1 = d.elev.x1; E.z1 = d.elev.z1;
   // raster
   RW = Math.ceil((world.bounds.x1 - world.bounds.x0) / RASTER); RH = Math.ceil((world.bounds.z1 - world.bounds.z0) / RASTER); raster = new Uint8Array(RW * RH);

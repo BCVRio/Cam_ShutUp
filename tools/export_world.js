@@ -162,7 +162,7 @@ function fixFacades(g, M) {
 const conv = { turned: 0, wound: 0, flipped: 0 };
 function prepareGeometry(g, mats, M, fresh) {   // a copy of g with the conventions above applied
   const out = fresh ? g : g.clone();
-  if (mats.some((m) => WALL_FAMILIES.has(m.name))) conv.turned += fixFacades(out, M);
+  if (mats.some((m) => WALL_FAMILIES.has(m.name) || m.name.startsWith('photo_'))) conv.turned += fixFacades(out, M);   // photo_ walls: facades cut from reference shots
   conv.wound += alignWinding(out);
   if (usesFlipY(mats)) { flipV(out); conv.flipped++; }
   return out;
