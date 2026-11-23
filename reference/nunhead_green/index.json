@@ -1,0 +1,4331 @@
+{
+ "folder": "reference\\nunhead_green",
+ "map": "public\\maps\\selondon.json",
+ "axes": "x east, z south, metres",
+ "photos": [
+  {
+   "file": "IMG_9474.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:57:55",
+   "focal35": 14,
+   "lat": 51.46496666666667,
+   "lon": -0.059008333333333336,
+   "alt": 22.011888273314867,
+   "heading": 338.7152406417112,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "01",
+   "source": "IMG_9474.HEIC",
+   "jpeg": "IMG_9474.jpg",
+   "caption": "Red-brick gabled terrace with arched porches (Dickson Terrace side), from the south-west corner, backlit",
+   "x": -312.6,
+   "z": 446.0,
+   "overridden": [],
+   "facade": {
+    "t": 37.0,
+    "building": 577,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -325.0,
+      410.8
+     ],
+     [
+      -334.4,
+      417.3
+     ]
+    ],
+    "edge_len": 11.4,
+    "frontal_deg": 13.4
+   },
+   "in_view": [
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 50.4,
+     "bearing_off": -4.5
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 68.3,
+     "bearing_off": 19.5
+    },
+    {
+     "building": 758,
+     "name": "",
+     "kind": "flats",
+     "dist": 81.3,
+     "bearing_off": -19.9
+    },
+    {
+     "building": 760,
+     "name": "",
+     "kind": "flats",
+     "dist": 73.4,
+     "bearing_off": -21.6
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 80.6,
+     "bearing_off": 23.1
+    },
+    {
+     "building": 761,
+     "name": "",
+     "kind": "flats",
+     "dist": 65.4,
+     "bearing_off": -23.6
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 43.6,
+     "bearing_off": -26.1
+    },
+    {
+     "building": 757,
+     "name": "",
+     "kind": "flats",
+     "dist": 89.5,
+     "bearing_off": -28.1
+    },
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.2,
+     "bearing_off": 28.7
+    },
+    {
+     "building": 782,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.2,
+     "bearing_off": 30.7
+    },
+    {
+     "building": 747,
+     "name": "",
+     "kind": "terrace",
+     "dist": 70.0,
+     "bearing_off": -32.0
+    },
+    {
+     "building": 745,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.4,
+     "bearing_off": -35.3
+    },
+    {
+     "building": 744,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.9,
+     "bearing_off": -37.5
+    },
+    {
+     "building": 742,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.4,
+     "bearing_off": -39.6
+    },
+    {
+     "building": 741,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.0,
+     "bearing_off": -41.5
+    },
+    {
+     "building": 739,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.3,
+     "bearing_off": -43.3
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9475.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:57:57",
+   "focal35": 14,
+   "lat": 51.465019444444444,
+   "lon": -0.05896388888888889,
+   "alt": 22.39326914736751,
+   "heading": 317.42761225346203,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "02",
+   "source": "IMG_9475.HEIC",
+   "jpeg": "IMG_9475.jpg",
+   "caption": "Across the fenced playground to The Old Nun's Head and the timber-clad flats",
+   "x": -309.6,
+   "z": 440.1,
+   "overridden": [],
+   "facade": {
+    "t": 33.2,
+    "building": 577,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -325.0,
+      410.8
+     ],
+     [
+      -334.4,
+      417.3
+     ]
+    ],
+    "edge_len": 11.4,
+    "frontal_deg": 7.9
+   },
+   "in_view": [
+    {
+     "building": 758,
+     "name": "",
+     "kind": "flats",
+     "dist": 79.1,
+     "bearing_off": -3.0
+    },
+    {
+     "building": 760,
+     "name": "",
+     "kind": "flats",
+     "dist": 71.4,
+     "bearing_off": -5.3
+    },
+    {
+     "building": 761,
+     "name": "",
+     "kind": "flats",
+     "dist": 63.6,
+     "bearing_off": -8.0
+    },
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 46.7,
+     "bearing_off": 10.3
+    },
+    {
+     "building": 757,
+     "name": "",
+     "kind": "flats",
+     "dist": 88.2,
+     "bearing_off": -11.0
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 42.3,
+     "bearing_off": -13.4
+    },
+    {
+     "building": 583,
+     "name": "Nunhead Library",
+     "kind": "terrace",
+     "dist": 89.1,
+     "bearing_off": 13.4
+    },
+    {
+     "building": 747,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.2,
+     "bearing_off": -16.1
+    },
+    {
+     "building": 745,
+     "name": "",
+     "kind": "terrace",
+     "dist": 72.9,
+     "bearing_off": -19.2
+    },
+    {
+     "building": 744,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.7,
+     "bearing_off": -21.2
+    },
+    {
+     "building": 742,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.4,
+     "bearing_off": -23.0
+    },
+    {
+     "building": 741,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.3,
+     "bearing_off": -24.7
+    },
+    {
+     "building": 739,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.7,
+     "bearing_off": -26.3
+    },
+    {
+     "building": 991,
+     "name": "The Green",
+     "kind": "terrace",
+     "dist": 47.1,
+     "bearing_off": -37.7
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 62.5,
+     "bearing_off": 37.8
+    },
+    {
+     "building": 1147,
+     "name": "",
+     "kind": "terrace",
+     "dist": 67.1,
+     "bearing_off": -38.6
+    },
+    {
+     "building": 1146,
+     "name": "",
+     "kind": "terrace",
+     "dist": 71.3,
+     "bearing_off": -39.7
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 74.6,
+     "bearing_off": 42.2
+    },
+    {
+     "building": 748,
+     "name": "",
+     "kind": "terrace",
+     "dist": 75.8,
+     "bearing_off": -42.3
+    },
+    {
+     "building": 746,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.3,
+     "bearing_off": -43.0
+    },
+    {
+     "building": 743,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.0,
+     "bearing_off": -44.5
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9476.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:00",
+   "focal35": 14,
+   "lat": 51.46497222222222,
+   "lon": -0.05901666666666667,
+   "alt": 21.60362857502835,
+   "heading": 7.3074951171875,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "03",
+   "source": "IMG_9476.HEIC",
+   "jpeg": "IMG_9476.jpg",
+   "caption": "Playground wide: trees, bin, white block beyond, terrace right",
+   "x": -313.2,
+   "z": 445.4,
+   "overridden": [],
+   "facade": {
+    "t": 59.1,
+    "building": 783,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -304.6,
+      385.7
+     ],
+     [
+      -312.2,
+      393.0
+     ]
+    ],
+    "edge_len": 10.5,
+    "frontal_deg": 51.2
+   },
+   "in_view": [
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.7,
+     "bearing_off": 0.6
+    },
+    {
+     "building": 782,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.7,
+     "bearing_off": 2.6
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 80.0,
+     "bearing_off": -5.1
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 67.6,
+     "bearing_off": -8.6
+    },
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 49.6,
+     "bearing_off": -32.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9477.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:06",
+   "focal35": 14,
+   "lat": 51.46499166666667,
+   "lon": -0.059055555555555556,
+   "alt": 21.940513219284604,
+   "heading": 70.98977659977281,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "04",
+   "source": "IMG_9477.HEIC",
+   "jpeg": "IMG_9477.jpg",
+   "caption": "Swings, then the yellow-brick pharmacy terrace with white window surrounds",
+   "x": -315.9,
+   "z": 443.2,
+   "overridden": [],
+   "facade": {
+    "t": 43.2,
+    "building": 1367,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -291.1,
+      450.3
+     ],
+     [
+      -270.7,
+      423.4
+     ]
+    ],
+    "edge_len": 33.8,
+    "frontal_deg": 56.2
+   },
+   "in_view": [
+    {
+     "building": 1371,
+     "name": "",
+     "kind": "terrace",
+     "dist": 55.5,
+     "bearing_off": 1.5
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.2,
+     "bearing_off": -2.1
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.8,
+     "bearing_off": 5.8
+    },
+    {
+     "building": 1364,
+     "name": "",
+     "kind": "terrace",
+     "dist": 70.9,
+     "bearing_off": -8.0
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.5,
+     "bearing_off": -9.0
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 79.2,
+     "bearing_off": -14.1
+    },
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.3,
+     "bearing_off": -15.4
+    },
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 35.9,
+     "bearing_off": 16.2
+    },
+    {
+     "building": 1384,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.1,
+     "bearing_off": 21.6
+    },
+    {
+     "building": 1386,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.5,
+     "bearing_off": 31.3
+    },
+    {
+     "building": 1370,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.6,
+     "bearing_off": 43.4
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9478.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:08",
+   "focal35": 14,
+   "lat": 51.46499722222222,
+   "lon": -0.05905277777777778,
+   "alt": 22.056528636643247,
+   "heading": 127.31369026230686,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "05",
+   "source": "IMG_9478.HEIC",
+   "jpeg": "IMG_9478.jpg",
+   "caption": "The Man of Kent, Sheel Pharmacy, the terrace and the corner shop at the Nunhead Lane junction",
+   "x": -315.7,
+   "z": 442.6,
+   "overridden": [],
+   "facade": {
+    "t": 24.2,
+    "building": 1368,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -297.0,
+      457.8
+     ],
+     [
+      -293.8,
+      454.3
+     ]
+    ],
+    "edge_len": 4.7,
+    "frontal_deg": 5.1
+   },
+   "in_view": [
+    {
+     "building": 1388,
+     "name": "",
+     "kind": "terrace",
+     "dist": 53.3,
+     "bearing_off": 0.9
+    },
+    {
+     "building": 1387,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.4,
+     "bearing_off": -1.6
+    },
+    {
+     "building": 1368,
+     "name": "",
+     "kind": "terrace",
+     "dist": 32.4,
+     "bearing_off": -6.4
+    },
+    {
+     "building": 1369,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.8,
+     "bearing_off": 8.8
+    },
+    {
+     "building": 1370,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.7,
+     "bearing_off": -11.9
+    },
+    {
+     "building": 1386,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.5,
+     "bearing_off": -24.6
+    },
+    {
+     "building": 1461,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.4,
+     "bearing_off": 33.3
+    },
+    {
+     "building": 1384,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.9,
+     "bearing_off": -34.2
+    },
+    {
+     "building": 1462,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.2,
+     "bearing_off": 34.8
+    },
+    {
+     "building": 1359,
+     "name": "",
+     "kind": "terrace",
+     "dist": 48.1,
+     "bearing_off": 39.0
+    },
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 35.6,
+     "bearing_off": -39.2
+    },
+    {
+     "building": 1358,
+     "name": "",
+     "kind": "terrace",
+     "dist": 50.9,
+     "bearing_off": 43.0
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9479.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:11",
+   "focal35": 14,
+   "lat": 51.46499166666667,
+   "lon": -0.05904444444444445,
+   "alt": 22.096862497367866,
+   "heading": 42.776123046875,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "06",
+   "source": "IMG_9479.HEIC",
+   "jpeg": "IMG_9479.jpg",
+   "caption": "Playground with swings toward the terrace and white block",
+   "x": -315.1,
+   "z": 443.2,
+   "overridden": [],
+   "facade": null,
+   "in_view": [
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.6,
+     "bearing_off": 12.5
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 78.5,
+     "bearing_off": 13.8
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 75.7,
+     "bearing_off": 19.0
+    },
+    {
+     "building": 1364,
+     "name": "",
+     "kind": "terrace",
+     "dist": 70.2,
+     "bearing_off": 19.9
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.4,
+     "bearing_off": 25.9
+    },
+    {
+     "building": 1371,
+     "name": "",
+     "kind": "terrace",
+     "dist": 54.7,
+     "bearing_off": 29.4
+    },
+    {
+     "building": 782,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.9,
+     "bearing_off": -31.4
+    },
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.8,
+     "bearing_off": -33.4
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.1,
+     "bearing_off": 33.9
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 77.9,
+     "bearing_off": -39.1
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 65.4,
+     "bearing_off": -42.5
+    },
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 35.1,
+     "bearing_off": 44.3
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9480.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:13",
+   "focal35": 14,
+   "lat": 51.465,
+   "lon": -0.059050000000000005,
+   "alt": 22.211327811915577,
+   "heading": 320.6142578125,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "07",
+   "source": "IMG_9480.HEIC",
+   "jpeg": "IMG_9480.jpg",
+   "caption": "The Old Nun's Head from the car park, ambulance and van in front, slide in the play area",
+   "x": -315.5,
+   "z": 442.3,
+   "overridden": [],
+   "facade": {
+    "t": 31.4,
+    "building": 588,
+    "name": "The Old Nun's Head",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -334.4,
+      417.3
+     ],
+     [
+      -339.1,
+      420.8
+     ]
+    ],
+    "edge_len": 5.9,
+    "frontal_deg": 2.7
+   },
+   "in_view": [
+    {
+     "building": 758,
+     "name": "",
+     "kind": "flats",
+     "dist": 76.6,
+     "bearing_off": -2.0
+    },
+    {
+     "building": 760,
+     "name": "",
+     "kind": "flats",
+     "dist": 68.7,
+     "bearing_off": -3.8
+    },
+    {
+     "building": 761,
+     "name": "",
+     "kind": "flats",
+     "dist": 60.7,
+     "bearing_off": -6.0
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 39.0,
+     "bearing_off": -9.1
+    },
+    {
+     "building": 757,
+     "name": "",
+     "kind": "flats",
+     "dist": 84.9,
+     "bearing_off": -10.6
+    },
+    {
+     "building": 583,
+     "name": "Nunhead Library",
+     "kind": "terrace",
+     "dist": 88.4,
+     "bearing_off": 14.3
+    },
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 45.9,
+     "bearing_off": 14.8
+    },
+    {
+     "building": 747,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.5,
+     "bearing_off": -15.0
+    },
+    {
+     "building": 745,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.0,
+     "bearing_off": -18.4
+    },
+    {
+     "building": 744,
+     "name": "",
+     "kind": "terrace",
+     "dist": 72.5,
+     "bearing_off": -20.7
+    },
+    {
+     "building": 742,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.1,
+     "bearing_off": -22.9
+    },
+    {
+     "building": 741,
+     "name": "",
+     "kind": "terrace",
+     "dist": 79.8,
+     "bearing_off": -24.8
+    },
+    {
+     "building": 739,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.1,
+     "bearing_off": -26.6
+    },
+    {
+     "building": 738,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.6,
+     "bearing_off": -28.8
+    },
+    {
+     "building": 991,
+     "name": "The Green",
+     "kind": "terrace",
+     "dist": 41.7,
+     "bearing_off": -36.5
+    },
+    {
+     "building": 1147,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.7,
+     "bearing_off": -38.9
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 64.5,
+     "bearing_off": 40.1
+    },
+    {
+     "building": 1146,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.8,
+     "bearing_off": -40.3
+    },
+    {
+     "building": 748,
+     "name": "",
+     "kind": "terrace",
+     "dist": 70.1,
+     "bearing_off": -43.2
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 77.0,
+     "bearing_off": 43.4
+    },
+    {
+     "building": 746,
+     "name": "",
+     "kind": "terrace",
+     "dist": 74.6,
+     "bearing_off": -44.2
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9481.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:53",
+   "focal35": 14,
+   "lat": 51.465786111111115,
+   "lon": -0.05799722222222223,
+   "alt": 22.257128438051982,
+   "heading": 319.894470046083,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "08",
+   "source": "IMG_9481.HEIC",
+   "jpeg": "IMG_9481.jpg",
+   "caption": "Along the Green's path: benches, ornamental grasses, lamp",
+   "x": -242.5,
+   "z": 355.4,
+   "overridden": [],
+   "facade": {
+    "t": 24.1,
+    "building": 788,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -256.1,
+      335.7
+     ],
+     [
+      -260.2,
+      338.5
+     ]
+    ],
+    "edge_len": 5.0,
+    "frontal_deg": 5.8
+   },
+   "in_view": [
+    {
+     "building": 788,
+     "name": "",
+     "kind": "terrace",
+     "dist": 30.4,
+     "bearing_off": 0.6
+    },
+    {
+     "building": 794,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.8,
+     "bearing_off": 6.1
+    },
+    {
+     "building": 787,
+     "name": "",
+     "kind": "terrace",
+     "dist": 31.8,
+     "bearing_off": -7.7
+    },
+    {
+     "building": 789,
+     "name": "",
+     "kind": "terrace",
+     "dist": 30.5,
+     "bearing_off": 10.4
+    },
+    {
+     "building": 824,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.8,
+     "bearing_off": -13.3
+    },
+    {
+     "building": 822,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.3,
+     "bearing_off": -14.9
+    },
+    {
+     "building": 786,
+     "name": "",
+     "kind": "terrace",
+     "dist": 33.3,
+     "bearing_off": -16.6
+    },
+    {
+     "building": 821,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.9,
+     "bearing_off": -16.7
+    },
+    {
+     "building": 784,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.4,
+     "bearing_off": -24.2
+    },
+    {
+     "building": 806,
+     "name": "",
+     "kind": "terrace",
+     "dist": 63.0,
+     "bearing_off": -24.8
+    },
+    {
+     "building": 579,
+     "name": "Pyrotechnists Arms",
+     "kind": "terrace",
+     "dist": 34.3,
+     "bearing_off": 26.4
+    },
+    {
+     "building": 793,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.3,
+     "bearing_off": -31.5
+    },
+    {
+     "building": 792,
+     "name": "",
+     "kind": "terrace",
+     "dist": 39.2,
+     "bearing_off": -36.8
+    },
+    {
+     "building": 888,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.1,
+     "bearing_off": 39.8
+    },
+    {
+     "building": 791,
+     "name": "",
+     "kind": "terrace",
+     "dist": 42.9,
+     "bearing_off": -40.9
+    },
+    {
+     "building": 885,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.7,
+     "bearing_off": 41.2
+    },
+    {
+     "building": 581,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.3,
+     "bearing_off": -43.6
+    },
+    {
+     "building": 879,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.2,
+     "bearing_off": 44.1
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9482.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:55",
+   "focal35": 14,
+   "lat": 51.46579722222223,
+   "lon": -0.057988888888888895,
+   "alt": 23.37120149602618,
+   "heading": 333.1025390625,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "09",
+   "source": "IMG_9482.HEIC",
+   "jpeg": "IMG_9482.jpg",
+   "caption": "Willow and the Pyrotechnists Arms corner (No. 39), 1960s houses right",
+   "x": -241.9,
+   "z": 354.1,
+   "overridden": [],
+   "facade": {
+    "t": 23.5,
+    "building": 789,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -252.1,
+      332.8
+     ],
+     [
+      -256.1,
+      335.7
+     ]
+    ],
+    "edge_len": 4.9,
+    "frontal_deg": 9.0
+   },
+   "in_view": [
+    {
+     "building": 826,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.4,
+     "bearing_off": 1.4
+    },
+    {
+     "building": 789,
+     "name": "",
+     "kind": "terrace",
+     "dist": 29.6,
+     "bearing_off": -5.1
+    },
+    {
+     "building": 794,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.1,
+     "bearing_off": -8.1
+    },
+    {
+     "building": 579,
+     "name": "Pyrotechnists Arms",
+     "kind": "terrace",
+     "dist": 33.2,
+     "bearing_off": 11.7
+    },
+    {
+     "building": 788,
+     "name": "",
+     "kind": "terrace",
+     "dist": 29.8,
+     "bearing_off": -15.1
+    },
+    {
+     "building": 787,
+     "name": "",
+     "kind": "terrace",
+     "dist": 31.4,
+     "bearing_off": -23.4
+    },
+    {
+     "building": 888,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.8,
+     "bearing_off": 26.2
+    },
+    {
+     "building": 824,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.6,
+     "bearing_off": -27.5
+    },
+    {
+     "building": 885,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.4,
+     "bearing_off": 27.6
+    },
+    {
+     "building": 822,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.0,
+     "bearing_off": -29.1
+    },
+    {
+     "building": 879,
+     "name": "",
+     "kind": "terrace",
+     "dist": 74.9,
+     "bearing_off": 30.5
+    },
+    {
+     "building": 821,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.7,
+     "bearing_off": -31.0
+    },
+    {
+     "building": 786,
+     "name": "",
+     "kind": "terrace",
+     "dist": 33.1,
+     "bearing_off": -32.3
+    },
+    {
+     "building": 876,
+     "name": "",
+     "kind": "terrace",
+     "dist": 70.3,
+     "bearing_off": 33.2
+    },
+    {
+     "building": 873,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.9,
+     "bearing_off": 36.3
+    },
+    {
+     "building": 860,
+     "name": "",
+     "kind": "terrace",
+     "dist": 50.0,
+     "bearing_off": 38.8
+    },
+    {
+     "building": 806,
+     "name": "",
+     "kind": "terrace",
+     "dist": 63.1,
+     "bearing_off": -39.3
+    },
+    {
+     "building": 784,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.4,
+     "bearing_off": -39.8
+    },
+    {
+     "building": 870,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.8,
+     "bearing_off": 39.9
+    },
+    {
+     "building": 959,
+     "name": "",
+     "kind": "terrace",
+     "dist": 46.1,
+     "bearing_off": 43.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9483.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:57",
+   "focal35": 14,
+   "lat": 51.4658,
+   "lon": -0.05798333333333334,
+   "alt": 23.604091238233163,
+   "heading": 54.21374508023009,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "10",
+   "source": "IMG_9483.HEIC",
+   "jpeg": "IMG_9483.jpg",
+   "caption": "Path across the Green to Kirkwood Road: pine, graffiti wall, lamp posts, shops at the end",
+   "x": -241.6,
+   "z": 353.8,
+   "overridden": [],
+   "facade": {
+    "t": 29.7,
+    "building": 853,
+    "name": "nunhead express",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -216.2,
+      338.5
+     ],
+     [
+      -224.4,
+      325.4
+     ]
+    ],
+    "edge_len": 15.5,
+    "frontal_deg": 3.7
+   },
+   "in_view": [
+    {
+     "building": 804,
+     "name": "",
+     "kind": "terrace",
+     "dist": 48.3,
+     "bearing_off": -0.2
+    },
+    {
+     "building": 803,
+     "name": "",
+     "kind": "terrace",
+     "dist": 58.8,
+     "bearing_off": -1.0
+    },
+    {
+     "building": 802,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.2,
+     "bearing_off": -1.2
+    },
+    {
+     "building": 801,
+     "name": "Rat Race Cycles",
+     "kind": "commercial",
+     "dist": 68.5,
+     "bearing_off": -1.2
+    },
+    {
+     "building": 800,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.9,
+     "bearing_off": -1.3
+    },
+    {
+     "building": 799,
+     "name": "",
+     "kind": "terrace",
+     "dist": 78.2,
+     "bearing_off": -1.4
+    },
+    {
+     "building": 798,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.3,
+     "bearing_off": -1.4
+    },
+    {
+     "building": 797,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.0,
+     "bearing_off": -1.9
+    },
+    {
+     "building": 853,
+     "name": "nunhead express",
+     "kind": "terrace",
+     "dist": 40.7,
+     "bearing_off": -5.9
+    },
+    {
+     "building": 855,
+     "name": "",
+     "kind": "flats",
+     "dist": 75.5,
+     "bearing_off": -18.8
+    },
+    {
+     "building": 1342,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.6,
+     "bearing_off": 22.0
+    },
+    {
+     "building": 918,
+     "name": "",
+     "kind": "terrace",
+     "dist": 39.2,
+     "bearing_off": -24.7
+    },
+    {
+     "building": 1345,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.9,
+     "bearing_off": 26.2
+    },
+    {
+     "building": 1352,
+     "name": "",
+     "kind": "terrace",
+     "dist": 59.4,
+     "bearing_off": 26.7
+    },
+    {
+     "building": 882,
+     "name": "",
+     "kind": "flats",
+     "dist": 79.9,
+     "bearing_off": -27.2
+    },
+    {
+     "building": 1344,
+     "name": "",
+     "kind": "terrace",
+     "dist": 79.6,
+     "bearing_off": 27.7
+    },
+    {
+     "building": 948,
+     "name": "",
+     "kind": "terrace",
+     "dist": 42.2,
+     "bearing_off": -31.6
+    },
+    {
+     "building": 1347,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.8,
+     "bearing_off": 32.8
+    },
+    {
+     "building": 854,
+     "name": "",
+     "kind": "flats",
+     "dist": 86.1,
+     "bearing_off": -33.2
+    },
+    {
+     "building": 1348,
+     "name": "",
+     "kind": "terrace",
+     "dist": 58.2,
+     "bearing_off": 35.5
+    },
+    {
+     "building": 959,
+     "name": "",
+     "kind": "terrace",
+     "dist": 45.7,
+     "bearing_off": -37.6
+    },
+    {
+     "building": 1349,
+     "name": "",
+     "kind": "terrace",
+     "dist": 51.9,
+     "bearing_off": 38.5
+    },
+    {
+     "building": 1346,
+     "name": "",
+     "kind": "terrace",
+     "dist": 66.6,
+     "bearing_off": 39.8
+    },
+    {
+     "building": 870,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.5,
+     "bearing_off": -41.4
+    },
+    {
+     "building": 1350,
+     "name": "",
+     "kind": "terrace",
+     "dist": 47.1,
+     "bearing_off": 42.4
+    },
+    {
+     "building": 860,
+     "name": "",
+     "kind": "terrace",
+     "dist": 49.6,
+     "bearing_off": -42.6
+    },
+    {
+     "building": 873,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.6,
+     "bearing_off": -45.0
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9484.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:58:59",
+   "focal35": 14,
+   "lat": 51.46579444444445,
+   "lon": -0.057975,
+   "alt": 23.50192364604913,
+   "heading": 140.33044420368364,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "11",
+   "source": "IMG_9484.HEIC",
+   "jpeg": "IMG_9484.jpg",
+   "caption": "FORTY and Edy & Bridge shopfronts, traffic lights, corner building with balcony",
+   "x": -241.0,
+   "z": 354.5,
+   "overridden": [],
+   "facade": {
+    "t": 19.7,
+    "building": 998,
+    "name": "The Beer Shop",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -228.7,
+      369.9
+     ],
+     [
+      -224.7,
+      366.4
+     ]
+    ],
+    "edge_len": 5.3,
+    "frontal_deg": 1.5
+   },
+   "in_view": [
+    {
+     "building": 998,
+     "name": "The Beer Shop",
+     "kind": "terrace",
+     "dist": 29.4,
+     "bearing_off": -6.4
+    },
+    {
+     "building": 1330,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.4,
+     "bearing_off": 8.7
+    },
+    {
+     "building": 1382,
+     "name": "",
+     "kind": "terrace",
+     "dist": 63.2,
+     "bearing_off": -10.3
+    },
+    {
+     "building": 1331,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.5,
+     "bearing_off": 12.0
+    },
+    {
+     "building": 1381,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.3,
+     "bearing_off": -14.3
+    },
+    {
+     "building": 1334,
+     "name": "",
+     "kind": "terrace",
+     "dist": 56.7,
+     "bearing_off": 15.9
+    },
+    {
+     "building": 999,
+     "name": "",
+     "kind": "terrace",
+     "dist": 27.2,
+     "bearing_off": -16.0
+    },
+    {
+     "building": 1332,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.5,
+     "bearing_off": 25.1
+    },
+    {
+     "building": 1000,
+     "name": "",
+     "kind": "terrace",
+     "dist": 30.4,
+     "bearing_off": -26.3
+    },
+    {
+     "building": 1366,
+     "name": "",
+     "kind": "terrace",
+     "dist": 31.8,
+     "bearing_off": 26.4
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.7,
+     "bearing_off": 33.3
+    },
+    {
+     "building": 1353,
+     "name": "",
+     "kind": "terrace",
+     "dist": 31.0,
+     "bearing_off": -34.2
+    },
+    {
+     "building": 1354,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.5,
+     "bearing_off": -34.6
+    },
+    {
+     "building": 1383,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.1,
+     "bearing_off": -35.4
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 59.1,
+     "bearing_off": 38.0
+    },
+    {
+     "building": 1351,
+     "name": "",
+     "kind": "terrace",
+     "dist": 42.0,
+     "bearing_off": -40.1
+    },
+    {
+     "building": 1360,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.2,
+     "bearing_off": 41.6
+    },
+    {
+     "building": 1350,
+     "name": "",
+     "kind": "terrace",
+     "dist": 46.4,
+     "bearing_off": -44.5
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9485.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:02",
+   "focal35": 14,
+   "lat": 51.46579722222223,
+   "lon": -0.057980555555555556,
+   "alt": 23.65031439079369,
+   "heading": 224.9521484375,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 91.3,
+   "label": "12",
+   "source": "IMG_9485.HEIC",
+   "jpeg": "IMG_9485.jpg",
+   "caption": "Along the path the other way: benches, lamp, terrace with shops left",
+   "x": -241.4,
+   "z": 354.1,
+   "overridden": [],
+   "facade": null,
+   "in_view": [
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 77.1,
+     "bearing_off": 27.2
+    },
+    {
+     "building": 1371,
+     "name": "",
+     "kind": "terrace",
+     "dist": 75.5,
+     "bearing_off": -28.3
+    },
+    {
+     "building": 1364,
+     "name": "",
+     "kind": "terrace",
+     "dist": 58.0,
+     "bearing_off": -33.7
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 46.5,
+     "bearing_off": -34.8
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 69.6,
+     "bearing_off": 35.7
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 53.7,
+     "bearing_off": -37.5
+    },
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 41.8,
+     "bearing_off": -38.1
+    },
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 60.4,
+     "bearing_off": 39.0
+    },
+    {
+     "building": 790,
+     "name": "",
+     "kind": "terrace",
+     "dist": 44.6,
+     "bearing_off": 40.9
+    },
+    {
+     "building": 782,
+     "name": "",
+     "kind": "terrace",
+     "dist": 56.7,
+     "bearing_off": 41.1
+    },
+    {
+     "building": 785,
+     "name": "",
+     "kind": "terrace",
+     "dist": 52.9,
+     "bearing_off": 43.6
+    },
+    {
+     "building": 1360,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.5,
+     "bearing_off": -43.7
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9486.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:17",
+   "focal35": 28,
+   "lat": 51.46572777777778,
+   "lon": -0.058077777777777784,
+   "alt": 22.71756404174573,
+   "heading": 239.27996845425866,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "13",
+   "source": "IMG_9486.HEIC",
+   "jpeg": "IMG_9486.jpg",
+   "caption": "Yellow-brick corner building with balcony and shuttered shop, Mummy J, view down the side street",
+   "x": -248.1,
+   "z": 361.8,
+   "overridden": [],
+   "facade": {
+    "t": 87.5,
+    "building": 577,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -323.6,
+      404.4
+     ],
+     [
+      -323.2,
+      407.8
+     ]
+    ],
+    "edge_len": 3.4,
+    "frontal_deg": 24.0
+   },
+   "in_view": [
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 68.5,
+     "bearing_off": 17.2
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 62.1,
+     "bearing_off": 27.3
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9487.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:20",
+   "focal35": 28,
+   "lat": 51.46572777777778,
+   "lon": -0.05811111111111111,
+   "alt": 22.71715558544171,
+   "heading": 224.94659442724458,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "14",
+   "source": "IMG_9487.HEIC",
+   "jpeg": "IMG_9487.jpg",
+   "caption": "Path with sun flare, Salvation Army hall right, red-brick gabled terrace at the end",
+   "x": -250.4,
+   "z": 361.8,
+   "overridden": [],
+   "facade": null,
+   "in_view": [
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.0,
+     "bearing_off": -24.5
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9488.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:33",
+   "focal35": 28,
+   "lat": 51.465605555555555,
+   "lon": -0.058300000000000005,
+   "alt": 22.86227915194346,
+   "heading": 143.1070556640625,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "15",
+   "source": "IMG_9488.HEIC",
+   "jpeg": "IMG_9488.jpg",
+   "caption": "Shop parade angled: No. 36 shuttered, blue shop, gather, El Vermut",
+   "x": -263.5,
+   "z": 375.3,
+   "overridden": [],
+   "facade": {
+    "t": 22.9,
+    "building": 1361,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -251.1,
+      395.4
+     ],
+     [
+      -247.9,
+      391.1
+     ]
+    ],
+    "edge_len": 5.4,
+    "frontal_deg": 16.5
+   },
+   "in_view": [
+    {
+     "building": 1332,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.2,
+     "bearing_off": 0.7
+    },
+    {
+     "building": 1329,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.5,
+     "bearing_off": -2.3
+    },
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 26.6,
+     "bearing_off": -3.3
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 45.3,
+     "bearing_off": 4.5
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 57.1,
+     "bearing_off": 5.0
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 28.3,
+     "bearing_off": 7.4
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 35.4,
+     "bearing_off": 11.6
+    },
+    {
+     "building": 1330,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.6,
+     "bearing_off": -14.6
+    },
+    {
+     "building": 1331,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.3,
+     "bearing_off": -16.5
+    },
+    {
+     "building": 1334,
+     "name": "",
+     "kind": "terrace",
+     "dist": 55.0,
+     "bearing_off": -18.7
+    },
+    {
+     "building": 1364,
+     "name": "",
+     "kind": "terrace",
+     "dist": 37.3,
+     "bearing_off": 20.1
+    },
+    {
+     "building": 1360,
+     "name": "",
+     "kind": "terrace",
+     "dist": 25.2,
+     "bearing_off": -21.1
+    },
+    {
+     "building": 1384,
+     "name": "",
+     "kind": "terrace",
+     "dist": 71.9,
+     "bearing_off": 26.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9489.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:35",
+   "focal35": 28,
+   "lat": 51.46561388888889,
+   "lon": -0.05829444444444445,
+   "alt": 22.879806468041764,
+   "heading": 132.64984126984126,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "16",
+   "source": "IMG_9489.HEIC",
+   "jpeg": "IMG_9489.jpg",
+   "caption": "Shop parade near frontal: best texture source for gather / El Vermut (tree to paint out)",
+   "x": -263.1,
+   "z": 374.4,
+   "overridden": [],
+   "facade": {
+    "t": 22.3,
+    "building": 1360,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -247.9,
+      391.1
+     ],
+     [
+      -244.7,
+      386.8
+     ]
+    ],
+    "edge_len": 5.4,
+    "frontal_deg": 6.0
+   },
+   "in_view": [
+    {
+     "building": 1330,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.8,
+     "bearing_off": -3.6
+    },
+    {
+     "building": 1331,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.5,
+     "bearing_off": -5.2
+    },
+    {
+     "building": 1334,
+     "name": "",
+     "kind": "terrace",
+     "dist": 55.1,
+     "bearing_off": -7.2
+    },
+    {
+     "building": 1360,
+     "name": "",
+     "kind": "terrace",
+     "dist": 25.3,
+     "bearing_off": -8.4
+    },
+    {
+     "building": 1329,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.0,
+     "bearing_off": 8.8
+    },
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 27.0,
+     "bearing_off": 9.0
+    },
+    {
+     "building": 1332,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.7,
+     "bearing_off": 11.8
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 45.9,
+     "bearing_off": 16.0
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 57.7,
+     "bearing_off": 16.3
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 28.9,
+     "bearing_off": 19.4
+    },
+    {
+     "building": 1366,
+     "name": "",
+     "kind": "terrace",
+     "dist": 31.4,
+     "bearing_off": -22.0
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.1,
+     "bearing_off": 23.3
+    },
+    {
+     "building": 1382,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.5,
+     "bearing_off": -26.3
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9490.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:42",
+   "focal35": 28,
+   "lat": 51.465575,
+   "lon": -0.05834166666666667,
+   "alt": 22.952606488360576,
+   "heading": 323.595703125,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "17",
+   "source": "IMG_9490.HEIC",
+   "jpeg": "IMG_9490.jpg",
+   "caption": "Victorian Gothic almshouses: pointed gable, tall chimney stacks, slate roof, pointed-arch doors. Best roof reference",
+   "x": -266.4,
+   "z": 378.7,
+   "overridden": [],
+   "facade": {
+    "t": 27.1,
+    "building": 790,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -282.3,
+      356.8
+     ],
+     [
+      -283.6,
+      357.6
+     ]
+    ],
+    "edge_len": 1.5,
+    "frontal_deg": 4.8
+   },
+   "in_view": [
+    {
+     "building": 806,
+     "name": "",
+     "kind": "terrace",
+     "dist": 60.0,
+     "bearing_off": 2.8
+    },
+    {
+     "building": 821,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.9,
+     "bearing_off": 4.7
+    },
+    {
+     "building": 824,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.9,
+     "bearing_off": 4.7
+    },
+    {
+     "building": 791,
+     "name": "",
+     "kind": "terrace",
+     "dist": 35.2,
+     "bearing_off": 4.8
+    },
+    {
+     "building": 822,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.9,
+     "bearing_off": 4.8
+    },
+    {
+     "building": 790,
+     "name": "",
+     "kind": "terrace",
+     "dist": 29.0,
+     "bearing_off": -6.0
+    },
+    {
+     "building": 792,
+     "name": "",
+     "kind": "terrace",
+     "dist": 35.2,
+     "bearing_off": 12.5
+    },
+    {
+     "building": 811,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.6,
+     "bearing_off": -12.8
+    },
+    {
+     "building": 785,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.3,
+     "bearing_off": -13.7
+    },
+    {
+     "building": 793,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.3,
+     "bearing_off": 19.5
+    },
+    {
+     "building": 782,
+     "name": "",
+     "kind": "terrace",
+     "dist": 37.7,
+     "bearing_off": -20.3
+    },
+    {
+     "building": 581,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.4,
+     "bearing_off": -24.1
+    },
+    {
+     "building": 784,
+     "name": "",
+     "kind": "terrace",
+     "dist": 38.8,
+     "bearing_off": 25.9
+    },
+    {
+     "building": 794,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.6,
+     "bearing_off": 26.1
+    },
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 39.5,
+     "bearing_off": -26.2
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9491.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:45",
+   "focal35": 28,
+   "lat": 51.465575,
+   "lon": -0.05835277777777778,
+   "alt": 23.92479670962021,
+   "heading": 251.056396484375,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "18",
+   "source": "IMG_9491.HEIC",
+   "jpeg": "IMG_9491.jpg",
+   "caption": "Salvation Army hall behind a pollarded tree and flagpole",
+   "x": -267.2,
+   "z": 378.7,
+   "overridden": [],
+   "facade": {
+    "t": 62.8,
+    "building": 577,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -339.5,
+      376.2
+     ],
+     [
+      -323.6,
+      404.4
+     ]
+    ],
+    "edge_len": 32.4,
+    "frontal_deg": 10.5
+   },
+   "in_view": [
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 70.8,
+     "bearing_off": 0.9
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 86.2,
+     "bearing_off": -7.0
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 47.6,
+     "bearing_off": 20.1
+    },
+    {
+     "building": 583,
+     "name": "Nunhead Library",
+     "kind": "terrace",
+     "dist": 87.4,
+     "bearing_off": 29.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9492.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 13:59:49",
+   "focal35": 28,
+   "lat": 51.465575,
+   "lon": -0.058355555555555556,
+   "alt": 23.7420019389239,
+   "heading": 264.392455858748,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "19",
+   "source": "IMG_9492.HEIC",
+   "jpeg": "IMG_9492.jpg",
+   "caption": "Salvation Army hall frontal in sun, blank brick flank wall, mint bench",
+   "x": -267.4,
+   "z": 378.7,
+   "overridden": [],
+   "facade": {
+    "t": 39.2,
+    "building": 783,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -317.1,
+      363.9
+     ],
+     [
+      -304.6,
+      385.7
+     ]
+    ],
+    "edge_len": 25.1,
+    "frontal_deg": 24.2
+   },
+   "in_view": [
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 47.4,
+     "bearing_off": 6.7
+    },
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 70.6,
+     "bearing_off": -12.4
+    },
+    {
+     "building": 583,
+     "name": "Nunhead Library",
+     "kind": "terrace",
+     "dist": 87.2,
+     "bearing_off": 16.5
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 86.0,
+     "bearing_off": -20.4
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 44.7,
+     "bearing_off": 22.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9493.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:00:56",
+   "focal35": 28,
+   "lat": 51.46488611111111,
+   "lon": -0.059008333333333336,
+   "alt": 22.5542181739319,
+   "heading": 223.32664489034065,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "20",
+   "source": "IMG_9493.HEIC",
+   "jpeg": "IMG_9493.jpg",
+   "caption": "The Man of Kent dead frontal: pantile roof, chimney, red-framed windows, umbrellas. Best pub source",
+   "x": -312.6,
+   "z": 454.9,
+   "overridden": [],
+   "facade": {
+    "t": 19.7,
+    "building": 1154,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -328.5,
+      465.6
+     ],
+     [
+      -324.9,
+      471.0
+     ]
+    ],
+    "edge_len": 6.5,
+    "frontal_deg": 13.0
+   },
+   "in_view": [
+    {
+     "building": 1154,
+     "name": "",
+     "kind": "terrace",
+     "dist": 27.3,
+     "bearing_off": 3.6
+    },
+    {
+     "building": 1432,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.3,
+     "bearing_off": -9.3
+    },
+    {
+     "building": 777,
+     "name": "",
+     "kind": "terrace",
+     "dist": 63.4,
+     "bearing_off": 17.0
+    },
+    {
+     "building": 1152,
+     "name": "",
+     "kind": "terrace",
+     "dist": 26.4,
+     "bearing_off": 17.1
+    },
+    {
+     "building": 772,
+     "name": "",
+     "kind": "terrace",
+     "dist": 75.4,
+     "bearing_off": 19.8
+    },
+    {
+     "building": 774,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.7,
+     "bearing_off": 20.4
+    },
+    {
+     "building": 770,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.0,
+     "bearing_off": 20.8
+    },
+    {
+     "building": 768,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.6,
+     "bearing_off": 21.6
+    },
+    {
+     "building": 1434,
+     "name": "",
+     "kind": "terrace",
+     "dist": 58.1,
+     "bearing_off": -22.4
+    },
+    {
+     "building": 1153,
+     "name": "",
+     "kind": "terrace",
+     "dist": 26.9,
+     "bearing_off": 28.7
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9494.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:01:07",
+   "focal35": 28,
+   "lat": 51.46499166666667,
+   "lon": -0.05868611111111111,
+   "alt": 21.712460593993693,
+   "heading": 296,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "21",
+   "source": "IMG_9494.HEIC",
+   "jpeg": "IMG_9494.jpg",
+   "caption": "From across the road: The Old Nun's Head and the curved timber-clad flats",
+   "x": -290.3,
+   "z": 443.2,
+   "exif_heading": 129.59259033203125,
+   "overridden": [
+    "heading"
+   ],
+   "facade": {
+    "t": 53.0,
+    "building": 588,
+    "name": "The Old Nun's Head",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -334.4,
+      417.3
+     ],
+     [
+      -339.1,
+      420.8
+     ]
+    ],
+    "edge_len": 5.9,
+    "frontal_deg": 27.3
+   },
+   "in_view": [
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 60.6,
+     "bearing_off": 0.2
+    },
+    {
+     "building": 747,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.6,
+     "bearing_off": 0.5
+    },
+    {
+     "building": 761,
+     "name": "",
+     "kind": "flats",
+     "dist": 81.1,
+     "bearing_off": 6.4
+    },
+    {
+     "building": 760,
+     "name": "",
+     "kind": "flats",
+     "dist": 88.4,
+     "bearing_off": 9.2
+    },
+    {
+     "building": 991,
+     "name": "The Green",
+     "kind": "terrace",
+     "dist": 66.6,
+     "bearing_off": -16.4
+    },
+    {
+     "building": 1147,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.6,
+     "bearing_off": -17.1
+    },
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 61.4,
+     "bearing_off": 17.9
+    },
+    {
+     "building": 1148,
+     "name": "",
+     "kind": "terrace",
+     "dist": 59.1,
+     "bearing_off": -29.4
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9495.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:01:13",
+   "focal35": 28,
+   "lat": 51.46503055555556,
+   "lon": -0.05868611111111111,
+   "alt": 22.07526783261606,
+   "heading": 314.71435546875,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "22",
+   "source": "IMG_9495.HEIC",
+   "jpeg": "IMG_9495.jpg",
+   "caption": "Timber-clad flats with rooftop glass box, white art-deco block right",
+   "x": -290.3,
+   "z": 438.9,
+   "overridden": [],
+   "facade": {
+    "t": 46.6,
+    "building": 577,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -323.6,
+      404.4
+     ],
+     [
+      -323.2,
+      407.8
+     ]
+    ],
+    "edge_len": 3.4,
+    "frontal_deg": 51.4
+   },
+   "in_view": [
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 58.5,
+     "bearing_off": -3.8
+    },
+    {
+     "building": 760,
+     "name": "",
+     "kind": "flats",
+     "dist": 86.0,
+     "bearing_off": -11.8
+    },
+    {
+     "building": 761,
+     "name": "",
+     "kind": "flats",
+     "dist": 78.9,
+     "bearing_off": -14.9
+    },
+    {
+     "building": 747,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.8,
+     "bearing_off": -20.8
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 58.9,
+     "bearing_off": -22.3
+    },
+    {
+     "building": 745,
+     "name": "",
+     "kind": "terrace",
+     "dist": 90.0,
+     "bearing_off": -23.0
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 65.8,
+     "bearing_off": 23.5
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9496.HEIC",
+   "width": 4284,
+   "height": 5712,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:01:57",
+   "focal35": 28,
+   "lat": 51.465694444444445,
+   "lon": -0.05800555555555556,
+   "alt": 21.37022553655875,
+   "heading": 229.6583403895004,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "23",
+   "source": "IMG_9496.HEIC",
+   "jpeg": "IMG_9496.jpg",
+   "caption": "Path along the Green toward the hall and white block, portrait",
+   "x": -243.1,
+   "z": 365.5,
+   "overridden": [],
+   "facade": null,
+   "in_view": [
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.5,
+     "bearing_off": -23.7
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9497.HEIC",
+   "width": 3024,
+   "height": 4032,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:02:17",
+   "focal35": 20,
+   "lat": 51.46583888888889,
+   "lon": -0.057930555555555555,
+   "alt": 21.18869540393948,
+   "heading": 327.49322493224935,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 75.6,
+   "label": "24",
+   "source": "IMG_9497.HEIC",
+   "jpeg": "IMG_9497.jpg",
+   "caption": "The pavement mosaic (birds, trees, local buildings), near top-down. Decal source",
+   "x": -237.9,
+   "z": 349.5,
+   "overridden": [],
+   "facade": {
+    "t": 21.6,
+    "building": 579,
+    "name": "Pyrotechnists Arms",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -243.0,
+      327.3
+     ],
+     [
+      -252.1,
+      332.8
+     ]
+    ],
+    "edge_len": 10.6,
+    "frontal_deg": 1.4
+   },
+   "in_view": [
+    {
+     "building": 826,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.1,
+     "bearing_off": 3.4
+    },
+    {
+     "building": 579,
+     "name": "Pyrotechnists Arms",
+     "kind": "terrace",
+     "dist": 30.2,
+     "bearing_off": 7.6
+    },
+    {
+     "building": 794,
+     "name": "",
+     "kind": "terrace",
+     "dist": 66.9,
+     "bearing_off": -7.6
+    },
+    {
+     "building": 789,
+     "name": "",
+     "kind": "terrace",
+     "dist": 28.5,
+     "bearing_off": -11.3
+    },
+    {
+     "building": 788,
+     "name": "",
+     "kind": "terrace",
+     "dist": 29.7,
+     "bearing_off": -21.3
+    },
+    {
+     "building": 824,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.3,
+     "bearing_off": -25.8
+    },
+    {
+     "building": 822,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.0,
+     "bearing_off": -27.6
+    },
+    {
+     "building": 891,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.8,
+     "bearing_off": 27.9
+    },
+    {
+     "building": 787,
+     "name": "",
+     "kind": "terrace",
+     "dist": 32.1,
+     "bearing_off": -28.8
+    },
+    {
+     "building": 888,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.3,
+     "bearing_off": 29.0
+    },
+    {
+     "building": 821,
+     "name": "",
+     "kind": "terrace",
+     "dist": 77.9,
+     "bearing_off": -29.8
+    },
+    {
+     "building": 885,
+     "name": "",
+     "kind": "terrace",
+     "dist": 77.9,
+     "bearing_off": 30.3
+    },
+    {
+     "building": 879,
+     "name": "",
+     "kind": "terrace",
+     "dist": 70.2,
+     "bearing_off": 33.0
+    },
+    {
+     "building": 876,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.4,
+     "bearing_off": 35.8
+    },
+    {
+     "building": 786,
+     "name": "",
+     "kind": "terrace",
+     "dist": 34.7,
+     "bearing_off": -36.6
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9498.HEIC",
+   "width": 3024,
+   "height": 4032,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:02:20",
+   "focal35": 20,
+   "lat": 51.46584722222222,
+   "lon": -0.05789444444444445,
+   "alt": 21.02875703767865,
+   "heading": 186.3151397011046,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 75.6,
+   "label": "25",
+   "source": "IMG_9498.HEIC",
+   "jpeg": "IMG_9498.jpg",
+   "caption": "Corner by the traffic lights: FORTY, Edy & Bridge, noticeboard, mosaic in the foreground",
+   "x": -235.4,
+   "z": 348.6,
+   "overridden": [],
+   "facade": {
+    "t": 30.3,
+    "building": 1366,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -241.4,
+      382.3
+     ],
+     [
+      -238.1,
+      377.9
+     ]
+    ],
+    "edge_len": 5.5,
+    "frontal_deg": 59.4
+   },
+   "in_view": [
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.1,
+     "bearing_off": -2.9
+    },
+    {
+     "building": 1360,
+     "name": "",
+     "kind": "terrace",
+     "dist": 40.6,
+     "bearing_off": 3.3
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 60.2,
+     "bearing_off": 6.1
+    },
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 48.2,
+     "bearing_off": 6.8
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 75.2,
+     "bearing_off": -7.9
+    },
+    {
+     "building": 1366,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.9,
+     "bearing_off": -8.9
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 53.2,
+     "bearing_off": 9.1
+    },
+    {
+     "building": 1364,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.7,
+     "bearing_off": 9.2
+    },
+    {
+     "building": 1371,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.6,
+     "bearing_off": 13.2
+    },
+    {
+     "building": 1332,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.1,
+     "bearing_off": -16.3
+    },
+    {
+     "building": 1334,
+     "name": "",
+     "kind": "terrace",
+     "dist": 60.3,
+     "bearing_off": -22.9
+    },
+    {
+     "building": 1331,
+     "name": "",
+     "kind": "terrace",
+     "dist": 72.6,
+     "bearing_off": -27.9
+    },
+    {
+     "building": 1330,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.9,
+     "bearing_off": -32.3
+    },
+    {
+     "building": 998,
+     "name": "The Beer Shop",
+     "kind": "terrace",
+     "dist": 30.5,
+     "bearing_off": -37.0
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9499.HEIC",
+   "width": 3024,
+   "height": 4032,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:02:22",
+   "focal35": 20,
+   "lat": 51.46584722222222,
+   "lon": -0.057869444444444446,
+   "alt": 21.194871658181626,
+   "heading": 150.83488466208013,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 75.6,
+   "label": "26",
+   "source": "IMG_9499.HEIC",
+   "jpeg": "IMG_9499.jpg",
+   "caption": "GOODCUP, Fruits, FORTY, Edy & Bridge parade frontal, three storeys above. Texture source (lights to paint out)",
+   "x": -233.7,
+   "z": 348.6,
+   "overridden": [],
+   "facade": {
+    "t": 19.8,
+    "building": 999,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -224.7,
+      366.4
+     ],
+     [
+      -220.4,
+      363.0
+     ]
+    ],
+    "edge_len": 5.5,
+    "frontal_deg": 9.2
+   },
+   "in_view": [
+    {
+     "building": 998,
+     "name": "The Beer Shop",
+     "kind": "terrace",
+     "dist": 29.7,
+     "bearing_off": 1.3
+    },
+    {
+     "building": 1330,
+     "name": "",
+     "kind": "terrace",
+     "dist": 88.2,
+     "bearing_off": 4.2
+    },
+    {
+     "building": 999,
+     "name": "",
+     "kind": "terrace",
+     "dist": 26.1,
+     "bearing_off": -6.4
+    },
+    {
+     "building": 1331,
+     "name": "",
+     "kind": "terrace",
+     "dist": 72.0,
+     "bearing_off": 8.8
+    },
+    {
+     "building": 1382,
+     "name": "",
+     "kind": "terrace",
+     "dist": 62.1,
+     "bearing_off": -12.3
+    },
+    {
+     "building": 1334,
+     "name": "",
+     "kind": "terrace",
+     "dist": 59.8,
+     "bearing_off": 14.1
+    },
+    {
+     "building": 1381,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.4,
+     "bearing_off": -18.4
+    },
+    {
+     "building": 1000,
+     "name": "",
+     "kind": "terrace",
+     "dist": 27.5,
+     "bearing_off": -19.1
+    },
+    {
+     "building": 1332,
+     "name": "",
+     "kind": "terrace",
+     "dist": 86.8,
+     "bearing_off": 20.3
+    },
+    {
+     "building": 1353,
+     "name": "",
+     "kind": "terrace",
+     "dist": 26.8,
+     "bearing_off": -28.0
+    },
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 75.2,
+     "bearing_off": 28.9
+    },
+    {
+     "building": 1366,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.9,
+     "bearing_off": 29.2
+    },
+    {
+     "building": 1354,
+     "name": "",
+     "kind": "terrace",
+     "dist": 32.0,
+     "bearing_off": -31.2
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.2,
+     "bearing_off": 34.0
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9500.HEIC",
+   "width": 4032,
+   "height": 3024,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:03:15",
+   "focal35": 19,
+   "lat": 51.46563333333334,
+   "lon": -0.05850555555555556,
+   "alt": 21.576331685886874,
+   "heading": 204.52252197265625,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 77.9,
+   "label": "27",
+   "source": "IMG_9500.HEIC",
+   "jpeg": "IMG_9500.jpg",
+   "caption": "Backlit: the red-brick gabled terrace silhouette, playground, the curved shelter bench",
+   "x": -277.8,
+   "z": 372.3,
+   "overridden": [],
+   "facade": null,
+   "in_view": [
+    {
+     "building": 1368,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.6,
+     "bearing_off": -17.9
+    },
+    {
+     "building": 1370,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.5,
+     "bearing_off": -20.1
+    },
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.2,
+     "bearing_off": -22.6
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 80.1,
+     "bearing_off": 32.1
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9501.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:04:27",
+   "focal35": 28,
+   "lat": 51.46542777777778,
+   "lon": -0.05865833333333334,
+   "alt": 21.682125603864733,
+   "heading": 313.723113964687,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "28",
+   "source": "IMG_9501.HEIC",
+   "jpeg": "IMG_9501.jpg",
+   "caption": "The gather / El Vermut parade from across the Green: flagpole, bench, railings",
+   "x": -288.4,
+   "z": 395.0,
+   "overridden": [],
+   "facade": {
+    "t": 33.3,
+    "building": 783,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -317.1,
+      363.9
+     ],
+     [
+      -304.6,
+      385.7
+     ]
+    ],
+    "edge_len": 25.1,
+    "frontal_deg": 73.6
+   },
+   "in_view": [
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 36.6,
+     "bearing_off": 10.0
+    },
+    {
+     "building": 581,
+     "name": "",
+     "kind": "terrace",
+     "dist": 59.8,
+     "bearing_off": 10.5
+    },
+    {
+     "building": 783,
+     "name": "",
+     "kind": "flats",
+     "dist": 31.5,
+     "bearing_off": -10.6
+    },
+    {
+     "building": 811,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.9,
+     "bearing_off": 15.4
+    },
+    {
+     "building": 583,
+     "name": "Nunhead Library",
+     "kind": "terrace",
+     "dist": 72.4,
+     "bearing_off": -16.9
+    },
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 36.9,
+     "bearing_off": 25.6
+    },
+    {
+     "building": 756,
+     "name": "",
+     "kind": "flats",
+     "dist": 87.6,
+     "bearing_off": -27.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9502.HEIC",
+   "width": 4284,
+   "height": 5712,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:04:46",
+   "focal35": 28,
+   "lat": 51.465358333333334,
+   "lon": -0.059022222222222226,
+   "alt": 21.642748091603053,
+   "heading": 275,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "29",
+   "source": "IMG_9502.HEIC",
+   "jpeg": "IMG_9502.jpg",
+   "caption": "Timber-clad flats close-up, portrait",
+   "x": -313.6,
+   "z": 402.7,
+   "exif_heading": 180.10876451953538,
+   "overridden": [
+    "heading"
+   ],
+   "facade": {
+    "t": 11.6,
+    "building": 577,
+    "name": "",
+    "kind": "flats",
+    "height": 13.0,
+    "edge": [
+     [
+      -339.5,
+      376.2
+     ],
+     [
+      -323.6,
+      404.4
+     ]
+    ],
+    "edge_len": 32.4,
+    "frontal_deg": 34.4
+   },
+   "in_view": [
+    {
+     "building": 577,
+     "name": "",
+     "kind": "flats",
+     "dist": 21.1,
+     "bearing_off": 0.8
+    },
+    {
+     "building": 761,
+     "name": "",
+     "kind": "flats",
+     "dist": 45.2,
+     "bearing_off": -1.2
+    },
+    {
+     "building": 750,
+     "name": "",
+     "kind": "flats",
+     "dist": 76.8,
+     "bearing_off": 5.3
+    },
+    {
+     "building": 747,
+     "name": "",
+     "kind": "terrace",
+     "dist": 55.1,
+     "bearing_off": -6.5
+    },
+    {
+     "building": 760,
+     "name": "",
+     "kind": "flats",
+     "dist": 50.0,
+     "bearing_off": 7.1
+    },
+    {
+     "building": 757,
+     "name": "",
+     "kind": "flats",
+     "dist": 68.6,
+     "bearing_off": 7.6
+    },
+    {
+     "building": 745,
+     "name": "",
+     "kind": "terrace",
+     "dist": 60.3,
+     "bearing_off": -7.7
+    },
+    {
+     "building": 744,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.9,
+     "bearing_off": -8.1
+    },
+    {
+     "building": 742,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.4,
+     "bearing_off": -8.5
+    },
+    {
+     "building": 741,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.9,
+     "bearing_off": -8.8
+    },
+    {
+     "building": 739,
+     "name": "",
+     "kind": "terrace",
+     "dist": 78.0,
+     "bearing_off": -9.2
+    },
+    {
+     "building": 738,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.5,
+     "bearing_off": -9.8
+    },
+    {
+     "building": 736,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.9,
+     "bearing_off": -10.0
+    },
+    {
+     "building": 758,
+     "name": "",
+     "kind": "flats",
+     "dist": 55.5,
+     "bearing_off": 13.9
+    },
+    {
+     "building": 754,
+     "name": "",
+     "kind": "flats",
+     "dist": 74.2,
+     "bearing_off": 19.2
+    },
+    {
+     "building": 756,
+     "name": "",
+     "kind": "flats",
+     "dist": 67.0,
+     "bearing_off": 23.2
+    },
+    {
+     "building": 746,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.2,
+     "bearing_off": -27.3
+    },
+    {
+     "building": 743,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.4,
+     "bearing_off": -27.3
+    },
+    {
+     "building": 1146,
+     "name": "",
+     "kind": "terrace",
+     "dist": 72.2,
+     "bearing_off": -27.6
+    },
+    {
+     "building": 748,
+     "name": "",
+     "kind": "terrace",
+     "dist": 77.7,
+     "bearing_off": -28.2
+    },
+    {
+     "building": 1147,
+     "name": "",
+     "kind": "terrace",
+     "dist": 67.9,
+     "bearing_off": -28.5
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 34.0,
+     "bearing_off": -28.8
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9503.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:04:53",
+   "focal35": 28,
+   "lat": 51.465316666666666,
+   "lon": -0.05913611111111111,
+   "alt": 22.010600399687203,
+   "heading": 100,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "30",
+   "source": "IMG_9503.HEIC",
+   "jpeg": "IMG_9503.jpg",
+   "caption": "The long pharmacy terrace frontal with a red bus, Man of Kent at the right end. Best terrace source",
+   "x": -321.5,
+   "z": 407.3,
+   "exif_heading": 224.98648059310946,
+   "overridden": [
+    "heading"
+   ],
+   "facade": {
+    "t": 83.2,
+    "building": 1333,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -241.2,
+      423.6
+     ],
+     [
+      -234.8,
+      416.1
+     ]
+    ],
+    "edge_len": 9.9,
+    "frontal_deg": 30.5
+   },
+   "in_view": [
+    {
+     "building": 1333,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.7,
+     "bearing_off": 0.6
+    },
+    {
+     "building": 1365,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.5,
+     "bearing_off": -5.6
+    },
+    {
+     "building": 1364,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.9,
+     "bearing_off": -6.9
+    },
+    {
+     "building": 1371,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.6,
+     "bearing_off": 8.1
+    },
+    {
+     "building": 1363,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.1,
+     "bearing_off": -10.0
+    },
+    {
+     "building": 1362,
+     "name": "",
+     "kind": "terrace",
+     "dist": 72.3,
+     "bearing_off": -15.9
+    },
+    {
+     "building": 1384,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.6,
+     "bearing_off": 18.8
+    },
+    {
+     "building": 1361,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.1,
+     "bearing_off": -18.9
+    },
+    {
+     "building": 1360,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.5,
+     "bearing_off": -23.2
+    },
+    {
+     "building": 1367,
+     "name": "",
+     "kind": "terrace",
+     "dist": 53.7,
+     "bearing_off": 29.5
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9504.HEIC",
+   "width": 4284,
+   "height": 5712,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:05:22",
+   "focal35": 28,
+   "lat": 51.46588055555556,
+   "lon": -0.05801111111111111,
+   "alt": 21.612446173079594,
+   "heading": 357.22543352601156,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "31",
+   "source": "IMG_9504.HEIC",
+   "jpeg": "IMG_9504.jpg",
+   "caption": "Pyrotechnists Arms hanging sign and parapet, looking up, mostly sky",
+   "x": -243.5,
+   "z": 344.9,
+   "overridden": [],
+   "facade": {
+    "t": 16.8,
+    "building": 579,
+    "name": "Pyrotechnists Arms",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -243.0,
+      327.3
+     ],
+     [
+      -252.1,
+      332.8
+     ]
+    ],
+    "edge_len": 10.6,
+    "frontal_deg": 28.4
+   },
+   "in_view": [
+    {
+     "building": 894,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.3,
+     "bearing_off": 0.4
+    },
+    {
+     "building": 891,
+     "name": "",
+     "kind": "terrace",
+     "dist": 83.9,
+     "bearing_off": 1.7
+    },
+    {
+     "building": 888,
+     "name": "",
+     "kind": "terrace",
+     "dist": 78.6,
+     "bearing_off": 3.2
+    },
+    {
+     "building": 885,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.2,
+     "bearing_off": 4.8
+    },
+    {
+     "building": 879,
+     "name": "",
+     "kind": "terrace",
+     "dist": 65.8,
+     "bearing_off": 8.2
+    },
+    {
+     "building": 876,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.4,
+     "bearing_off": 11.5
+    },
+    {
+     "building": 579,
+     "name": "Pyrotechnists Arms",
+     "kind": "terrace",
+     "dist": 23.9,
+     "bearing_off": -14.5
+    },
+    {
+     "building": 873,
+     "name": "",
+     "kind": "terrace",
+     "dist": 57.2,
+     "bearing_off": 15.3
+    },
+    {
+     "building": 860,
+     "name": "",
+     "kind": "terrace",
+     "dist": 41.5,
+     "bearing_off": 19.5
+    },
+    {
+     "building": 870,
+     "name": "",
+     "kind": "terrace",
+     "dist": 53.4,
+     "bearing_off": 19.7
+    },
+    {
+     "building": 916,
+     "name": "",
+     "kind": "flats",
+     "dist": 89.1,
+     "bearing_off": 21.1
+    },
+    {
+     "building": 823,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.9,
+     "bearing_off": -24.1
+    },
+    {
+     "building": 899,
+     "name": "",
+     "kind": "flats",
+     "dist": 86.7,
+     "bearing_off": 24.3
+    },
+    {
+     "building": 826,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.4,
+     "bearing_off": -24.5
+    },
+    {
+     "building": 959,
+     "name": "",
+     "kind": "terrace",
+     "dist": 38.0,
+     "bearing_off": 26.0
+    },
+    {
+     "building": 854,
+     "name": "",
+     "kind": "flats",
+     "dist": 78.6,
+     "bearing_off": 27.5
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9505.HEIC",
+   "width": 5712,
+   "height": 4284,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:05:59",
+   "focal35": 28,
+   "lat": 51.46588611111111,
+   "lon": -0.05751111111111111,
+   "alt": 22.065197533683488,
+   "heading": 345,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "32",
+   "source": "IMG_9505.HEIC",
+   "jpeg": "IMG_9505.jpg",
+   "caption": "Pyrotechnists Arms frontal in sun: yellow brick, white parapet, black ground floor, Est. 1874. Best corner-pub source",
+   "x": -246,
+   "z": 352,
+   "exif_heading": 55.8751373123398,
+   "overridden": [
+    "heading",
+    "x",
+    "z"
+   ],
+   "facade": {
+    "t": 20.4,
+    "building": 579,
+    "name": "Pyrotechnists Arms",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -243.0,
+      327.3
+     ],
+     [
+      -252.1,
+      332.8
+     ]
+    ],
+    "edge_len": 10.6,
+    "frontal_deg": 16.1
+   },
+   "in_view": [
+    {
+     "building": 579,
+     "name": "Pyrotechnists Arms",
+     "kind": "terrace",
+     "dist": 30.3,
+     "bearing_off": 6.2
+    },
+    {
+     "building": 826,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.8,
+     "bearing_off": -8.6
+    },
+    {
+     "building": 789,
+     "name": "",
+     "kind": "terrace",
+     "dist": 25.8,
+     "bearing_off": -11.7
+    },
+    {
+     "building": 888,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.7,
+     "bearing_off": 17.0
+    },
+    {
+     "building": 794,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.0,
+     "bearing_off": -18.1
+    },
+    {
+     "building": 885,
+     "name": "",
+     "kind": "terrace",
+     "dist": 80.5,
+     "bearing_off": 18.7
+    },
+    {
+     "building": 879,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.2,
+     "bearing_off": 21.9
+    },
+    {
+     "building": 788,
+     "name": "",
+     "kind": "terrace",
+     "dist": 25.5,
+     "bearing_off": -23.4
+    },
+    {
+     "building": 876,
+     "name": "",
+     "kind": "terrace",
+     "dist": 68.8,
+     "bearing_off": 24.9
+    },
+    {
+     "building": 873,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.7,
+     "bearing_off": 28.3
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9506.HEIC",
+   "width": 4284,
+   "height": 5712,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:07:30",
+   "focal35": 28,
+   "lat": 51.46526388888889,
+   "lon": -0.058633333333333336,
+   "alt": 23.151823446548757,
+   "heading": 355.15905743740797,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "33",
+   "source": "IMG_9506.HEIC",
+   "jpeg": "IMG_9506.jpg",
+   "caption": "Leaf litter on muddy grass, top-down. Ground tile source",
+   "x": -286.6,
+   "z": 413.1,
+   "overridden": [],
+   "facade": {
+    "t": 52.9,
+    "building": 785,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -289.3,
+      359.2
+     ],
+     [
+      -292.8,
+      361.6
+     ]
+    ],
+    "edge_len": 4.2,
+    "frontal_deg": 29.6
+   },
+   "in_view": [
+    {
+     "building": 785,
+     "name": "",
+     "kind": "terrace",
+     "dist": 58.2,
+     "bearing_off": -2.8
+    },
+    {
+     "building": 806,
+     "name": "",
+     "kind": "terrace",
+     "dist": 85.4,
+     "bearing_off": -3.9
+    },
+    {
+     "building": 790,
+     "name": "",
+     "kind": "terrace",
+     "dist": 55.8,
+     "bearing_off": 5.5
+    },
+    {
+     "building": 791,
+     "name": "",
+     "kind": "terrace",
+     "dist": 64.4,
+     "bearing_off": 6.4
+    },
+    {
+     "building": 782,
+     "name": "",
+     "kind": "terrace",
+     "dist": 56.3,
+     "bearing_off": -6.8
+    },
+    {
+     "building": 792,
+     "name": "",
+     "kind": "terrace",
+     "dist": 66.9,
+     "bearing_off": 9.9
+    },
+    {
+     "building": 781,
+     "name": "",
+     "kind": "terrace",
+     "dist": 54.7,
+     "bearing_off": -10.9
+    },
+    {
+     "building": 793,
+     "name": "",
+     "kind": "terrace",
+     "dist": 69.8,
+     "bearing_off": 12.8
+    },
+    {
+     "building": 784,
+     "name": "",
+     "kind": "terrace",
+     "dist": 73.8,
+     "bearing_off": 15.1
+    },
+    {
+     "building": 786,
+     "name": "",
+     "kind": "terrace",
+     "dist": 77.7,
+     "bearing_off": 16.9
+    },
+    {
+     "building": 787,
+     "name": "",
+     "kind": "terrace",
+     "dist": 81.6,
+     "bearing_off": 19.4
+    },
+    {
+     "building": 584,
+     "name": "Salvation Army Evangelical Centre",
+     "kind": "church",
+     "dist": 53.1,
+     "bearing_off": -21.4
+    },
+    {
+     "building": 788,
+     "name": "",
+     "kind": "terrace",
+     "dist": 84.8,
+     "bearing_off": 21.8
+    },
+    {
+     "building": 789,
+     "name": "",
+     "kind": "terrace",
+     "dist": 89.0,
+     "bearing_off": 23.9
+    },
+    {
+     "building": 581,
+     "name": "",
+     "kind": "terrace",
+     "dist": 76.0,
+     "bearing_off": -24.1
+    }
+   ],
+   "suspect": false
+  },
+  {
+   "file": "IMG_9507.HEIC",
+   "width": 4284,
+   "height": 5712,
+   "model": "iPhone 15 Pro",
+   "orientation": 1,
+   "taken": "2026:11:23 14:07:33",
+   "focal35": 28,
+   "lat": 51.46520277777778,
+   "lon": -0.058738888888888896,
+   "alt": 22.20629907818368,
+   "heading": 244.52572628631432,
+   "heading_ref": "T",
+   "hdop": null,
+   "hfov": 60.3,
+   "label": "34",
+   "source": "IMG_9507.HEIC",
+   "jpeg": "IMG_9507.jpg",
+   "caption": "Curved steel shelter bench under a golden tree, Salvation Army hall and timber flats behind",
+   "x": -293.9,
+   "z": 419.9,
+   "overridden": [],
+   "facade": {
+    "t": 56.5,
+    "building": 1148,
+    "name": "",
+    "kind": "terrace",
+    "height": 7.2,
+    "edge": [
+     [
+      -346.5,
+      441.9
+     ],
+     [
+      -343.7,
+      446.0
+     ]
+    ],
+    "edge_len": 5.0,
+    "frontal_deg": 8.9
+   },
+   "in_view": [
+    {
+     "building": 1148,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.5,
+     "bearing_off": -0.4
+    },
+    {
+     "building": 1149,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.0,
+     "bearing_off": -4.9
+    },
+    {
+     "building": 1151,
+     "name": "",
+     "kind": "terrace",
+     "dist": 60.9,
+     "bearing_off": -9.5
+    },
+    {
+     "building": 1150,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.2,
+     "bearing_off": -14.3
+    },
+    {
+     "building": 991,
+     "name": "The Green",
+     "kind": "terrace",
+     "dist": 63.3,
+     "bearing_off": 14.3
+    },
+    {
+     "building": 1146,
+     "name": "",
+     "kind": "terrace",
+     "dist": 87.0,
+     "bearing_off": 18.5
+    },
+    {
+     "building": 1147,
+     "name": "",
+     "kind": "terrace",
+     "dist": 82.6,
+     "bearing_off": 18.6
+    },
+    {
+     "building": 1153,
+     "name": "",
+     "kind": "terrace",
+     "dist": 61.9,
+     "bearing_off": -18.9
+    },
+    {
+     "building": 1152,
+     "name": "",
+     "kind": "terrace",
+     "dist": 63.6,
+     "bearing_off": -23.6
+    },
+    {
+     "building": 1154,
+     "name": "",
+     "kind": "terrace",
+     "dist": 66.1,
+     "bearing_off": -28.8
+    },
+    {
+     "building": 588,
+     "name": "The Old Nun's Head",
+     "kind": "terrace",
+     "dist": 50.9,
+     "bearing_off": 29.4
+    }
+   ],
+   "suspect": false
+  }
+ ]
+}

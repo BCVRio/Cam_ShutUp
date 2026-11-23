@@ -1,0 +1,21 @@
+{
+ "_note": "Per-photo corrections for tools/photo_index.py: x, z (map metres) and/or heading (degrees from true north). The phone compass drifts near parked cars; these were set by eye from what the photo shows.",
+ "IMG_9494.HEIC": {
+  "heading": 296,
+  "why": "shows The Old Nun's Head and the timber flats across the playground; EXIF said 130"
+ },
+ "IMG_9502.HEIC": {
+  "heading": 275,
+  "why": "close-up of the timber-clad flats to the west; EXIF said 180"
+ },
+ "IMG_9503.HEIC": {
+  "heading": 100,
+  "why": "the long pharmacy terrace with the bus, east side of the Green; EXIF said 225"
+ },
+ "IMG_9505.HEIC": {
+  "x": -246,
+  "z": 352,
+  "heading": 345,
+  "why": "Pyrotechnists Arms frontal; the sign shot 37 s earlier was at (-243, 345) looking north; GPS put this one 40 m east looking north-east"
+ }
+}
