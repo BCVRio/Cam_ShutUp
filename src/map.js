@@ -189,18 +189,25 @@ function buildBuildings(d) {
   const rnd = seededRandom(42);
   const tint = new THREE.Color();
   // photo facades: each is a texture spanning a left-right line on the map, as seen from the street. A wall edge that
-  // lies along that line (midpoint within 2 m of it, direction within 45 degrees, overlapping its span by a metre) is
-  // textured by its position along it, and the building takes the facade's measured height instead of the map's guess.
+  // lies along that line (midpoint within 2 m of it, direction within 45 degrees, three quarters of it inside the span)
+  // and faces the street the photo was taken from is textured by its position along it, and the building takes the
+  // facade's measured height instead of the map's guess. A wall facing the other way would get the photo mirrored,
+  // which the exporter corrects by negating u, and a clamped texture then smears one column across the whole wall.
   const facades = (world.facades || []).map((f) => { const ex = f.right[0] - f.left[0], ez = f.right[1] - f.left[1]; const len = Math.hypot(ex, ez) || 1; return { ...f, ex: ex / len, ez: ez / len, len }; });
   const photoLists = {}, photoMats = {};
-  const facadeFor = (ax, az, bx, bz) => {
+  const facadeFor = (ax, az, bx, bz, cx, cz) => {
     const dl = Math.hypot(bx - ax, bz - az); if (dl < 0.3) return null;
+    const mx0 = (ax + bx) / 2, mz0 = (az + bz) / 2;
+    let nx = -(bz - az) / dl, nz = (bx - ax) / dl;   // outward: away from the footprint's centre
+    if (nx * (cx - mx0) + nz * (cz - mz0) > 0) { nx = -nx; nz = -nz; }
     for (const f of facades) {
       if (Math.abs(((bx - ax) * f.ex + (bz - az) * f.ez) / dl) < 0.7) continue;
-      const mx = (ax + bx) / 2 - f.left[0], mz = (az + bz) / 2 - f.left[1];
+      if (f.ex * nz - f.ez * nx < 0.5) continue;   // the viewer's right along this wall must be the facade's left-to-right
+      const mx = mx0 - f.left[0], mz = mz0 - f.left[1];
       if (Math.abs(mx * f.ez - mz * f.ex) > 2.0) continue;
       const ua = (ax - f.left[0]) * f.ex + (az - f.left[1]) * f.ez, ub = (bx - f.left[0]) * f.ex + (bz - f.left[1]) * f.ez;
-      if (Math.max(ua, ub) < 1 || Math.min(ua, ub) > f.len - 1) continue;
+      const inside = Math.min(Math.max(ua, ub), f.len) - Math.max(Math.min(ua, ub), 0);
+      if (inside < 0.75 * dl) continue;
       return { f, ua: ua / f.len, ub: ub / f.len };
     }
     return null;
@@ -216,7 +223,8 @@ function buildBuildings(d) {
     const p = b.p; if (p.length < 3) continue;
     if (anyIn(p, 6)) continue;
     let minY = 1e9; for (const [x, z] of p) minY = Math.min(minY, terrainHeight(x, z));
-    const photo = facades.length ? p.map(([ax, az], i) => { const [bx, bz] = p[(i + 1) % p.length]; return facadeFor(ax, az, bx, bz); }) : null;
+    const pcx = p.reduce((s, q) => s + q[0], 0) / p.length, pcz = p.reduce((s, q) => s + q[1], 0) / p.length;
+    const photo = facades.length ? p.map(([ax, az], i) => { const [bx, bz] = p[(i + 1) % p.length]; return facadeFor(ax, az, bx, bz, pcx, pcz); }) : null;
     let photoH = 0; if (photo) for (const m of photo) if (m) photoH = Math.max(photoH, m.f.height);
     const base = minY - 2.5, top = minY + (photoH || b.h);
     let matKey = b.k === 'flats' ? 'flats' : b.k === 'terrace' || b.k === 'commercial' ? 'terrace' : b.k === 'church' ? 'stone' : b.k === 'school' || b.k === 'civic' ? 'brick' : b.k === 'shed' ? 'concrete' : 'concrete';

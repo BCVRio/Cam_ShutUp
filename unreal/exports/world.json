@@ -1,6 +1,6 @@
 {
   "generator": "tools/export_world.js",
-  "generated": "2026-11-22T15:43:48.941Z",
+  "generated": "2026-11-24T00:04:24.302Z",
   "source": "./public/maps/selondon.json",
   "mapOrigin": {
     "lat": 51.469,
@@ -28,11 +28,11 @@
     "heights": "y is the game ground at that point: terrain + 0.06 on carriageway, + 0.14 on pavements"
   },
   "areas": [
-    {"id":"nunhead","name":"Nunhead","sub":"Nunhead Green & the station","centre":{"x":-294,"z":412},"groundY":17.93,"radius":170,"bounds":{"x0":-464,"x1":-124,"z0":242,"z1":582},"file":"nunhead.glb","exported":{"nodes":892,"triangles":2960008,"uniqueMeshes":92,"min":[-476.15,10.49,227.84],"max":[-107.57,36.96,588.8],"bytes":36429752}},
-    {"id":"stadium","name":"Bosco FC Stadium","sub":"Home of Team Bosco","centre":{"x":-108,"z":-193},"groundY":5.8,"radius":110,"bounds":{"x0":-218,"x1":2,"z0":-303,"z1":-83},"file":"stadium.glb","exported":{"nodes":280,"triangles":135773,"uniqueMeshes":254,"min":[-223.44,3.21,-307.88],"max":[14.71,35.7,-80.5],"bytes":26565800}},
-    {"id":"cage","name":"The Cage","sub":"Edmund Waller School, Telegraph Hill","centre":{"x":298,"z":-252},"groundY":7.15,"radius":120,"bounds":{"x0":178,"x1":418,"z0":-372,"z1":-132},"file":"cage.glb","exported":{"nodes":359,"triangles":775127,"uniqueMeshes":119,"min":[162.48,1.5,-381.5],"max":[420,20.84,-120.3],"bytes":28182932}},
-    {"id":"park","name":"Dr Harold Moody Park","sub":"Consort Road, Nunhead","centre":{"x":-455,"z":158},"groundY":11.73,"radius":120,"bounds":{"x0":-575,"x1":-335,"z0":38,"z1":278},"file":"park.glb","exported":{"nodes":301,"triangles":725704,"uniqueMeshes":77,"min":[-612.01,6.49,28.54],"max":[-328.74,28,299.54],"bytes":32230824}},
-    {"id":"streets","name":"Streets","sub":"everything outside the four areas","centre":{"x":0,"z":0},"groundY":10,"radius":null,"bounds":{"x0":-940,"x1":940,"z0":-780,"z1":780},"file":"streets.glb","exported":{"nodes":20792,"triangles":63801213,"uniqueMeshes":804,"min":[-1338.31,-2.5,-1158.93],"max":[1136.79,68.12,1293.92],"bytes":117877040}}
+    {"id":"nunhead","name":"Nunhead","sub":"Nunhead Green & the station","centre":{"x":-294,"z":412},"groundY":17.93,"radius":170,"bounds":{"x0":-464,"x1":-124,"z0":242,"z1":582},"file":"nunhead.glb","exported":{"nodes":892,"triangles":2927951,"uniqueMeshes":99,"min":[-476.15,10.49,227.84],"max":[-107.57,36.96,588.8],"bytes":39444424}},
+    {"id":"stadium","name":"Bosco FC Stadium","sub":"Home of Team Bosco","centre":{"x":-108,"z":-193},"groundY":5.8,"radius":110,"bounds":{"x0":-218,"x1":2,"z0":-303,"z1":-83},"file":"stadium.glb","exported":{"nodes":280,"triangles":135773,"uniqueMeshes":254,"min":[-223.44,3.21,-307.88],"max":[14.71,35.7,-80.5],"bytes":26561912}},
+    {"id":"cage","name":"The Cage","sub":"Edmund Waller School, Telegraph Hill","centre":{"x":298,"z":-252},"groundY":7.15,"radius":120,"bounds":{"x0":178,"x1":418,"z0":-372,"z1":-132},"file":"cage.glb","exported":{"nodes":359,"triangles":775127,"uniqueMeshes":119,"min":[162.48,1.5,-381.5],"max":[420,20.84,-120.3],"bytes":28181676}},
+    {"id":"park","name":"Dr Harold Moody Park","sub":"Consort Road, Nunhead","centre":{"x":-455,"z":158},"groundY":11.73,"radius":120,"bounds":{"x0":-575,"x1":-335,"z0":38,"z1":278},"file":"park.glb","exported":{"nodes":301,"triangles":725704,"uniqueMeshes":77,"min":[-612.01,6.49,28.54],"max":[-328.74,28,299.54],"bytes":32229496}},
+    {"id":"streets","name":"Streets","sub":"everything outside the four areas","centre":{"x":0,"z":0},"groundY":10,"radius":null,"bounds":{"x0":-940,"x1":940,"z0":-780,"z1":780},"file":"streets.glb","exported":{"nodes":20792,"triangles":63801213,"uniqueMeshes":804,"min":[-1338.31,-2.5,-1158.93],"max":[1136.79,68.12,1293.92],"bytes":117865388}}
   ],
   "arenas": [
     {"id":"stadium","name":"Bosco FC Stadium","mode":"match","pitch":{"x":-108.25,"z":-193.36,"angle":2.85,"length":84,"width":54,"y":5.9},"goals":[{"side":-1,"width":7.32,"height":2.44,"depth":2.2,"mouth":[-68.02,5.9,-205.41],"inward":[-0.96,0.29],"posts":[[-66.97,-201.9],[-69.07,-208.91]]},{"side":1,"width":7.32,"height":2.44,"depth":2.2,"mouth":[-148.49,5.9,-181.32],"inward":[0.96,-0.29],"posts":[[-147.44,-177.82],[-149.54,-184.83]]}]},
@@ -5569,15 +5569,15 @@
     [522.85,2.81,-711.19]
   ],
   "shops": [
-    {"id":"shop0","name":"Londis","kind":"convenience","keeperName":"Mo","door":[191.7,18.27,285.94],"entryMat":[192.96,18.33,286.25],"keeper":[191.82,18.27,287.1],"facingYaw":1.33},
+    {"id":"shop0","name":"Yours Food and Wine","kind":"convenience","keeperName":"Mo","door":[-741.07,5.95,-523.12],"entryMat":[-740.95,5.95,-521.82],"keeper":[-742.13,5.95,-522.61],"facingYaw":0.09},
     {"id":"shop1","name":"Sainsbury's Local","kind":"convenience","keeperName":"Dev","door":[-454.28,2.91,-565.45],"entryMat":[-455.58,2.9,-565.58],"keeper":[-454.57,2.91,-566.59],"facingYaw":-1.67},
-    {"id":"shop2","name":"Hibah Food Centre","kind":"convenience","keeperName":"Ayesha","door":[557.42,3.28,-650.14],"entryMat":[556.24,3.3,-649.6],"keeper":[556.6,3.28,-650.97],"facingYaw":-1.14},
-    {"id":"shop3","name":"Tesco Express","kind":"convenience","keeperName":"Tony","door":[-178.3,4.18,-495.51],"entryMat":[-178.38,4.2,-494.21],"keeper":[-179.43,4.18,-495.17],"facingYaw":-0.06},
-    {"id":"shop4","name":"New Cross News","kind":"convenience","keeperName":"Grace","door":[506.99,2.64,-758.24],"entryMat":[507.87,2.65,-757.29],"keeper":[506.45,2.64,-757.2],"facingYaw":0.75},
-    {"id":"shop5","name":"Kender Express Food & Wine","kind":"convenience","keeperName":"Kwame","door":[251.5,3.4,-525.9],"entryMat":[252.8,3.4,-525.9],"keeper":[251.9,3.54,-524.8],"facingYaw":1.57},
-    {"id":"shop6","name":"SG Convenience Store","kind":"convenience","keeperName":"Sam","door":[-490.24,17.38,561.52],"entryMat":[-491.26,17.35,560.72],"keeper":[-489.87,17.38,560.41],"facingYaw":-2.24},
-    {"id":"shop7","name":"Family Convenience Store UK","kind":"convenience","keeperName":"Lena","door":[-905.56,10.86,32.36],"entryMat":[-906.78,10.86,32.83],"keeper":[-906.33,10.86,31.48],"facingYaw":-1.2},
-    {"id":"shop8","name":"Food & Wine","kind":"convenience","keeperName":"Raj","door":[-843.12,11.93,333.58],"entryMat":[-844.09,11.92,332.72],"keeper":[-842.69,11.93,332.49],"facingYaw":-2.3},
-    {"id":"shop9","name":"Yours Food and Wine","kind":"convenience","keeperName":"Bea","door":[-741.07,5.95,-523.12],"entryMat":[-740.95,5.95,-521.82],"keeper":[-742.13,5.95,-522.61],"facingYaw":0.09}
+    {"id":"shop2","name":"JJ News","kind":"convenience","keeperName":"Ayesha","door":[489.59,2.47,-740.05],"entryMat":[490.55,2.48,-740.93],"keeper":[490.63,2.61,-739.51],"facingYaw":2.31},
+    {"id":"shop3","name":"Family Carnation Supermarket","kind":"convenience","keeperName":"Tony","door":[-915.66,11.06,6.66],"entryMat":[-916.88,11.06,7.13],"keeper":[-916.43,11.06,5.78],"facingYaw":-1.2},
+    {"id":"shop4","name":"One Stop","kind":"convenience","keeperName":"Grace","door":[549.52,2.98,-667.84],"entryMat":[548.34,3.01,-667.3],"keeper":[548.7,3.12,-668.67],"facingYaw":-1.14},
+    {"id":"shop5","name":"Food & Wine","kind":"convenience","keeperName":"Kwame","door":[-843.12,11.93,333.58],"entryMat":[-844.09,11.92,332.72],"keeper":[-842.69,11.93,332.49],"facingYaw":-2.3},
+    {"id":"shop6","name":"Tesco Express","kind":"convenience","keeperName":"Sam","door":[-178.3,4.18,-495.51],"entryMat":[-178.38,4.2,-494.21],"keeper":[-179.43,4.18,-495.17],"facingYaw":-0.06},
+    {"id":"shop7","name":"Kender Express Food & Wine","kind":"convenience","keeperName":"Lena","door":[251.5,3.4,-525.9],"entryMat":[252.8,3.4,-525.9],"keeper":[251.9,3.54,-524.8],"facingYaw":1.57},
+    {"id":"shop8","name":"Julian supermarket","kind":"convenience","keeperName":"Raj","door":[-198.09,8.36,-73.47],"entryMat":[-197.83,8.4,-72.2],"keeper":[-199.09,8.36,-72.86],"facingYaw":0.2},
+    {"id":"shop9","name":"SG Convenience Store","kind":"convenience","keeperName":"Bea","door":[-490.24,17.38,561.52],"entryMat":[-491.26,17.35,560.72],"keeper":[-489.87,17.38,560.41],"facingYaw":-2.24}
   ]
 }
